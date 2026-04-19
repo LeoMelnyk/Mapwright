@@ -13,6 +13,7 @@ import {
   parseColor,
   getEffectiveLight,
   extractPropShadowZones,
+  buildPropShadowIndex,
   computePropShadowPolygon,
   clampSpread,
   DEFAULT_LIGHT_Z,
@@ -193,8 +194,10 @@ export function renderLightmapHQ(
   // Extract wall segments (including infinite-height light-blocking props)
   const segments = extractWallSegments(cells, gridSize, propCatalog, metadata);
 
-  // Extract prop shadow zones for z-height projection
-  const propShadowZones = extractPropShadowZones(propCatalog, metadata, gridSize);
+  // Extract prop shadow zones + spatial index for z-height projection.
+  // The index lets each light look up only the zones whose bucket overlaps
+  // its bounding circle instead of scanning every prop in the map.
+  const propShadowIndex = buildPropShadowIndex(extractPropShadowZones(propCatalog, metadata, gridSize)).index;
 
   // Precompute inverse transform
   const invScale = 1.0 / transform.scale;
@@ -223,24 +226,22 @@ export function renderLightmapHQ(
     // point-in-polygon cost for shadows that can't reach.
     const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
     const propShadows = [];
-    if (propShadowZones.length) {
+    if (propShadowIndex.size > 0) {
       const rSq = effectiveRadius * effectiveRadius;
-      for (const { zones } of propShadowZones) {
-        for (const zone of zones) {
-          const dx = zone.centroidX - eff.x;
-          const dy = zone.centroidY - eff.y;
-          if (dx * dx + dy * dy > rSq) continue;
-          const shadow = computePropShadowPolygon(
-            eff.x,
-            eff.y,
-            lightZ,
-            zone.worldPolygon,
-            zone.zBottom,
-            zone.zTop,
-            effectiveRadius,
-          );
-          if (shadow) propShadows.push(shadow);
-        }
+      for (const zone of propShadowIndex.query(eff.x, eff.y, effectiveRadius)) {
+        const dx = zone.centroidX - eff.x;
+        const dy = zone.centroidY - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+        const shadow = computePropShadowPolygon(
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.worldPolygon,
+          zone.zBottom,
+          zone.zTop,
+          effectiveRadius,
+        );
+        if (shadow) propShadows.push(shadow);
       }
     }
 

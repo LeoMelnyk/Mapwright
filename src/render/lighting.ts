@@ -23,8 +23,10 @@ import type {
 import {
   extractWallSegments,
   extractPropShadowZones,
+  buildPropShadowIndex,
   computePropShadowPolygon,
   DEFAULT_LIGHT_Z,
+  PropShadowIndex,
   type WallSegment,
 } from './lighting-geometry.js';
 import { _t } from './render-state.js';
@@ -32,7 +34,14 @@ import { log } from '../util/index.js';
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
 // editor) keep working without ripple after the split.
-export { extractWallSegments, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z };
+export {
+  extractWallSegments,
+  extractPropShadowZones,
+  buildPropShadowIndex,
+  computePropShadowPolygon,
+  DEFAULT_LIGHT_Z,
+  PropShadowIndex,
+};
 export type { WallSegment };
 
 // ─── Constants ─────
@@ -731,6 +740,7 @@ type BakedLight = {
 const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
+let cachedPropShadowIndex: PropShadowIndex | null = null;
 let _lightingVersion = 0;
 
 /**
@@ -810,9 +820,11 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
   if (resolved === 'walls') {
     cachedWallSegments = null;
     cachedPropShadowZones = null;
+    cachedPropShadowIndex = null;
   } else if (resolved === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
+    cachedPropShadowIndex = null;
   }
   // Static lightmap depends on wall segments, prop shadows, AND any non-animated
   // light's position/intensity, so every scope currently invalidates it.
@@ -891,9 +903,16 @@ export function renderLightmap(
   cachedWallSegments ??= _t('lighting:segments', () => extractWallSegments(cells, gridSize, propCatalog, metadata));
   const segments = cachedWallSegments;
 
-  // Prop shadow zones for z-height projection (cached alongside wall segments)
-  cachedPropShadowZones ??= _t('lighting:propZones', () => extractPropShadowZones(propCatalog, metadata, gridSize));
-  const propShadowZones = cachedPropShadowZones;
+  // Prop shadow zones for z-height projection (cached alongside wall segments).
+  // The spatial index is built lazily alongside the zones so per-light lookups
+  // don't scan every prop on every frame.
+  if (!cachedPropShadowIndex) {
+    _t('lighting:propZones', () => {
+      cachedPropShadowZones ??= extractPropShadowZones(propCatalog, metadata, gridSize);
+      cachedPropShadowIndex = buildPropShadowIndex(cachedPropShadowZones).index;
+    });
+  }
+  const propShadowIndex = cachedPropShadowIndex!;
 
   // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
   // resolution, render at reduced size and upscale. Lightmaps are smooth
@@ -933,7 +952,7 @@ export function renderLightmap(
       // Additively blend each static light
       slctx.globalCompositeOperation = 'lighter';
       for (const light of staticLights) {
-        _renderOneLight(slctx, light, time, segments, lmTransform, propShadowZones);
+        _renderOneLight(slctx, light, time, segments, lmTransform, propShadowIndex);
       }
 
       // Normal map bump uses all lights for direction, but only apply on static pass
@@ -978,7 +997,7 @@ export function renderLightmap(
     // Additively blend animated lights
     lctx.globalCompositeOperation = 'lighter';
     for (const light of animatedLights) {
-      _renderOneLight(lctx, light, time, segments, lmTransform, propShadowZones);
+      _renderOneLight(lctx, light, time, segments, lmTransform, propShadowIndex);
     }
 
     // Composite lightmap onto main canvas with multiply
@@ -997,7 +1016,7 @@ function _renderOneLight(
   time: number,
   segments: WallSegment[],
   transform: RenderTransform,
-  propShadowZones: ReturnType<typeof extractPropShadowZones>,
+  propShadowIndex: PropShadowIndex,
 ) {
   const eff = getEffectiveLight(light, time);
   const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
@@ -1032,28 +1051,25 @@ function _renderOneLight(
   let propShadows = propShadowsCache.get(cacheKey);
   if (!propShadows) {
     propShadows = [];
-    if (propShadowZones.length) {
+    if (propShadowIndex.size > 0) {
       const rSq = effectiveRadius * effectiveRadius;
-      for (const { zones } of propShadowZones) {
-        for (const zone of zones) {
-          // Cull props outside the light's radius — use centroid distance check
-          const cx = zone.centroidX;
-          const cy = zone.centroidY;
-          const dx = cx - eff.x;
-          const dy = cy - eff.y;
-          if (dx * dx + dy * dy > rSq) continue;
-
-          const shadow = computePropShadowPolygon(
-            eff.x,
-            eff.y,
-            lightZ,
-            zone.worldPolygon,
-            zone.zBottom,
-            zone.zTop,
-            effectiveRadius,
-          );
-          if (shadow) propShadows.push(shadow);
-        }
+      // query() pre-filters to zones whose bucket overlaps the light's bbox;
+      // the centroid distance check catches the remaining buckets near the
+      // corners of the bbox that fall outside the actual circle.
+      for (const zone of propShadowIndex.query(eff.x, eff.y, effectiveRadius)) {
+        const dx = zone.centroidX - eff.x;
+        const dy = zone.centroidY - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+        const shadow = computePropShadowPolygon(
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.worldPolygon,
+          zone.zBottom,
+          zone.zTop,
+          effectiveRadius,
+        );
+        if (shadow) propShadows.push(shadow);
       }
     }
     propShadowsCache.set(cacheKey, propShadows);

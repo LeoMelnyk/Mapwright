@@ -127,6 +127,89 @@ export function extractWallSegments(
 
 // ─── Z-Height Prop Shadow Zones ─────────────────────────────────────────────
 
+/** A single finite-height zone flattened out for the spatial index. */
+export interface ShadowZone {
+  worldPolygon: number[][];
+  centroidX: number;
+  centroidY: number;
+  zBottom: number;
+  zTop: number;
+}
+
+/**
+ * Bucket size (world-feet) for the prop-shadow spatial index. Chosen to be
+ * slightly larger than a typical indoor light radius (cf. "torch=15,
+ * brazier=22, max=28" in the editor guide) so most lights touch only 1–4
+ * buckets. Tweak if dungeon-scale changes.
+ */
+const SHADOW_INDEX_BUCKET_FT = 30;
+
+/**
+ * Flat spatial index over prop shadow zones keyed by 30×30-ft buckets.
+ * Each bucket holds the zones whose centroid falls inside it; `query(lx, ly, r)`
+ * returns the zones whose bucket overlaps the light's bounding circle.
+ *
+ * Built once per lightmap rebuild alongside extractPropShadowZones, then
+ * reused across every light in the frame.
+ */
+export class PropShadowIndex {
+  private buckets = new Map<number, ShadowZone[]>();
+  readonly bucketSize = SHADOW_INDEX_BUCKET_FT;
+  /** Total zones indexed. `_renderOneLight` checks this to skip building the per-light prop-shadows array entirely when zero. */
+  readonly size: number;
+
+  constructor(zones: ShadowZone[]) {
+    this.size = zones.length;
+    for (const zone of zones) {
+      const key = this.bucketKey(zone.centroidX, zone.centroidY);
+      let list = this.buckets.get(key);
+      if (!list) this.buckets.set(key, (list = []));
+      list.push(zone);
+    }
+  }
+
+  private bucketKey(x: number, y: number): number {
+    // Pack (bx, by) into a single i32 key. Range ±16k buckets ≈ ±500k feet
+    // world, well beyond any realistic dungeon.
+    const bx = Math.floor(x / this.bucketSize);
+    const by = Math.floor(y / this.bucketSize);
+    return (bx + 16384) * 32768 + (by + 16384);
+  }
+
+  /** Return every zone whose bucket overlaps the circle (lx, ly, radius). */
+  *query(lx: number, ly: number, radius: number): Generator<ShadowZone> {
+    if (this.size === 0) return;
+    const b = this.bucketSize;
+    const bx0 = Math.floor((lx - radius) / b);
+    const bx1 = Math.floor((lx + radius) / b);
+    const by0 = Math.floor((ly - radius) / b);
+    const by1 = Math.floor((ly + radius) / b);
+    for (let bx = bx0; bx <= bx1; bx++) {
+      for (let by = by0; by <= by1; by++) {
+        const list = this.buckets.get((bx + 16384) * 32768 + (by + 16384));
+        if (!list) continue;
+        for (const zone of list) yield zone;
+      }
+    }
+  }
+}
+
+/**
+ * Build a flat list of every finite-height zone across every prop, plus a
+ * PropShadowIndex for fast per-light radius culling. Replaces callers that
+ * previously did nested `for ({zones} of result) for (zone of zones)` loops.
+ */
+export function buildPropShadowIndex(zonesByProp: ReturnType<typeof extractPropShadowZones>): {
+  flat: ShadowZone[];
+  index: PropShadowIndex;
+} {
+  const flat: ShadowZone[] = [];
+  for (const { zones } of zonesByProp) {
+    for (const z of zones) flat.push(z);
+  }
+  return { flat, index: new PropShadowIndex(flat) };
+}
+
 /**
  * Extract prop shadow zones for z-height shadow projection.
  *

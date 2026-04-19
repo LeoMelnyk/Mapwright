@@ -9,7 +9,9 @@ import {
   extractWallSegments,
   extractPropShadowZones,
   computePropShadowPolygon,
+  PropShadowIndex,
   DEFAULT_LIGHT_Z,
+  type ShadowZone,
 } from '../../src/render/lighting-geometry.js';
 import type { CellGrid } from '../../src/types.js';
 
@@ -523,5 +525,64 @@ describe('computePropShadowPolygon', () => {
   it('DEFAULT_LIGHT_Z is a reasonable default', () => {
     expect(DEFAULT_LIGHT_Z).toBe(8);
     expect(typeof DEFAULT_LIGHT_Z).toBe('number');
+  });
+});
+
+// ─── PropShadowIndex ────────────────────────────────────────────────────────
+
+describe('PropShadowIndex', () => {
+  const makeZone = (cx: number, cy: number): ShadowZone => ({
+    worldPolygon: [
+      [cx - 1, cy - 1],
+      [cx + 1, cy - 1],
+      [cx + 1, cy + 1],
+      [cx - 1, cy + 1],
+    ],
+    centroidX: cx,
+    centroidY: cy,
+    zBottom: 0,
+    zTop: 6,
+  });
+
+  it('returns every zone when the query circle covers the whole map', () => {
+    const zones = [makeZone(10, 10), makeZone(50, 50), makeZone(200, 200)];
+    const idx = new PropShadowIndex(zones);
+    expect(idx.size).toBe(3);
+    const found = [...idx.query(100, 100, 1000)];
+    expect(found).toHaveLength(3);
+  });
+
+  it('prunes zones in distant buckets', () => {
+    // Three zones; query near the first should skip the other two.
+    const zones = [makeZone(0, 0), makeZone(1000, 0), makeZone(0, 1000)];
+    const idx = new PropShadowIndex(zones);
+    const found = [...idx.query(0, 0, 20)]; // bucket size is 30ft, radius 20 stays in one bucket
+    expect(found).toHaveLength(1);
+    expect(found[0]!.centroidX).toBe(0);
+  });
+
+  it('is conservative: returns candidates by bucket (caller filters by exact distance)', () => {
+    // Zone centroid at (31, 0) lives in bucket (1, 0). A query circle at (0, 0)
+    // with radius large enough to touch bucket (1, 0) (>30 ft) should surface
+    // the zone even though its centroid is more than the radius away in one
+    // direction — the caller is expected to apply the exact centroid distance
+    // check afterward.
+    const zones = [makeZone(31, 0)];
+    const idx = new PropShadowIndex(zones);
+    expect([...idx.query(0, 0, 20)]).toHaveLength(0); // circle confined to bucket (0,0)
+    expect([...idx.query(0, 0, 31)]).toHaveLength(1); // circle reaches into bucket (1,0)
+  });
+
+  it('empty index returns nothing and reports size 0', () => {
+    const idx = new PropShadowIndex([]);
+    expect(idx.size).toBe(0);
+    expect([...idx.query(0, 0, 100)]).toHaveLength(0);
+  });
+
+  it('handles negative coordinates (lights outside the origin)', () => {
+    const zones = [makeZone(-50, -50)];
+    const idx = new PropShadowIndex(zones);
+    const found = [...idx.query(-50, -50, 10)];
+    expect(found).toHaveLength(1);
   });
 });
