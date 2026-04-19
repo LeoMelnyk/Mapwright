@@ -1,0 +1,90 @@
+name: Mine Plan (Pinned)
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: wall
+room_types: tunnel-mine-worked, mine-shaft-entrance, command-room, guard-post
+typical_count: single
+clusters_with: tally-board-tokens, desk, chair, ledger-stack, lantern, wall-lantern
+notes: A yellowed paper mine-plan pinned to a wall — tunnels, shafts, and pump rooms sketched in faded ink. Some sections scratched out. Place in an office or deputy's station; evocative lore prop.
+---
+# === HITBOX ===
+selection rect 0.12,0.10 0.76,0.70
+
+# footprint 1x1: wall at north (low y), paper visible as flat sheet pinned to wall
+
+# Paper sheet — yellowed parchment with dog-eared fold at bottom-right corner
+# Outer shape is a 6-vertex poly: rect with one folded corner at SE
+poly 0.12,0.10 0.88,0.10 0.88,0.68 0.80,0.80 0.18,0.80 0.12,0.78 fill #c8b090 0.85
+poly 0.12,0.10 0.88,0.10 0.88,0.68 0.80,0.80 0.18,0.80 0.12,0.78 stroke #8b7355 width 1
+
+# Dog-ear fold triangle (the underside of the curled corner, slightly darker)
+poly 0.80,0.80 0.88,0.68 0.80,0.72 fill #a89070 0.75
+poly 0.80,0.80 0.88,0.68 0.80,0.72 stroke #6b5540 width 1
+
+# Torn/burned bite out of the left edge
+poly 0.12,0.40 0.09,0.44 0.14,0.47 0.10,0.50 0.12,0.52 fill #1a1208 0.3
+
+# Stains — brown sepia blobs (water/coal/finger smudges)
+ellipse 0.28,0.24 0.09,0.06 fill #6b4e2e 0.35
+ellipse 0.62,0.58 0.08,0.05 fill #6b4e2e 0.28
+ellipse 0.46,0.70 0.06,0.04 fill #6b4e2e 0.40
+
+# === MAP DRAWING ON THE PAPER ===
+
+# Main horizontal drift running most of the paper width
+line 0.18,0.40 0.82,0.40 stroke #3a1f00 width 1
+
+# Branch tunnel — angled up-left (north-west T)
+line 0.30,0.40 0.22,0.26 stroke #3a1f00 width 1
+
+# Branch tunnel — angled down-right to a small chamber
+line 0.50,0.40 0.58,0.56 stroke #3a1f00 width 1
+
+# Branch tunnel — forking south
+line 0.42,0.40 0.40,0.60 stroke #3a1f00 width 1
+
+# Branch tunnel — short stub east
+line 0.70,0.40 0.76,0.32 stroke #2a1408 width 1
+
+# Main shaft — square at the west terminus
+rect 0.16,0.37 0.06,0.06 stroke #2a1408 width 2
+
+# Pump-room chamber — small circle at SE branch end
+circle 0.58,0.56 0.035 stroke #2a1408 width 1
+
+# Secret passage — dashed line segments running SW from the fork
+line 0.40,0.60 0.36,0.64 stroke #3a1f00 width 1
+line 0.34,0.66 0.30,0.70 stroke #3a1f00 width 1
+line 0.28,0.72 0.25,0.75 stroke #3a1f00 width 1
+
+# Tiny X marks — collapses/veins
+line 0.65,0.30 0.69,0.34 stroke #2a1408 width 1
+line 0.69,0.30 0.65,0.34 stroke #2a1408 width 1
+line 0.44,0.62 0.47,0.65 stroke #2a1408 width 1
+line 0.47,0.62 0.44,0.65 stroke #2a1408 width 1
+
+# Tiny annotation dots (illegible labels)
+circle 0.34,0.36 0.008 fill #2a1408 0.8
+circle 0.54,0.44 0.008 fill #2a1408 0.8
+circle 0.24,0.28 0.008 fill #2a1408 0.8
+
+# === DELIBERATE SCRATCH-OUT — the narrative hook ===
+# A section of the map near the NE has been aggressively crossed out
+line 0.62,0.18 0.82,0.34 stroke #1a1208 width 3
+line 0.82,0.18 0.62,0.34 stroke #1a1208 width 3
+line 0.60,0.26 0.84,0.26 stroke #1a1208 width 3
+line 0.72,0.16 0.72,0.36 stroke #1a1208 width 3
+
+# === PINS AT CORNERS ===
+circle 0.14,0.12 0.02 fill #444444 0.95
+circle 0.14,0.12 0.02 stroke #1a1a1a width 1
+circle 0.86,0.12 0.02 fill #444444 0.95
+circle 0.86,0.12 0.02 stroke #1a1a1a width 1
+circle 0.14,0.78 0.02 fill #444444 0.95
+circle 0.14,0.78 0.02 stroke #1a1a1a width 1
+circle 0.82,0.76 0.02 fill #444444 0.95
+circle 0.82,0.76 0.02 stroke #1a1a1a width 1

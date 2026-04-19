@@ -1,0 +1,62 @@
+name: Molted Chitin
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cave-bear-lair, monster-lair-small, spider-lair, tunnel-mine-worked, cave-living
+typical_count: few
+clusters_with: regurgitation-pile, claw-gouge-wall, bone-pile, nest-depression, rubble
+notes: A shed chitin shell fragment from a large arthropod / armored burrower. Scatter a few of these in a lair to signal the beast's nature and growth. Each piece should read "bigger than a human shield." Rotate/flip for variety.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# A curved hollow shard of chitin — the underside is visible, tipped at an angle
+
+# === Gap shadow beneath the angled shard ===
+ellipse 0.55,0.55 0.35,0.25 fill #0a0a0a 0.2
+
+# === Main shell silhouette — irregular crescent/C-shape shard ===
+# Outer edge is jagged from the break; curves from NW around through S and back NE
+poly 0.14,0.30 0.12,0.18 0.22,0.15 0.38,0.18 0.56,0.17 0.72,0.22 0.84,0.32 0.88,0.48 0.82,0.66 0.70,0.78 0.52,0.82 0.32,0.76 0.20,0.62 0.16,0.46 fill #3a2008 0.9
+# Brighter amber highlight stripe along the NE curve (where the shell domes upward into the light)
+poly 0.56,0.17 0.72,0.22 0.84,0.32 0.88,0.48 0.80,0.50 0.74,0.36 0.64,0.26 fill #6b4e10 0.6
+# Full shard outline
+poly 0.14,0.30 0.12,0.18 0.22,0.15 0.38,0.18 0.56,0.17 0.72,0.22 0.84,0.32 0.88,0.48 0.82,0.66 0.70,0.78 0.52,0.82 0.32,0.76 0.20,0.62 0.16,0.46 stroke #1a0f00 width 2
+
+# === Hollow interior — the dark empty underside of the shell ===
+poly 0.28,0.36 0.38,0.30 0.52,0.30 0.66,0.36 0.72,0.48 0.68,0.62 0.56,0.70 0.42,0.70 0.30,0.62 0.26,0.50 fill #1a0f08 0.85
+poly 0.28,0.36 0.38,0.30 0.52,0.30 0.66,0.36 0.72,0.48 0.68,0.62 0.56,0.70 0.42,0.70 0.30,0.62 0.26,0.50 stroke #0a0604
+
+# === Surface pattern — segmented chitin ridges on outer shell ===
+qbezier 0.20,0.28 0.35,0.22 0.52,0.22 stroke #5c3a0a 0.7 width 1
+qbezier 0.72,0.28 0.80,0.38 0.84,0.50 stroke #5c3a0a 0.7 width 1
+qbezier 0.18,0.48 0.22,0.60 0.30,0.72 stroke #5c3a0a 0.7 width 1
+
+# === Chitin pores / speckles ===
+circle 0.30,0.24 0.015 fill #1a0f00
+circle 0.78,0.42 0.015 fill #1a0f00
+
+# === Top-edge highlight crescent (overhead light reflection) ===
+qbezier 0.32,0.20 0.55,0.14 0.78,0.24 stroke #8b6914 0.35 width 2
+
+# === Serrated broken edge on the west side (where it cracked off) ===
+poly 0.14,0.30 0.10,0.34 0.16,0.38 0.11,0.44 0.17,0.48 0.12,0.54 0.16,0.60 0.20,0.62 fill #2a1806 0.85 stroke #1a0f00
+
+# === Chitin crumbs / chips scattered nearby from the molt ===
+circle 0.06,0.26 0.02 fill #3a2008
+circle 0.08,0.72 0.02 fill #3a2008
+circle 0.92,0.70 0.02 fill #3a2008
+circle 0.88,0.18 0.02 fill #3a2008
+
+# === Wet-molt sheen — inner curve highlight (residual molting fluid) ===
+qbezier 0.36,0.38 0.50,0.42 0.64,0.40 stroke #ccaa66 0.3 width 2
+# Ichor blob trace
+ellipse 0.48,0.58 0.08,0.05 fill #6a5a20 0.15
+
+# === Dust patina on top of the shard ===
+circle 0.42,0.26 0.015 fill #8b7355 0.4
+circle 0.60,0.32 0.015 fill #8b7355 0.4
+circle 0.70,0.52 0.015 fill #8b7355 0.4
+circle 0.38,0.62 0.015 fill #8b7355 0.4

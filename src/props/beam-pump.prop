@@ -1,0 +1,114 @@
+name: Beam Pump
+category: Workshop
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.5
+placement: center
+room_types: tunnel-mine-worked, mine-shaft-entrance, foundry-great
+typical_count: single
+clusters_with: mine-shaft, mine-shaft-opening, timber-brace, coal-bin, pipe, winch-large
+notes: Cornish beam pump — the industrial heart of a deep mine's dewatering system. A massive iron rocker-beam pivots on a central masonry fulcrum; at one end a pump rod drops into a shaft in the floor, at the other a counterweight or crank link. Canonical orientation — beam runs east-west (along x); pump shaft at the EAST end (high x, around x=2.8), counterweight at the WEST end (low x, around x=0.2). Place centered in a pump room with the rod-end over a shaft or grate.
+---
+# === HITBOX ===
+# Fulcrum pier (central masonry block)
+hitbox rect 1.15,0.55 0.70,0.90 z 0-3.5
+# Rocker beam (long horizontal iron-bound timber)
+hitbox rect 0.08,0.85 2.84,0.30 z 2.0-3.5
+
+# === GREASE / SOOT STAIN around fulcrum base (drawn first, under everything) ===
+ellipse 1.50,1.00 0.95,0.50 fill #120a04 0.35
+ellipse 1.50,1.00 0.70,0.35 fill #080400 0.45
+
+# === RUST STREAK below the pump rod (east end, descending south from the shaft opening) ===
+poly 2.68,1.25 2.82,1.25 2.80,1.85 2.70,1.85 fill #5a2a10 0.35
+poly 2.70,1.30 2.78,1.30 2.76,1.75 2.72,1.75 fill #7a3818 0.30
+
+# === FLOOR SHAFT OPENING (east end — dark pit the pump rod descends into) ===
+rect 2.55,0.75 0.35,0.50 fill #000000 0.95
+rect 2.55,0.75 0.35,0.50 stroke #1a1208 width 2
+# Inner shaft shadow gradient
+rect 2.60,0.80 0.25,0.40 fill #0a0604 0.85
+
+# === FULCRUM PIER (central masonry block) ===
+rect 1.15,0.55 0.70,0.90 texfill polyhaven/stone_wall 0.9
+rect 1.15,0.55 0.70,0.90 stroke #1f1a14 width 2
+# Pier mortar courses (horizontal masonry lines)
+line 1.17,0.78 1.83,0.78 stroke #1a1510 width 1
+line 1.17,1.00 1.83,1.00 stroke #1a1510 width 1
+line 1.17,1.22 1.83,1.22 stroke #1a1510 width 1
+# Decorative iron anchor bolts at pier corners
+circle 1.22,0.62 0.05 fill #333333 0.95
+circle 1.78,0.62 0.05 fill #333333 0.95
+circle 1.22,1.38 0.05 fill #333333 0.95
+circle 1.78,1.38 0.05 fill #333333 0.95
+
+# === ROCKER BEAM (long iron-bound timber, full width) ===
+rect 0.10,0.85 2.80,0.30 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.85 2.80,0.30 stroke #1a1208 width 2
+# Iron straps (banded at regular intervals along the beam)
+rect 0.40,0.83 0.06,0.34 texfill polyhaven/metal_plate 0.95
+rect 0.40,0.83 0.06,0.34 stroke #222222
+rect 0.85,0.83 0.06,0.34 texfill polyhaven/metal_plate 0.95
+rect 0.85,0.83 0.06,0.34 stroke #222222
+rect 2.09,0.83 0.06,0.34 texfill polyhaven/metal_plate 0.95
+rect 2.09,0.83 0.06,0.34 stroke #222222
+rect 2.54,0.83 0.06,0.34 texfill polyhaven/metal_plate 0.95
+rect 2.54,0.83 0.06,0.34 stroke #222222
+# Rivets along the beam edges (small dark circles)
+circle 0.30,0.90 0.03 fill #333333 0.95
+circle 0.30,1.10 0.03 fill #333333 0.95
+circle 0.70,0.90 0.03 fill #333333 0.95
+circle 0.70,1.10 0.03 fill #333333 0.95
+circle 2.30,0.90 0.03 fill #333333 0.95
+circle 2.30,1.10 0.03 fill #333333 0.95
+circle 2.70,0.90 0.03 fill #333333 0.95
+circle 2.70,1.10 0.03 fill #333333 0.95
+
+# === PIVOT CAP (thick iron disc with bolts, atop the fulcrum — centered) ===
+circle 1.50,1.00 0.26 texfill polyhaven/metal_plate 0.95
+circle 1.50,1.00 0.26 stroke #1a1a1a width 2
+circle 1.50,1.00 0.18 stroke #444444 width 1
+# Bolts on the pivot cap (four cardinal points)
+circle 1.50,0.80 0.04 fill #222222 0.95
+circle 1.50,1.20 0.04 fill #222222 0.95
+circle 1.30,1.00 0.04 fill #222222 0.95
+circle 1.70,1.00 0.04 fill #222222 0.95
+# Center pivot pin
+circle 1.50,1.00 0.06 fill #1a1a1a 0.95
+circle 1.50,1.00 0.06 stroke #000000
+
+# === EAST END — PUMP ROD YOKE & SHAFT ===
+# Yoke/flange where rod connects to beam (iron bracket)
+rect 2.58,0.78 0.26,0.44 texfill polyhaven/metal_plate 0.95
+rect 2.58,0.78 0.26,0.44 stroke #1a1a1a width 2
+# Yoke bolts
+circle 2.63,0.84 0.03 fill #222222 0.95
+circle 2.79,0.84 0.03 fill #222222 0.95
+circle 2.63,1.16 0.03 fill #222222 0.95
+circle 2.79,1.16 0.03 fill #222222 0.95
+# Pump rod itself (thick iron shaft descending into the floor opening)
+rect 2.66,0.95 0.10,0.30 fill #555555 0.95
+rect 2.66,0.95 0.10,0.30 stroke #222222 width 1
+# Rod highlight
+line 2.69,0.97 2.69,1.22 stroke #888888 width 1
+
+# === WEST END — COUNTERWEIGHT BLOCK ===
+# Counterweight yoke connecting beam to weight
+rect 0.16,0.78 0.22,0.44 texfill polyhaven/metal_plate 0.95
+rect 0.16,0.78 0.22,0.44 stroke #1a1a1a width 2
+# Counterweight bolts
+circle 0.21,0.84 0.03 fill #222222 0.95
+circle 0.33,0.84 0.03 fill #222222 0.95
+circle 0.21,1.16 0.03 fill #222222 0.95
+circle 0.33,1.16 0.03 fill #222222 0.95
+# Heavy counterweight block hanging off the west end
+rect 0.12,0.62 0.32,0.76 texfill polyhaven/rusty_metal 0.9
+rect 0.12,0.62 0.32,0.76 stroke #1a0f08 width 2
+# Counterweight banding (iron reinforcement straps)
+line 0.12,0.82 0.44,0.82 stroke #1a0f08 width 2
+line 0.12,1.18 0.44,1.18 stroke #1a0f08 width 2
+# Counterweight center rivet (the mass anchor)
+circle 0.28,1.00 0.06 fill #2a2218 0.95
+circle 0.28,1.00 0.06 stroke #000000

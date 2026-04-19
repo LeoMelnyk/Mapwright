@@ -20,6 +20,7 @@ import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
 import { createOverlayProp, refreshLinkedLights, visibleAnchorOf } from '../prop-overlay.js';
 import { ensurePropTextures, ensurePropHitbox } from '../prop-catalog.js';
 import { openPropEditDialog } from '../panels/prop-edit.js';
+import { SYRINGE_CURSOR } from './tool-paint.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
 
@@ -382,6 +383,8 @@ export class PropTool extends Tool {
   _preDragMetaSnapshot: string | null = null;
   /** Remember the last silent-rejection toast so rapid repeat clicks don't spam. */
   _lastToast: { key: string; time: number } = { key: '', time: 0 };
+  _onAltKeyDown!: (e: KeyboardEvent) => void;
+  _onAltKeyUp!: (e: KeyboardEvent) => void;
 
   constructor() {
     super('prop', '9', 'crosshair');
@@ -410,6 +413,15 @@ export class PropTool extends Tool {
     this.hoverWorldY = null; // world-feet Y when freeform hover
     // Paste mode cursor tracking
     this.pasteHover = null; // {row, col} — current cursor cell for paste preview
+
+    this._onAltKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Alt') setCursor(SYRINGE_CURSOR);
+    };
+    this._onAltKeyUp = (e: KeyboardEvent) => {
+      if (e.key !== 'Alt') return;
+      // Restore cursor based on current hover state
+      setCursor(this.hoveredAnchor ? 'grab' : 'crosshair');
+    };
   }
 
   getCursor() {
@@ -418,7 +430,9 @@ export class PropTool extends Tool {
 
   onActivate() {
     state.statusInstruction =
-      'Click place · R rotate · Alt+Scroll fine rotate · Alt+Shift+Scroll scale · Arrows nudge · [ ] z-order · Ctrl freeform · Shift snap';
+      'Click place · R rotate · Alt+Click syringe · Alt+Scroll fine rotate · Alt+Shift+Scroll scale · Arrows nudge · [ ] z-order · Ctrl freeform · Shift snap';
+    window.addEventListener('keydown', this._onAltKeyDown);
+    window.addEventListener('keyup', this._onAltKeyUp);
   }
 
   onDeactivate() {
@@ -430,6 +444,9 @@ export class PropTool extends Tool {
     state.propPasteMode = false;
     this.pasteHover = null;
     state.statusInstruction = '';
+    window.removeEventListener('keydown', this._onAltKeyDown);
+    window.removeEventListener('keyup', this._onAltKeyUp);
+    setCursor('crosshair');
   }
 
   _resetDragState() {
@@ -471,6 +488,12 @@ export class PropTool extends Tool {
   // ── Mouse Handlers ───────────────────────────────────────────────────────
 
   onMouseDown(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent | null, pos: CanvasPos | null) {
+    // Alt+click: syringe — pick up prop settings as the active stamp
+    if (event?.altKey) {
+      this._syringePick(row, col, pos);
+      return;
+    }
+
     // Paste mode: commit paste at cursor position
     if (state.propPasteMode && state.propClipboard) {
       this._commitPropPaste(row, col);
@@ -518,6 +541,29 @@ export class PropTool extends Tool {
       notify();
       requestRender();
     }
+  }
+
+  /** Alt+click: sample the prop under the cursor and load it as the active stamp. */
+  _syringePick(row: number, col: number, pos: CanvasPos | null): void {
+    const transform = getTransform();
+    const gridSize = state.dungeon.metadata.gridSize || 5;
+    const anchor = pos ? _hitTestProps(pos, transform, gridSize) : findPropAnchor(state.dungeon.cells, row, col);
+    if (!anchor) return;
+
+    const overlay = state.dungeon.metadata.props?.find(
+      (p: { id: string | number }) => p.id === (anchor as { propId?: number | string }).propId,
+    );
+    if (!overlay) return;
+
+    state.selectedProp = overlay.type;
+    state.propRotation = overlay.rotation || 0;
+    state.propFlipped = !!overlay.flipped;
+    state.propScale = overlay.scale || 1.0;
+    state.selectedPropAnchors = [];
+    ensurePropTextures(overlay.type);
+    ensurePropHitbox(overlay.type);
+    notify();
+    requestRender();
   }
 
   onMouseMove(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent | null, pos: CanvasPos | null) {
@@ -587,19 +633,25 @@ export class PropTool extends Tool {
     // Not in any drag — update hover state and cursor (geometric shape hit test).
     // When a stamp is armed, existing props are non-interactive — skip the hit test
     // so the cursor stays on the placement ghost instead of flipping to "grab".
+    // Alt held: syringe mode — always hit-test so we can sample props under a stamp,
+    // and keep the syringe cursor regardless of hover state.
+    const altHeld = event?.altKey ?? false;
     const cells = state.dungeon.cells;
     const hoverTransform = getTransform();
-    const anchor = state.selectedProp
-      ? null
-      : pos
-        ? _hitTestProps(pos, hoverTransform, state.dungeon.metadata.gridSize || 5)
-        : findPropAnchor(cells, row, col);
+    const anchor =
+      state.selectedProp && !altHeld
+        ? null
+        : pos
+          ? _hitTestProps(pos, hoverTransform, state.dungeon.metadata.gridSize || 5)
+          : findPropAnchor(cells, row, col);
     if (anchor) {
       if (this.hoveredAnchor?.row !== anchor.row || this.hoveredAnchor.col !== anchor.col) {
         this.hoveredAnchor = anchor;
         this.hoverFreeform = false;
-        setCursor('grab');
+        setCursor(altHeld ? SYRINGE_CURSOR : 'grab');
         requestRender();
+      } else if (altHeld) {
+        setCursor(SYRINGE_CURSOR);
       }
     } else {
       // Track freeform hover when Ctrl is held (sub-cell placement ghost).
@@ -619,8 +671,10 @@ export class PropTool extends Tool {
       }
       if (this.hoveredAnchor !== null) {
         this.hoveredAnchor = null;
-        setCursor('crosshair');
+        setCursor(altHeld ? SYRINGE_CURSOR : 'crosshair');
         requestRender();
+      } else if (altHeld) {
+        setCursor(SYRINGE_CURSOR);
       } else if (state.selectedProp) {
         requestRender();
       }
@@ -1171,24 +1225,34 @@ export class PropTool extends Tool {
 
       const gs = state.dungeon.metadata.gridSize || 5;
       for (const { dRow, dCol, prop } of state.propClipboard.props) {
-        // Compute freeform sub-cell offset from original prop
-        const origAnchorCol = Math.round(prop.x / gs);
-        const origAnchorRow = Math.round(prop.y / gs);
-        const offsetX = (prop.x - origAnchorCol * gs) / gs;
-        const offsetY = (prop.y - origAnchorRow * gs) / gs;
-        const row = tRow + dRow + offsetY;
-        const col = tCol + dCol + offsetX;
         const propDef = catalog?.props[prop.type];
         if (!propDef) continue;
         const rot = prop.rotation;
         const scl = prop.scale;
         const flipped = prop.flipped;
+        const [fRows, fCols] = propDef.footprint;
+        const r360 = ((rot % 360) + 360) % 360;
+        const isR90 = r360 === 90 || r360 === 270;
+        const eRows = isR90 ? fCols : fRows;
+        const eCols = isR90 ? fRows : fCols;
+        // dRow/dCol are visible-anchor offsets (matching how _addOverlayAt stores
+        // the final prop). Shift to the data-anchor cell that renderProp expects,
+        // and carry over any sub-cell freeform offset from the source prop.
+        const visRow = tRow + dRow;
+        const visCol = tCol + dCol;
+        const dataRow = visRow - (fRows - eRows) / 2;
+        const dataCol = visCol - (fCols - eCols) / 2;
+        const origAnchorCol = Math.round(prop.x / gs);
+        const origAnchorRow = Math.round(prop.y / gs);
+        const offsetX = (prop.x - origAnchorCol * gs) / gs;
+        const offsetY = (prop.y - origAnchorRow * gs) / gs;
+        const row = dataRow + offsetY;
+        const col = dataCol + offsetX;
         const needsTransform = scl !== 1.0 || (rot !== 0 && rot !== 90 && rot !== 180 && rot !== 270);
 
         ctx.save();
         ctx.globalAlpha = 0.45;
         if (needsTransform) {
-          const [fRows, fCols] = propDef.footprint;
           const centerNx = fCols / 2,
             centerNy = fRows / 2;
           const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
@@ -1419,7 +1483,13 @@ export class PropTool extends Tool {
     if (!catalog?.props[state.selectedProp]) return;
 
     const propDef = catalog.props[state.selectedProp]!;
-    const [spanRows, spanCols] = getEffectiveFootprint(propDef, state.propRotation);
+    const placeRotation = state.propRandomRotation
+      ? Math.floor(Math.random() * 24) * 15
+      : state.propRotation;
+    const placeScale = state.propRandomScale
+      ? 0.8 + Math.floor(Math.random() * 45) * 0.05
+      : state.propScale;
+    const [spanRows, spanCols] = getEffectiveFootprint(propDef, placeRotation);
     const cells = state.dungeon.cells;
 
     if (!isFootprintClear(cells, row, col, spanRows, spanCols)) {
@@ -1440,8 +1510,8 @@ export class PropTool extends Tool {
       'Place prop',
       [],
       () => {
-        const entry = _addOverlayAt(row, col, state.selectedProp!, state.propRotation, state.propFlipped || false);
-        if (state.propScale !== 1.0) entry.scale = state.propScale;
+        const entry = _addOverlayAt(row, col, state.selectedProp!, placeRotation, state.propFlipped || false);
+        if (placeScale !== 1.0) entry.scale = placeScale;
 
         // Freeform: Ctrl+click places at exact pixel position (sub-cell),
         // centering the prop on the cursor (matching the ghost preview).
@@ -1471,7 +1541,7 @@ export class PropTool extends Tool {
             let ny = lightDef.y;
 
             // Rotate offset to match prop rotation
-            const rot = state.propRotation;
+            const rot = placeRotation;
             if (rot === 90) {
               [nx, ny] = [origRows - ny, nx];
             } else if (rot === 180) {
@@ -2236,14 +2306,8 @@ export class PropTool extends Tool {
       'Paste props',
       [],
       () => {
-        // Remove any existing props at paste anchor positions
-        for (const { dRow, dCol } of props) {
-          const r = targetRow + dRow,
-            c = targetCol + dCol;
-          _removeOverlayAt(r, c);
-        }
-
-        // Place pasted props (and their associated lights)
+        // Place pasted props (and their associated lights). Props stack — we
+        // never remove existing props at the paste destination.
         const meta = state.dungeon.metadata;
         const gs = meta.gridSize || 5;
         if (!meta.nextLightId) meta.nextLightId = 1;

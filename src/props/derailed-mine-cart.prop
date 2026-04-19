@@ -1,0 +1,127 @@
+name: Derailed Mine Cart
+category: Misc
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance
+typical_count: few
+clusters_with: cart-track, rail-track, coal-pile, coal-dust-drift, rubble, timber-brace, broken-plank
+notes: An overturned mine cart jumped the rails, wheels up, cargo spilled. The cart is damaged — one wheel bent, iron bands popped, wooden sides cracked. Place beside a broken/missing rail track.
+---
+# === Scratched track marks in the dust leading up to the cart ===
+line 0.10,1.70 0.55,1.25 stroke #5c3a1e 0.55 width 1
+line 0.18,1.78 0.62,1.32 stroke #5c3a1e 0.5 width 1
+line 0.28,1.82 0.70,1.40 stroke #5c3a1e 0.45 width 1
+
+# === Coal-dust halo on the open/spilled side (east-south) ===
+ellipse 1.35,1.05 0.55,0.45 fill #0a0808 0.40
+ellipse 1.50,1.20 0.40,0.32 fill #0a0808 0.45
+
+# === Cart body (rotated ~18° — tipped askew, showing its UNDERSIDE) ===
+# Main rectangular slab — iron-banded wooden bottom
+rect 0.40,0.30 1.20,0.90 texfill polyhaven/weathered_planks 0.85 rotate 18
+rect 0.40,0.30 1.20,0.90 stroke #1a1208 width 2 rotate 18
+
+# Plank seams running along the cart's length (rotated with body)
+rect 0.40,0.52 1.20,0.02 fill #2a1400 0.6 rotate 18
+rect 0.40,0.75 1.20,0.02 fill #2a1400 0.6 rotate 18
+rect 0.40,0.98 1.20,0.02 fill #2a1400 0.55 rotate 18
+
+# Iron straps running across the bottom (now facing up)
+rect 0.60,0.30 0.06,0.90 fill #333333 0.92 rotate 18
+rect 0.60,0.30 0.06,0.90 stroke #1a1a1a width 1 rotate 18
+rect 1.30,0.30 0.06,0.90 fill #333333 0.92 rotate 18
+rect 1.30,0.30 0.06,0.90 stroke #1a1a1a width 1 rotate 18
+
+# Iron corner brackets
+rect 0.42,0.32 0.10,0.10 fill #444444 0.9 rotate 18
+rect 1.48,0.32 0.10,0.10 fill #444444 0.9 rotate 18
+rect 0.42,1.08 0.10,0.10 fill #444444 0.9 rotate 18
+rect 1.48,1.08 0.10,0.10 fill #444444 0.9 rotate 18
+
+# === Broken/splintered board — jagged dark gap on east end ===
+poly 1.38,0.58 1.52,0.55 1.58,0.68 1.48,0.72 1.42,0.66 fill #0a0a0a 0.95
+poly 1.38,0.58 1.52,0.55 1.58,0.68 1.48,0.72 1.42,0.66 stroke #000000 width 1
+# Splinter shards poking up from the crack
+line 1.52,0.55 1.56,0.48 stroke #3a1f00 width 1
+line 1.48,0.72 1.44,0.80 stroke #3a1f00 width 1
+
+# === Wheels (four small iron discs sticking UP at the corners) ===
+# NW wheel — normal
+circle 0.52,0.48 0.11 fill #444444 0.95
+circle 0.52,0.48 0.11 stroke #1a1a1a width 1
+circle 0.52,0.48 0.04 fill #222222 0.95
+line 0.42,0.42 0.62,0.54 stroke #222222 width 1
+line 0.42,0.54 0.62,0.42 stroke #222222 width 1
+
+# NE wheel — BENT/detached, off-axis, axle exposed
+circle 1.70,0.38 0.10 fill #3a3a3a 0.9
+circle 1.70,0.38 0.10 stroke #1a1a1a width 1
+circle 1.70,0.38 0.035 fill #222222 0.95
+line 1.62,0.32 1.78,0.44 stroke #222222 width 1
+line 1.62,0.44 1.78,0.32 stroke #222222 width 1
+# Exposed axle rod poking out from the cart body toward the bent wheel
+line 1.55,0.50 1.68,0.40 stroke #555555 width 3
+line 1.55,0.50 1.68,0.40 stroke #1a1a1a width 1
+
+# SW wheel — normal
+circle 0.60,1.18 0.11 fill #444444 0.95
+circle 0.60,1.18 0.11 stroke #1a1a1a width 1
+circle 0.60,1.18 0.04 fill #222222 0.95
+line 0.50,1.12 0.70,1.24 stroke #222222 width 1
+line 0.50,1.24 0.70,1.12 stroke #222222 width 1
+
+# SE wheel — normal
+circle 1.42,1.30 0.11 fill #444444 0.95
+circle 1.42,1.30 0.11 stroke #1a1a1a width 1
+circle 1.42,1.30 0.04 fill #222222 0.95
+line 1.32,1.24 1.52,1.36 stroke #222222 width 1
+line 1.32,1.36 1.52,1.24 stroke #222222 width 1
+
+# === Spilled coal — scattered chunks radiating east/south from the open end ===
+poly 1.55,0.85 1.68,0.82 1.72,0.92 1.62,0.96 fill #1a1a1a 0.92
+poly 1.55,0.85 1.68,0.82 1.72,0.92 1.62,0.96 stroke #0a0a0a width 1
+
+poly 1.62,1.02 1.78,1.00 1.80,1.14 1.68,1.16 fill #222222 0.92
+poly 1.62,1.02 1.78,1.00 1.80,1.14 1.68,1.16 stroke #0a0a0a width 1
+
+poly 1.40,1.52 1.54,1.50 1.56,1.62 1.44,1.64 fill #1a1a1a 0.9
+poly 1.40,1.52 1.54,1.50 1.56,1.62 1.44,1.64 stroke #0a0a0a width 1
+
+poly 1.70,1.30 1.84,1.28 1.86,1.42 1.76,1.44 fill #222222 0.9
+poly 1.70,1.30 1.84,1.28 1.86,1.42 1.76,1.44 stroke #0a0a0a width 1
+
+poly 1.20,1.60 1.32,1.58 1.34,1.70 1.24,1.72 fill #1e1e1e 0.9
+poly 1.20,1.60 1.32,1.58 1.34,1.70 1.24,1.72 stroke #0a0a0a width 1
+
+circle 1.88,0.92 0.045 fill #1a1a1a 0.9
+circle 1.88,0.92 0.045 stroke #0a0a0a
+
+circle 1.60,1.68 0.05 fill #222222 0.9
+circle 1.60,1.68 0.05 stroke #0a0a0a
+
+circle 1.78,1.58 0.04 fill #1a1a1a 0.88
+circle 1.78,1.58 0.04 stroke #0a0a0a
+
+# Coal dust halo bits underneath the scatter
+ellipse 1.70,1.10 0.14,0.08 fill #0a0808 0.45
+ellipse 1.50,1.55 0.12,0.07 fill #0a0808 0.4
+
+# Small pebble chunks
+circle 1.48,1.02 0.028 fill #3a3a3a 0.85
+circle 1.66,0.78 0.022 fill #2a2a2a 0.85
+circle 1.32,1.78 0.025 fill #3a3a3a 0.8
+
+# === Broken loose planks lying nearby ===
+# Plank 1 — south of cart, splintered
+rect 0.20,1.50 0.38,0.08 texfill polyhaven/weathered_planks 0.85 rotate 35
+rect 0.20,1.50 0.38,0.08 stroke #3a1f00 width 1 rotate 35
+line 0.55,1.68 0.62,1.74 stroke #3a1f00 width 1
+line 0.55,1.68 0.60,1.62 stroke #3a1f00 width 1
+
+# Plank 2 — north-east, smaller fragment
+rect 1.40,0.15 0.28,0.06 texfill polyhaven/weathered_planks 0.8 rotate -25
+rect 1.40,0.15 0.28,0.06 stroke #3a1f00 width 1 rotate -25

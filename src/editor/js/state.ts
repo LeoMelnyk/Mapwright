@@ -62,6 +62,8 @@ const state: EditorState = {
   propRotation: 0, // 0, 90, 180, 270 — current placement rotation
   propFlipped: false, // whether the next placed prop is horizontally mirrored
   propScale: 1.0, // scale for next placed prop
+  propRandomRotation: false, // when true, stamp placement uses a random rotation (multiple of 15°)
+  propRandomScale: false, // when true, stamp placement uses a random scale (0.8–3.0 in 0.05 steps)
   propCatalog: null, // PropCatalog object, loaded at init (runtime only, not serialized)
   selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
   selectedPropIds: [], // array of overlay prop IDs for selected props (new system)

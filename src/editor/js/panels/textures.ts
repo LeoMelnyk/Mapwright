@@ -63,6 +63,19 @@ function render() {
     if (_searchTimer !== null) clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => filterTextures(cat), 200);
   });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (searchInput!.value) {
+      searchInput!.value = '';
+      clearBtn.style.display = 'none';
+      if (_searchTimer !== null) clearTimeout(_searchTimer);
+      filterTextures(cat);
+    } else {
+      searchInput!.blur();
+    }
+  });
   clearBtn.addEventListener('click', () => {
     searchInput!.value = '';
     clearBtn.style.display = 'none';

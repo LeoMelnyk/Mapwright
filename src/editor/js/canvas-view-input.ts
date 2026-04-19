@@ -45,8 +45,8 @@ export function onMouseDown(e: MouseEvent): void {
     return;
   }
 
-  // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint syringe)
-  if (e.button === 0 && e.altKey && state.activeTool !== 'paint') {
+  // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint/prop syringe)
+  if (e.button === 0 && e.altKey && state.activeTool !== 'paint' && state.activeTool !== 'prop') {
     cvState.isPanning = true;
     cvState.panStartX = pos.x;
     cvState.panStartY = pos.y;

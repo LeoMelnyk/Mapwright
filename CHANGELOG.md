@@ -10,6 +10,9 @@
 
 ### Prop Placement
 
+- **Random rotation toggle** — new Yes/No option in the Prop tool sub-bar. When enabled, each prop placed from the active stamp (not copy/paste) is rotated by a random multiple of 15°, so scattered rubble, bone piles, or mushrooms look varied without rotating each one by hand.
+- **Random scale toggle** — sibling to Random Rotation. When enabled, stamp-placed props are scaled by a random factor between 0.8 and 3.0 (in 0.05 steps), adding dramatic size variation to natural props like boulders, trees, and mushrooms.
+- **Alt+click syringes a prop** — hold Alt with the Prop tool and click any placed prop to load it as the active stamp, preserving its type, rotation, flip, and scale. The cursor shows the syringe icon while Alt is held, matching the Paint tool's sampler.
 - **Stamp mode ignores placed props** — with a prop armed for placement, clicking on an already-placed prop now stamps a new one instead of accidentally selecting the one underneath. The hover cursor also stays on the placement ghost rather than flipping to the grab cursor.
 - **Right-click clears the stamp** — while a prop is armed, right-click behaves like Escape and cancels the stamp. With no stamp armed, right-click still deletes the prop under the cursor as before.
 - **Paste mode now behaves like an armed stamp** — after Ctrl+V, props on the map can't be clicked/selected, and **R**, **F**, **[**, **]**, and **Alt+Scroll** (rotate/scale) now transform the pending paste ghost instead of leaking through to any previously-selected props. Arrow keys and Delete are no-ops until you commit or cancel. Escape / right-click still cancel the paste.

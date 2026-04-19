@@ -13,6 +13,7 @@ import * as canvasView from './canvas-view.js';
 import { saveDungeon, saveDungeonAs } from './io.js';
 import { zoomToFit } from './canvas-view.js';
 import { lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
+import { visibleAnchorOf } from './prop-overlay.js';
 import {
   applyToolSideEffects,
   cycleSubMode,
@@ -110,47 +111,57 @@ export function initKeyboardShortcuts(
     if (e.ctrlKey && e.key === 'c' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
       e.preventDefault();
       const meta = state.dungeon.metadata;
-      const anchorRow = Math.min(...state.selectedPropAnchors.map((a: { row: number; col: number }) => a.row));
-      const anchorCol = Math.min(...state.selectedPropAnchors.map((a: { row: number; col: number }) => a.col));
-      const props = [];
-      const copiedIds = new Set();
+      const gs = meta.gridSize || 5;
+      const catalog = state.propCatalog;
+      // Resolve each selection entry to its overlay and compute the VISIBLE
+      // anchor cell (which is what _addOverlayAt consumes at paste time). Using
+      // `a.row/a.col` directly would break relative spacing for rotated
+      // non-square props — their stored x/y is shifted by ±0.5 cells, so
+      // Math.round of stored coords can be one cell off from the visible cell.
+      const resolved: {
+        overlay: { id: number | string; x: number; y: number; rotation?: number; type: string };
+        visRow: number;
+        visCol: number;
+      }[] = [];
+      const seenIds = new Set<number | string>();
       for (const a of state.selectedPropAnchors) {
-        // Use propId when available (from box-select/hit-test), else spatial lookup
         const overlay = a.propId
           ? meta.props?.find((p: { id: number | string }) => p.id === a.propId)
           : (() => {
               const entry = lookupPropAt(a.row, a.col);
               return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null;
             })();
-        if (overlay && !copiedIds.has(overlay.id)) {
-          copiedIds.add(overlay.id);
-          const { row, col } = a;
-          // Capture linked lights (via propRef matching this prop's anchor)
-          const gs = meta.gridSize || 5;
-          const propAnchorRow = Math.round(overlay.y / gs);
-          const propAnchorCol = Math.round(overlay.x / gs);
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          const linkedLights = (meta.lights || [])
-            .filter((l) => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
-            .map((l) => {
-              const clone = JSON.parse(JSON.stringify(l));
-              // Store light offset relative to the prop's world position
-              clone._offsetX = l.x - overlay.x;
-              clone._offsetY = l.y - overlay.y;
-              return clone;
-            });
-          props.push({
-            dRow: row - anchorRow,
-            dCol: col - anchorCol,
-            prop: JSON.parse(JSON.stringify(overlay)),
-            lights: linkedLights.length > 0 ? linkedLights : undefined,
+        if (!overlay || seenIds.has(overlay.id)) continue;
+        seenIds.add(overlay.id);
+        const propDef = catalog?.props[overlay.type];
+        const { row: visRow, col: visCol } = visibleAnchorOf(overlay, propDef, gs);
+        resolved.push({ overlay, visRow, visCol });
+      }
+      if (resolved.length === 0) return;
+      const anchorRow = Math.min(...resolved.map((r) => r.visRow));
+      const anchorCol = Math.min(...resolved.map((r) => r.visCol));
+      const props = [];
+      for (const { overlay, visRow, visCol } of resolved) {
+        // Capture linked lights (via propRef matching this prop's visible anchor)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const linkedLights = (meta.lights || [])
+          .filter((l) => l.propRef?.row === visRow && l.propRef.col === visCol)
+          .map((l) => {
+            const clone = JSON.parse(JSON.stringify(l));
+            // Store light offset relative to the prop's world position
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
           });
-        }
+        props.push({
+          dRow: visRow - anchorRow,
+          dCol: visCol - anchorCol,
+          prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
+        });
       }
-      if (props.length > 0) {
-        state.propClipboard = { anchorRow, anchorCol, props };
-        showToast(`Copied ${props.length} prop${props.length === 1 ? '' : 's'}`);
-      }
+      state.propClipboard = { anchorRow, anchorCol, props };
+      showToast(`Copied ${props.length} prop${props.length === 1 ? '' : 's'}`);
       return;
     }
 
@@ -187,10 +198,16 @@ export function initKeyboardShortcuts(
     if (e.ctrlKey && e.key === 'x' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
       e.preventDefault();
       const meta = state.dungeon.metadata;
-      const anchorRow = Math.min(...state.selectedPropAnchors.map((a: { row: number; col: number }) => a.row));
-      const anchorCol = Math.min(...state.selectedPropAnchors.map((a: { row: number; col: number }) => a.col));
-      const props = [];
-      const copiedIds = new Set();
+      const gs = meta.gridSize || 5;
+      const catalog = state.propCatalog;
+      // See Ctrl+C above: use visible anchor cells for offsets so rotated
+      // non-square props paste with correct relative spacing.
+      const resolved: {
+        overlay: { id: number | string; x: number; y: number; rotation?: number; type: string };
+        visRow: number;
+        visCol: number;
+      }[] = [];
+      const seenIds = new Set<number | string>();
       for (const a of state.selectedPropAnchors) {
         const overlay = a.propId
           ? meta.props?.find((p: { id: number | string }) => p.id === a.propId)
@@ -198,29 +215,32 @@ export function initKeyboardShortcuts(
               const entry = lookupPropAt(a.row, a.col);
               return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null;
             })();
-        if (overlay && !copiedIds.has(overlay.id)) {
-          copiedIds.add(overlay.id);
-          const { row, col } = a;
-          // Capture linked lights (via propRef matching this prop's anchor)
-          const gs = meta.gridSize || 5;
-          const propAnchorRow = Math.round(overlay.y / gs);
-          const propAnchorCol = Math.round(overlay.x / gs);
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          const linkedLights = (meta.lights || [])
-            .filter((l) => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
-            .map((l) => {
-              const clone = JSON.parse(JSON.stringify(l));
-              clone._offsetX = l.x - overlay.x;
-              clone._offsetY = l.y - overlay.y;
-              return clone;
-            });
-          props.push({
-            dRow: row - anchorRow,
-            dCol: col - anchorCol,
-            prop: JSON.parse(JSON.stringify(overlay)),
-            lights: linkedLights.length > 0 ? linkedLights : undefined,
+        if (!overlay || seenIds.has(overlay.id)) continue;
+        seenIds.add(overlay.id);
+        const propDef = catalog?.props[overlay.type];
+        const { row: visRow, col: visCol } = visibleAnchorOf(overlay, propDef, gs);
+        resolved.push({ overlay, visRow, visCol });
+      }
+      if (resolved.length === 0) return;
+      const anchorRow = Math.min(...resolved.map((r) => r.visRow));
+      const anchorCol = Math.min(...resolved.map((r) => r.visCol));
+      const props = [];
+      for (const { overlay, visRow, visCol } of resolved) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const linkedLights = (meta.lights || [])
+          .filter((l) => l.propRef?.row === visRow && l.propRef.col === visCol)
+          .map((l) => {
+            const clone = JSON.parse(JSON.stringify(l));
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
           });
-        }
+        props.push({
+          dRow: visRow - anchorRow,
+          dCol: visCol - anchorCol,
+          prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
+        });
       }
       if (props.length > 0) {
         state.propClipboard = { anchorRow, anchorCol, props };

@@ -1,0 +1,49 @@
+name: Coal Dust Drift
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance
+typical_count: many
+clusters_with: coal-pile, coal-bin, rubble, cobweb-cluster, rat-sign
+notes: A drift of fine black coal dust settled on the floor of an abandoned mine. Scatter in corners, against walls, and along haulage routes. Unlike coal-pile this is fine powder, not chunks.
+---
+# === HITBOX ===
+selection circle 0.5,0.52 0.38
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: soft dune of settled coal powder, feathered edges
+# All fills kept low-opacity (0.3-0.65) so the floor texture reads through
+
+# === Outer feather halo (broad faint ellipse — dust spread) ===
+ellipse 0.50,0.54 0.44,0.34 fill #0f0f0f 0.30
+
+# === Mid dust drift (irregular blob, slightly denser) ===
+poly 0.16,0.54 0.22,0.40 0.34,0.32 0.50,0.30 0.66,0.34 0.78,0.44 0.82,0.58 0.74,0.70 0.58,0.76 0.40,0.76 0.26,0.70 0.18,0.62 fill #1a1a1a 0.45
+
+# === Inner denser patch (windward mound against imaginary wall) ===
+poly 0.28,0.50 0.38,0.40 0.52,0.38 0.64,0.44 0.68,0.56 0.60,0.66 0.46,0.68 0.32,0.62 fill #1e1e1e 0.55
+
+# === Core of the drift (darkest point, still softened) ===
+poly 0.38,0.50 0.48,0.46 0.56,0.50 0.56,0.58 0.46,0.60 0.38,0.56 fill #0a0a0a 0.65
+
+# === Cart-wheel track pressed through the dust (thin groove) ===
+line 0.10,0.48 0.88,0.52 stroke #050505 width 2
+
+# === Faint boot-print impression (darker patch where weight compressed powder) ===
+poly 0.58,0.62 0.64,0.60 0.66,0.66 0.63,0.70 0.58,0.68 fill #050505 0.55
+
+# === Outer halo flecks (tiny scattered dust specks) ===
+circle 0.12,0.40 0.025 fill #0f0f0f 0.45
+circle 0.88,0.46 0.022 fill #0f0f0f 0.40
+circle 0.18,0.76 0.024 fill #0f0f0f 0.45
+circle 0.82,0.74 0.020 fill #0f0f0f 0.40
+circle 0.48,0.22 0.022 fill #0f0f0f 0.40
+circle 0.70,0.82 0.018 fill #0a0a0a 0.35
+
+# === A few slightly darker grains inside the drift ===
+circle 0.34,0.46 0.022 fill #050505 0.55
+circle 0.58,0.54 0.020 fill #050505 0.50

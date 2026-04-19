@@ -177,6 +177,18 @@ function buildPropExplorer(container: HTMLElement) {
     clearBtn.style.display = searchInput.value ? '' : 'none';
     filterProps(searchInput.value.trim().toLowerCase());
   });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (searchInput.value) {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      filterProps('');
+    } else {
+      searchInput.blur();
+    }
+  });
   clearBtn.addEventListener('click', () => {
     searchInput.value = '';
     clearBtn.style.display = 'none';

@@ -1,0 +1,26 @@
+name: Cobweb (Light)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: corner
+room_types: crypt, tomb, dungeon, mausoleum, abandoned-room, tunnel-mine-worked
+typical_count: many
+clusters_with: cobweb-heavy, cobweb-cluster, rat-sign, bone-pile
+notes: Sparse wispy cobweb anchored in a corner — just a few strands. For neglected rooms that don't need heavy webbing. Anchor is the NW corner at 0.05,0.05 (rotate to target other corners).
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Light cobweb anchored to the NW corner — only a few thin strands
+
+# === Sparse radiating anchor strands from corner ===
+line 0.05,0.05 0.80,0.30 stroke #888888 0.25 width 1
+line 0.05,0.05 0.35,0.75 stroke #888888 0.22 width 1
+line 0.05,0.05 0.60,0.60 stroke #999999 0.2 width 1
+
+# === Thin cross-strand connecting the radials ===
+qbezier 0.50,0.18 0.35,0.32 0.18,0.55 stroke #999999 0.18 width 1
+
+# === Single faint wisp ===
+qbezier 0.70,0.38 0.50,0.50 0.28,0.68 stroke #aaaaaa 0.15 width 1

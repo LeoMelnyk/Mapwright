@@ -58,6 +58,7 @@ const TOOL_BINDS = {
     { key: 'R', desc: 'Rotate 90°' },
     { key: 'Shift+R', desc: 'Rotate -90°' },
     { key: 'F', desc: 'Flip' },
+    { key: 'Alt+Click', desc: 'Syringe prop' },
     { key: 'Alt+Scroll', desc: 'Rotate 15°' },
     { key: 'Alt+Shift+Scroll', desc: 'Scale' },
     { key: 'Arrows', desc: 'Nudge (1 ft)' },

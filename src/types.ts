@@ -590,6 +590,8 @@ export interface EditorState {
   propRotation: number;
   propFlipped: boolean;
   propScale: number;
+  propRandomRotation: boolean;
+  propRandomScale: boolean;
   selectedPropAnchors: { row: number; col: number; propId?: number | string }[];
   selectedPropIds: number[];
 

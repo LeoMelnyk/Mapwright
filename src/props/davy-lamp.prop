@@ -1,0 +1,58 @@
+name: Davy Lamp
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance
+typical_count: few
+clusters_with: candle-miner, helmet-mining, pickaxe, sorting-table, lantern, timber-brace
+notes: Miner's wire-gauze safety lamp — the flame-carrying lamp designed to not ignite firedamp. Brass reservoir, mesh cylinder, carrying hook. Place on the ground or a bench; CAN emit light (see lights: entry).
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":8,"intensity":0.6}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down Davy lamp: concentric rings — hook, brass cap, wire-mesh cylinder, flame core, brass foot
+
+# Brass oil reservoir (outer foot, slight lip extending past the mesh)
+circle 0.50,0.50 0.36 fill #8b6914 0.55
+circle 0.50,0.50 0.36 stroke #5a3a00
+
+# Carrying hook arc (thin brass hook curving off to one side)
+bezier 0.50,0.10 0.78,0.10 0.86,0.22 0.80,0.34 stroke #daa520 width 3
+bezier 0.50,0.10 0.78,0.10 0.86,0.22 0.80,0.34 stroke #5a3a00 width 1
+
+# Wire-mesh cylinder (outer gauze ring)
+ring 0.50,0.50 0.32 0.24 fill #666666 0.6
+ring 0.50,0.50 0.32 0.24 stroke #333333
+
+# Woven-wire cross-hatch — radial strokes suggesting vertical wires
+line 0.50,0.18 0.50,0.26 stroke #222222 width 1
+line 0.73,0.34 0.67,0.38 stroke #222222 width 1
+line 0.82,0.50 0.74,0.50 stroke #222222 width 1
+line 0.73,0.66 0.67,0.62 stroke #222222 width 1
+line 0.50,0.82 0.50,0.74 stroke #222222 width 1
+line 0.27,0.66 0.33,0.62 stroke #222222 width 1
+line 0.18,0.50 0.26,0.50 stroke #222222 width 1
+line 0.27,0.34 0.33,0.38 stroke #222222 width 1
+
+# Concentric mesh ring (horizontal wire)
+circle 0.50,0.50 0.28 stroke #222222 width 1
+
+# Brass top cap (above the mesh, seen as solid disc)
+circle 0.50,0.50 0.22 texfill polyhaven/metal_plate 0.7
+circle 0.50,0.50 0.22 fill #daa520 0.55
+circle 0.50,0.50 0.22 stroke #5a3a00
+
+# Rivet details on cap
+circle 0.40,0.42 0.018 fill #3a2500 0.9
+circle 0.60,0.42 0.018 fill #3a2500 0.9
+circle 0.50,0.60 0.018 fill #3a2500 0.9
+
+# Inner flame chamber visible through the gauze (glowing core)
+circle 0.50,0.50 0.12 gradient-radial #ffcc00 #5a3a00 0.85
+circle 0.50,0.50 0.08 fill #ffaa00 0.85
+
+# Hot bright center
+circle 0.50,0.50 0.04 fill #ffffff 0.95
