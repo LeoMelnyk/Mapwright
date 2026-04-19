@@ -217,12 +217,19 @@ export function renderLightmapHQ(
     const visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     if (visibility.length < 3) continue;
 
-    // Compute z-height prop shadow polygons for this light
+    // Compute z-height prop shadow polygons for this light. Cull zones whose
+    // centroid lies outside the light's radius (mirrors the realtime path in
+    // lighting.ts) so a map with many distant props doesn't pay per-pixel
+    // point-in-polygon cost for shadows that can't reach.
     const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
     const propShadows = [];
     if (propShadowZones.length) {
+      const rSq = effectiveRadius * effectiveRadius;
       for (const { zones } of propShadowZones) {
         for (const zone of zones) {
+          const dx = zone.centroidX - eff.x;
+          const dy = zone.centroidY - eff.y;
+          if (dx * dx + dy * dy > rSq) continue;
           const shadow = computePropShadowPolygon(
             eff.x,
             eff.y,
