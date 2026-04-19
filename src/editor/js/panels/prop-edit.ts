@@ -50,9 +50,41 @@ let currentOverlay: OverlayProp | null = null;
 let snapshot: PropSnapshot | null = null;
 let undoDepthOnOpen = -1;
 let isOpen = false;
+// True while a dialog-initiated mutation is firing its notify. Prevents the
+// subscribe callback from rebuilding the body (which would unfocus the input
+// the user is typing into). Selection-change handling still runs.
+let selfMutating = false;
 
 // Draggable-header state
 const drag = { active: false, offsetX: 0, offsetY: 0 };
+
+// Debounce delay for live field edits — keystrokes and color-picker drags
+// defer their mutation so the user isn't spamming render invalidations
+// mid-typing.
+const INPUT_DEBOUNCE_MS = 500;
+
+interface Debounced<A extends unknown[]> {
+  (...args: A): void;
+  cancel(): void;
+}
+
+function debounce<A extends unknown[]>(fn: (...args: A) => void, ms: number): Debounced<A> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const wrapped = ((...args: A) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      fn(...args);
+    }, ms);
+  }) as Debounced<A>;
+  wrapped.cancel = () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+  return wrapped;
+}
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 
@@ -93,7 +125,12 @@ function commitRenderChange(): void {
   markPropSpatialDirty();
   invalidateLightmap('props');
   markDirty();
-  notify('props');
+  selfMutating = true;
+  try {
+    notify('props');
+  } finally {
+    selfMutating = false;
+  }
   requestRender();
 }
 
@@ -207,9 +244,18 @@ function addNumberRow(
   if (options.min != null) input.min = String(options.min);
   if (options.max != null) input.max = String(options.max);
   input.value = formatNumber(value);
+  const debouncedChange = debounce(onChange, INPUT_DEBOUNCE_MS);
   input.addEventListener('input', () => {
     const n = parseFloat(input.value);
     if (!Number.isFinite(n)) return;
+    debouncedChange(n);
+  });
+  // Commit immediately on blur/Enter so closing the dialog doesn't swallow
+  // the last keystroke while a debounce is still pending.
+  input.addEventListener('change', () => {
+    const n = parseFloat(input.value);
+    if (!Number.isFinite(n)) return;
+    debouncedChange.cancel();
     onChange(n);
   });
   row.appendChild(lbl);
@@ -267,7 +313,12 @@ function addColorRow(
   input.type = 'color';
   input.id = `pe-${id}`;
   input.value = normalizeHexColor(value);
-  input.addEventListener('input', () => onChange(input.value));
+  const debouncedChange = debounce(onChange, INPUT_DEBOUNCE_MS);
+  input.addEventListener('input', () => debouncedChange(input.value));
+  input.addEventListener('change', () => {
+    debouncedChange.cancel();
+    onChange(input.value);
+  });
   row.appendChild(lbl);
   row.appendChild(input);
   row.appendChild(document.createElement('span'));
@@ -288,10 +339,19 @@ function addZIndexRow(parent: HTMLElement, value: number, onChange: (v: number) 
   input.step = '1';
   input.min = '0';
   input.value = String(value);
+  const debouncedChange = debounce(onChange, INPUT_DEBOUNCE_MS);
   input.addEventListener('input', () => {
     const n = parseInt(input.value, 10);
     if (!Number.isFinite(n)) return;
     const v = Math.max(0, n);
+    debouncedChange(v);
+    syncSelect();
+  });
+  input.addEventListener('change', () => {
+    const n = parseInt(input.value, 10);
+    if (!Number.isFinite(n)) return;
+    const v = Math.max(0, n);
+    debouncedChange.cancel();
     onChange(v);
     syncSelect();
   });
@@ -578,6 +638,10 @@ function onStateChanged(): void {
     return;
   }
   currentOverlay = fresh;
+  // Skip the DOM rebuild for our own mutations — the input the user is typing
+  // into would lose focus. External mutations (wheel-rotate, arrow-nudge)
+  // still refresh so the dialog stays in sync.
+  if (selfMutating) return;
   refreshFromState();
 }
 
