@@ -970,6 +970,10 @@ let _lmW = 0,
   _lmH = 0;
 let _staticLmCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
 let _staticLmValid = false;
+// Last renderLightmap cacheKey — when the caller passes the same key, skip
+// rebuild and just recomposite the existing _lmCanvas / _staticLmCanvas.
+let _lastRenderLightmapKey: string | null = null;
+let _lastRenderLightmapHadAnimated = false;
 
 function _getLightmapCanvas(w: number, h: number) {
   if (_lmCanvas && _lmW === w && _lmH === h) return _lmCanvas;
@@ -984,6 +988,7 @@ function _getLightmapCanvas(w: number, h: number) {
   _lmH = h;
   _staticLmCanvas = null; // force rebuild of static cache too
   _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   return _lmCanvas;
 }
 
@@ -997,6 +1002,7 @@ function _getStaticLmCanvas(w: number, h: number) {
     _staticLmCanvas.height = h;
   }
   _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   return _staticLmCanvas;
 }
 
@@ -1045,6 +1051,7 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
   // Static lightmap depends on wall segments, prop shadows, AND any non-animated
   // light's position/intensity, so every scope currently invalidates it.
   _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   _lightingVersion++;
   log.devTrace(`invalidateVisibilityCache('${resolved}') → lightingVersion ${_lightingVersion}`);
 }
@@ -1059,6 +1066,7 @@ export function invalidateLightmapCaches(): void {
   _lmCanvas = null;
   _lmW = 0;
   _lmH = 0;
+  _lastRenderLightmapKey = null;
   log.dev(`invalidateLightmapCaches() — static + dynamic lightmap canvases dropped`);
 }
 
@@ -1128,6 +1136,10 @@ export function renderLightmap(
     destY?: number;
     destW?: number;
     destH?: number;
+    /** When provided and unchanged from the previous call, skip the build
+     *  phase entirely and recomposite the cached bitmap at the new dest rect.
+     *  Use for zoom-only redraws where the lightmap content hasn't changed. */
+    cacheKey?: string | null;
   } | null,
   metadata: Metadata | null = null,
 ): void {
@@ -1139,7 +1151,28 @@ export function renderLightmap(
     destY = 0,
     destW = 0,
     destH = 0,
+    cacheKey = null,
   } = options ?? {};
+
+  // ── Cached recomposite fast path (zoom-only frames) ──
+  if (cacheKey !== null && cacheKey === _lastRenderLightmapKey) {
+    const cached = _lastRenderLightmapHadAnimated ? _lmCanvas : _staticLmCanvas;
+    if (cached) {
+      const useDest = destW > 0 && destH > 0;
+      const dx = useDest ? destX : 0;
+      const dy = useDest ? destY : 0;
+      const dw = useDest ? destW : canvasW;
+      const dh = useDest ? destH : canvasH;
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(cached, dx, dy, dw, dh);
+      ctx.restore();
+      const bloomIntensity = metadata?.bloomIntensity ?? 0;
+      if (bloomIntensity > 0) _applyBloom(ctx, cached, dx, dy, dw, dh, bloomIntensity);
+      return;
+    }
+  }
   // Filter out lights whose group is disabled on this map. Un-grouped lights
   // (group undefined or '') are always rendered. Matches the light-group
   // toggle in the Lighting panel.
@@ -1226,6 +1259,8 @@ export function renderLightmap(
     ctx.drawImage(staticCanvas, dx, dy, dw, dh);
     ctx.restore();
     if (bloomIntensity > 0) _applyBloom(ctx, staticCanvas, dx, dy, dw, dh, bloomIntensity);
+    _lastRenderLightmapKey = cacheKey;
+    _lastRenderLightmapHadAnimated = false;
     return;
   }
 
@@ -1240,6 +1275,8 @@ export function renderLightmap(
     }),
   );
   if (bloomIntensity > 0) _applyBloom(ctx, animatedLightmap, dx, dy, dw, dh, bloomIntensity);
+  _lastRenderLightmapKey = cacheKey;
+  _lastRenderLightmapHadAnimated = true;
 }
 
 /**

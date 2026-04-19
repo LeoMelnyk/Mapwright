@@ -90,6 +90,23 @@ function drawMatrixGrid(
   const numCols = cells[0]?.length ?? 0;
   const resolution = metadata?.resolution ?? 1;
 
+  // Viewport culling so the fallback path (maps too large for map-cache) scales
+  // with screen area, not map area. Derived from ctx's canvas dimensions.
+  const cellPx = gridSize * transform.scale;
+  const VIEWPORT_MARGIN = 1;
+  const canvasW = ctx.canvas.width;
+  const canvasH = ctx.canvas.height;
+  const vMinRow = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetY / cellPx) - VIEWPORT_MARGIN) : 0;
+  const vMaxRow =
+    cellPx > 0
+      ? Math.min(numRows - 1, Math.ceil((canvasH - transform.offsetY) / cellPx) + VIEWPORT_MARGIN)
+      : numRows - 1;
+  const vMinCol = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetX / cellPx) - VIEWPORT_MARGIN) : 0;
+  const vMaxCol =
+    cellPx > 0
+      ? Math.min(numCols - 1, Math.ceil((canvasW - transform.offsetX) / cellPx) + VIEWPORT_MARGIN)
+      : numCols - 1;
+
   const style = theme.gridStyle ?? 'lines';
   const lineWidth = theme.gridLineWidth ?? 4;
   const noise = theme.gridNoise ?? 0;
@@ -116,8 +133,8 @@ function drawMatrixGrid(
     }
     ctx.beginPath();
 
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
+    for (let row = vMinRow; row <= vMaxRow; row++) {
+      for (let col = vMinCol; col <= vMaxCol; col++) {
         if (!shouldDraw(row, col)) continue;
 
         // Horizontal line below this cell
@@ -151,9 +168,9 @@ function drawMatrixGrid(
     const dotRadius = lineWidth;
     ctx.beginPath();
 
-    for (let r = 0; r <= numRows; r++) {
+    for (let r = vMinRow; r <= vMaxRow + 1; r++) {
       if (r % resolution !== 0) continue;
-      for (let c = 0; c <= numCols; c++) {
+      for (let c = vMinCol; c <= vMaxCol + 1; c++) {
         if (c % resolution !== 0) continue;
 
         // Only draw at fully interior intersections (all 4 adjacent cells must be drawable)

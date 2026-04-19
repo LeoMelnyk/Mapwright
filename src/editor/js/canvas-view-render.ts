@@ -25,6 +25,7 @@ import { toCanvas } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
 import { updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
+import { flushPendingWheel } from './canvas-view-input.js';
 import {
   cvState,
   CELL_SIZE,
@@ -84,6 +85,8 @@ export function getTransform(): RenderTransform {
  */
 export function render(): void {
   cvState.animFrameId = null;
+  // Flush any coalesced wheel deltas accumulated since the previous frame (Fix 2).
+  flushPendingWheel();
   const { canvas, ctx } = cvState;
   if (!canvas || !ctx) return;
   const _currentFrame = bumpTimingFrame();
@@ -240,6 +243,16 @@ export function render(): void {
         const sx = transform.scale / MAP_PX_PER_FOOT;
         const mapScreenW = composite.cacheW * sx;
         const mapScreenH = composite.cacheH * sx;
+        // Cache key: hash of every input that affects the bitmap itself, but
+        // NOT the destination rect. When transform.scale/offset change (zoom/pan)
+        // we can reuse the cached bitmap and just composite it at a new rect.
+        // Animation time is bucketed to the anim-loop tick rate so we avoid
+        // rebuilding every rAF during rapid zooms.
+        const animBucket = Math.floor(animClock / ANIM_INTERVAL_MS);
+        const lightmapCacheKey =
+          `${getLightingVersion()}|${animBucket}|${metadata.ambientLight}|` +
+          `${metadata.ambientColor ?? '#ffffff'}|${LIGHT_PX_PER_FOOT}|` +
+          `${allLights.length}|${metadata.disabledLightGroups?.join(',') ?? ''}`;
         renderLightmap(
           ctx,
           allLights,
@@ -259,6 +272,7 @@ export function render(): void {
             destY: transform.offsetY,
             destW: mapScreenW,
             destH: mapScreenH,
+            cacheKey: lightmapCacheKey,
           },
           metadata,
         );

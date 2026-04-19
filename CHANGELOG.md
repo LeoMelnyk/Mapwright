@@ -12,6 +12,12 @@
 - **Kelvin color-temperature sliders** — new "Temp (K)" sliders in both the Ambient section and each light's color controls. Drag between 1500K (candle) and 10000K (moonlight); the hex color updates automatically. Artists and DMs usually think in warm/cool, not hex.
 - **Live light preview tile** — the Selected Light section now shows a 64×64 radial-gradient thumbnail of the current color, falloff, and darkness state. Updates in place as you drag sliders, so you can preview choices before committing.
 
+### Performance
+
+- **Zoom is now smooth on maps with animated lights** — on torch-heavy maps the editor used to rebuild the full lightmap on every wheel tick, blowing the 60 fps budget and making zoom feel like it was dragging. The lightmap bitmap is now reused across pan and zoom frames (it only changes when a light actually animates or moves), and the canvas just recomposites it at the new viewport — turning most zoom frames into a single `drawImage` instead of a full light pipeline rebuild.
+- **Wheel events are coalesced per frame** — a fast-spinning mouse wheel can fire 100+ events per second. Each one used to mutate zoom state immediately, triggering duplicate work even though `requestAnimationFrame` collapses the paints. Deltas are now accumulated and applied once per frame, so rapid zooms produce one clean zoom step per frame regardless of how many wheel events arrived.
+- **Off-screen grid lines skipped on oversized maps** — when a map is too large for the offscreen cache (rare, >16k px on either axis) the editor falls back to direct rendering. The matrix-grid pass used to iterate every cell on the map even though only a small portion was in view. It now culls to the viewport like the other phases, so scrolling and zooming on these huge maps scales with screen size, not grid size.
+
 ### Lighting — Performance & Correctness
 
 - **Fewer per-frame allocations on flicker-heavy maps** — animated lights used to spread `{...light}` into a fresh object every frame (50 lights × 60 fps ≈ 3,000 short-lived allocations/sec). Replaced with a pooled per-light buffer keyed to each source light; same result, none of the GC pressure.

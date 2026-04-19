@@ -45,15 +45,41 @@ export const cvState: {
   _bgMeasureEnd: { x: number; y: number } | null;
   _renderScheduled: boolean;
   lastDrawMs: number;
+
+  // Zoom-only short-circuit tracking (Fix 1)
+  _lastRenderSig: {
+    contentVersion: number;
+    topContentVersion: number;
+    geometryVersion: number;
+    lightingVersion: number;
+    propsVersion: number;
+    texturesVersion: number;
+    canvasW: number;
+    canvasH: number;
+    ambientLight: number;
+    ambientColor: string;
+  } | null;
+
+  // Cached animated lightmap bitmap (Fix 3). Rendered at map-cache resolution;
+  // reused across frames when only the viewport transform changes.
+  _animLm: {
+    canvas: HTMLCanvasElement | OffscreenCanvas | null;
+    sig: string;
+    cacheW: number;
+    cacheH: number;
+  };
+
+  // Coalesced wheel input (Fix 2). Accumulated inside onWheel, flushed in rAF.
+  _pendingWheel: { deltaY: number; posX: number; posY: number } | null;
 } = {
   // Canvas / context
   canvas: null,
   ctx: null,
 
   // HiDPI / devicePixelRatio support
-  _dpr: 1,       // window.devicePixelRatio (updated on resize)
-  _canvasW: 0,   // CSS/logical canvas width
-  _canvasH: 0,   // CSS/logical canvas height
+  _dpr: 1, // window.devicePixelRatio (updated on resize)
+  _canvasW: 0, // CSS/logical canvas width
+  _canvasH: 0, // CSS/logical canvas height
 
   // Active tool reference (set by main.js)
   activeTool: null,
@@ -87,23 +113,32 @@ export const cvState: {
   rightDragged: false,
 
   // Hover tracking
-  _lastHoveredCell: null,  // tracks hovered cell to avoid redundant renders on mouse-move
+  _lastHoveredCell: null, // tracks hovered cell to avoid redundant renders on mouse-move
 
   // Animation loop
   animFrameId: null,
-  animLoopId: null,  // separate handle for the continuous animation loop
+  animLoopId: null, // separate handle for the continuous animation loop
 
   // Background cell measure drag state
   _bgMeasureActive: false,
   _bgMeasureCallback: null, // (newPixelsPerCell: number) => void
-  _bgMeasureStart: null,    // { x, y } canvas coords
-  _bgMeasureEnd: null,      // { x, y } canvas coords
+  _bgMeasureStart: null, // { x, y } canvas coords
+  _bgMeasureEnd: null, // { x, y } canvas coords
 
   // Render scheduling
   _renderScheduled: false,
 
   // Draw time tracking
   lastDrawMs: 0,
+
+  // Zoom-only short-circuit tracking (Fix 1)
+  _lastRenderSig: null,
+
+  // Cached animated lightmap bitmap (Fix 3)
+  _animLm: { canvas: null, sig: '', cacheW: 0, cacheH: 0 },
+
+  // Coalesced wheel input (Fix 2)
+  _pendingWheel: null,
 };
 
 // ── Offscreen map cache ─────────────────────────────────────────────────────

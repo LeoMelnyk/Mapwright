@@ -325,18 +325,40 @@ export function onWheel(e: WheelEvent): void {
     return;
   }
 
-  const delta = e.deltaY > 0 ? 0.9 : 1.1;
-  const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom * delta));
+  // Coalesce rapid wheel events into a single rAF-synced zoom (Fix 2).
+  // Wheel events can arrive 100+/sec; without coalescing each schedules a
+  // render even though requestAnimationFrame collapses them.
+  if (cvState._pendingWheel) {
+    cvState._pendingWheel.deltaY += e.deltaY;
+    cvState._pendingWheel.posX = pos.x;
+    cvState._pendingWheel.posY = pos.y;
+  } else {
+    cvState._pendingWheel = { deltaY: e.deltaY, posX: pos.x, posY: pos.y };
+  }
+  requestRender();
+}
 
-  // Zoom toward cursor
+/**
+ * Apply a coalesced wheel zoom. Called by the render loop before draw.
+ * @returns {boolean} True if zoom actually changed.
+ */
+export function flushPendingWheel(): boolean {
+  const pw = cvState._pendingWheel;
+  if (!pw) return false;
+  cvState._pendingWheel = null;
+
+  const delta = pw.deltaY > 0 ? 0.9 : 1.1;
+  const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom * delta));
+  if (newZoom === state.zoom) return false;
+
   const scale = newZoom / state.zoom;
-  state.panX = pos.x - scale * (pos.x - state.panX);
-  state.panY = pos.y - scale * (pos.y - state.panY);
+  state.panX = pw.posX - scale * (pw.posX - state.panX);
+  state.panY = pw.posY - scale * (pw.posY - state.panY);
   state.zoom = newZoom;
 
   markDirty();
-  requestRender();
   notify();
+  return true;
 }
 
 // Internal helper — cancels background cell measure mode
