@@ -883,6 +883,34 @@ export function invalidateLightmapCaches(): void {
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────
+//
+// Blend-mode contract (audited in Phase 4.11 of the 0.12 review):
+//
+//   Per-light RT canvas (lightRTCanvas, built inside renderPointLight /
+//     renderDirectionalLight):
+//     1. `source-over`     — radial gradient fill
+//     2. `destination-in`  — cone and/or visibility polygon clip (AND)
+//     3. `source-over`     — reset before prop-shadow application
+//     4. `destination-out` — each prop shadow subtracted (penumbra gradient)
+//
+//   Per-light RT → lightmap canvas:
+//     The outer lightmap context is in `lighter` (additive) mode when the RT
+//     is blitted, so overlapping lights accumulate correctly. Two overlapping
+//     red torches produce saturated red; red+blue overlap produces magenta.
+//     8-bit per-channel clamping is the expected behaviour — matches Godot's
+//     Light2D and Unity URP's 2D light accumulation.
+//
+//   Static lightmap (ambient + every static light):
+//     Filled with `source-over` for the ambient tint, then each light draws
+//     with `lighter`. The normal-map bump pass applies `multiply` at the end
+//     so steep surfaces get darkened slightly.
+//
+//   Lightmap → main canvas:
+//     `multiply`. The lightmap acts as a mask: brighter pixels leave the base
+//     render untouched, darker pixels dim it toward black.
+//
+// Don't "clean up" these composite modes without updating this diagram and
+// the tests that lock the contract in test/render/lighting.test.ts.
 
 /**
  * Render the complete lightmap onto a canvas context using 'multiply' composite.

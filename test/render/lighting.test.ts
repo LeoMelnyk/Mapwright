@@ -10,8 +10,11 @@ import {
   falloffMultiplier,
   clampSpread,
   getEffectiveLight,
+  renderLightmap,
+  invalidateVisibilityCache,
 } from '../../src/render/lighting.js';
-import type { Light } from '../../src/types.js';
+import type { Light, CellGrid } from '../../src/types.js';
+import { createCanvas } from '@napi-rs/canvas';
 
 // ---------------------------------------------------------------------------
 // extractWallSegments
@@ -341,5 +344,97 @@ describe('getEffectiveLight', () => {
     const b = getEffectiveLight(animated, 0.2);
     // Same backing buffer, different intensity
     expect(a).toBe(b);
+  });
+});
+
+// ─── Blend-mode stacking (Phase 4.11 audit) ────────────────────────────────
+//
+// The contract: lights accumulate ADDITIVELY on the lightmap, which is then
+// composited onto the base render with `multiply`. Regression tests below
+// render two overlapping lights into a real canvas and verify pixel values.
+
+describe('blend-mode stacking', () => {
+  /** Build a 10×10 open room (no walls) so lights reach everywhere unoccluded. */
+  function openRoomCells(rows: number, cols: number): CellGrid {
+    const cells: CellGrid = [];
+    for (let r = 0; r < rows; r++) {
+      const row: CellGrid[number] = [];
+      for (let c = 0; c < cols; c++) row.push({});
+      cells.push(row);
+    }
+    return cells;
+  }
+
+  const gridSize = 5;
+  const cells = openRoomCells(10, 10);
+  const transform = { scale: 1, offsetX: 0, offsetY: 0 };
+  const w = gridSize * 10;
+  const h = gridSize * 10;
+
+  function renderAt(lights: Light[], ambient = 0) {
+    const canvas = createCanvas(w, h);
+    const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
+    // Fill the base with pure white so 'multiply' preserves whatever the
+    // lightmap contributes verbatim — easiest way to read the lightmap back.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    invalidateVisibilityCache('walls');
+    renderLightmap(ctx, lights, cells, gridSize, transform, w, h, ambient, null, null, null, null);
+    return ctx.getImageData(0, 0, w, h);
+  }
+
+  function pixelAt(img: ImageData, x: number, y: number) {
+    const i = (y * img.width + x) * 4;
+    return { r: img.data[i]!, g: img.data[i + 1]!, b: img.data[i + 2]! };
+  }
+
+  it('overlapping lights accumulate brighter than either alone', () => {
+    const base: Light = {
+      id: 1,
+      x: 25,
+      y: 25,
+      type: 'point',
+      radius: 15,
+      color: '#400000', // dim red so two stacked reds stay below channel clip
+      intensity: 1,
+      falloff: 'linear',
+    };
+    const one = renderAt([base]);
+    const two = renderAt([
+      { ...base, id: 1, x: 22 },
+      { ...base, id: 2, x: 28 },
+    ]);
+    const p1 = pixelAt(one, 25, 25);
+    const p2 = pixelAt(two, 25, 25);
+    expect(p2.r).toBeGreaterThan(p1.r);
+  });
+
+  it('red + blue overlap yields magenta at the overlap center', () => {
+    const lights: Light[] = [
+      { id: 1, x: 22, y: 25, type: 'point', radius: 15, color: '#400000', intensity: 1, falloff: 'linear' },
+      { id: 2, x: 28, y: 25, type: 'point', radius: 15, color: '#000040', intensity: 1, falloff: 'linear' },
+    ];
+    const img = renderAt(lights);
+    const overlap = pixelAt(img, 25, 25);
+    // Both channels should be lit; green should be near zero.
+    expect(overlap.r).toBeGreaterThan(20);
+    expect(overlap.b).toBeGreaterThan(20);
+    expect(overlap.g).toBeLessThan(overlap.r);
+    expect(overlap.g).toBeLessThan(overlap.b);
+  });
+
+  it('ambient=0, no lights → lightmap is black, base gets blacked out', () => {
+    const img = renderAt([], 0);
+    const p = pixelAt(img, 25, 25);
+    expect(p.r + p.g + p.b).toBe(0);
+  });
+
+  it('ambient=1, no lights → lightmap is white, base unchanged', () => {
+    const img = renderAt([], 1);
+    const p = pixelAt(img, 25, 25);
+    // multiply by white = unchanged base (255)
+    expect(p.r).toBeGreaterThan(240);
+    expect(p.g).toBeGreaterThan(240);
+    expect(p.b).toBeGreaterThan(240);
   });
 });
