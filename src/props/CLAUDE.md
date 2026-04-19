@@ -556,6 +556,33 @@ lights: false
 | `dimRadius` | number (feet) | Override dim radius |
 | `angle` | number (degrees) | For directional presets only |
 | `spread` | number (degrees) | For directional presets only |
+| `cookie` | object | Procedural mask (gobo) projected through the light. See below. |
+
+**Cookie / gobo (`cookie`)** — declare a grayscale pattern that gets multiplied into the light's gradient. Useful for any prop that should project a *pattern* rather than a uniform glow: stained-glass windows, barred grates, magical sigils, lattices, water surfaces above a sunlit pool, tree canopies, etc. The placed light inherits the cookie verbatim; the prop is the natural place to declare it because the cookie is a property of the *fixture*, not the light source.
+
+```yaml
+# Stained-glass window casting colored shards on the floor
+lights: [{"preset":"daylight","x":1.0,"y":0,"cookie":{"type":"stained-glass","scale":1.2,"strength":0.9}}]
+
+# Barred prison window — vertical slats projected across the cell
+lights: [{"preset":"daylight","x":0.5,"y":0,"cookie":{"type":"slats","scale":1.0}}]
+
+# Slowly rotating summoning sigil
+lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"cookie":{"type":"sigil","rotationSpeed":8}}]
+```
+
+**Cookie fields** (all optional except `type`):
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `slats` / `dapple` / `caustics` / `sigil` / `grid` / `stained-glass` | Pattern. Procedural — no asset files. |
+| `scale` | number | Mask scale. 1.0 covers the light; >1 zooms in, <1 zooms out. Default 1. |
+| `strength` | number 0–1 | Mask opacity. 1 = full pattern, 0 = no cookie effect. Default 1. |
+| `rotation` | degrees | Static rotation. Default 0. |
+| `scrollX` / `scrollY` | number | Static scroll offset (0–1 wraps). |
+| `rotationSpeed` | deg/sec | Animate rotation (e.g. summoning sigils). |
+| `scrollSpeedX` / `scrollSpeedY` | per sec | Animate scroll (e.g. canopy dapple, water caustics). |
+
+Cookies work on both point and directional lights. For window props, pair with a directional preset (`daylight`, `sunbeam`) so the projection has a clear direction. Animated cookies (`rotationSpeed` / `scrollSpeed*`) bypass the per-light bake cache, so use them sparingly on prop-heavy maps.
 
 **Available presets** (see `src/lights/manifest.json` for the authoritative list):
 

@@ -25,8 +25,7 @@ import {
   drawScaleIndicator,
   drawBorder,
 } from './decorations.js';
-import { renderLightmapHQ } from './lighting-hq.js';
-import { extractFillLights } from './lighting.js';
+import { extractFillLights, renderLightmap, invalidateVisibilityCache } from './lighting.js';
 import { buildFluidComposite, invalidateFluidCache, FLUID_BASE_SKIP, FLUID_TOP_SKIP } from './fluid.js';
 import { getCachedRoomCells } from './render-cache.js';
 import {
@@ -294,7 +293,12 @@ export function renderDungeonToCanvas(
         const levelFillLights = extractFillLights(levelCells, gridSize, theme);
         const allLevelLights = levelFillLights.length ? [...levelLights, ...levelFillLights] : levelLights;
         const levelHeight2 = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
-        renderLightmapHQ(
+        // Use the editor's lightmap path so exports match what the user sees.
+        // Drop the visibility cache first — successive exports of different
+        // maps share the module-level cache and would otherwise reuse stale
+        // wall geometry.
+        invalidateVisibilityCache('walls');
+        renderLightmap(
           ctx,
           allLevelLights,
           levelCells,
@@ -305,7 +309,10 @@ export function renderDungeonToCanvas(
           config.metadata.ambientLight,
           textureCatalog,
           propCatalog,
-          null,
+          {
+            ambientColor: config.metadata.ambientColor ?? '#ffffff',
+            time: performance.now() / 1000,
+          },
           config.metadata,
         );
         // Draw labels after lightmap so they are unaffected by the multiply overlay
@@ -376,7 +383,8 @@ export function renderDungeonToCanvas(
     if (singleLevelLightingEnabled) {
       const fillLights = extractFillLights(config.cells, gridSize, theme);
       const allLights = fillLights.length ? [...config.metadata.lights, ...fillLights] : config.metadata.lights;
-      renderLightmapHQ(
+      invalidateVisibilityCache('walls');
+      renderLightmap(
         ctx,
         allLights,
         config.cells,
@@ -387,7 +395,10 @@ export function renderDungeonToCanvas(
         config.metadata.ambientLight,
         textureCatalog,
         propCatalog,
-        null,
+        {
+          ambientColor: config.metadata.ambientColor ?? '#ffffff',
+          time: performance.now() / 1000,
+        },
         config.metadata,
       );
       // Draw labels after lightmap so they are unaffected by the multiply overlay
@@ -488,7 +499,8 @@ export function renderPlayerViewToCanvas(
   if (lightingEnabled) {
     const fillLights = extractFillLights(playerCells, gridSize, theme);
     const allLights = fillLights.length ? [...playerMetadata.lights, ...fillLights] : playerMetadata.lights;
-    renderLightmapHQ(
+    invalidateVisibilityCache('walls');
+    renderLightmap(
       ctx,
       allLights,
       playerCells,
@@ -499,7 +511,10 @@ export function renderPlayerViewToCanvas(
       playerMetadata.ambientLight,
       textureCatalog,
       propCatalog,
-      null,
+      {
+        ambientColor: playerMetadata.ambientColor ?? '#ffffff',
+        time: performance.now() / 1000,
+      },
       playerMetadata,
     );
     renderLabels(ctx, playerCells, gridSize, theme, transform, labelStyle);

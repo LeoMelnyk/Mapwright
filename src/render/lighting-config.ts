@@ -56,6 +56,32 @@ export const FLICKER_WEIGHTS = [0.5, 0.3, 0.2] as const;
 /** Secondary frequency used for the optional radius-variation flicker. */
 export const FLICKER_RADIUS_FREQ = 11.3;
 
+/**
+ * Maximum hue shift (degrees) applied by `colorMode: 'auto'` as flicker
+ * intensity dips toward zero. 25° shifts orange (~30°) toward red (~5°),
+ * which mirrors how real combustion looks dimmer + redder when starved
+ * of fuel for a fraction of a second.
+ */
+export const COLOR_SHIFT_MAX_DEG = 25;
+
+/**
+ * Strike (lightning) defaults. Each window of `1 / frequency` seconds
+ * deterministically rolls whether a flash occurs, then shows it for a
+ * fraction `duration` of the window length. Baseline keeps the light
+ * faintly visible between flashes (set to 0 for total darkness).
+ */
+export const STRIKE_DEFAULT_FREQUENCY = 0.2;
+export const STRIKE_DEFAULT_DURATION = 0.12;
+export const STRIKE_DEFAULT_PROBABILITY = 0.4;
+export const STRIKE_DEFAULT_BASELINE = 0.05;
+
+/**
+ * Sweep lights bypass the per-light geometry cache (angle changes every
+ * frame). To keep the perf cliff visible, render warns once when more than
+ * this many sweep lights are in view simultaneously.
+ */
+export const SWEEP_LIGHT_SOFT_LIMIT = 4;
+
 // ─── Prop shadow projection ────────────────────────────────────────────────
 
 /**

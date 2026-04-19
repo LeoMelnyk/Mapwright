@@ -55,6 +55,10 @@ export {
   falloffMultiplier,
   clampSpread,
   kelvinToRgb,
+  beginGroupTransition,
+  hasActiveGroupTransitions,
+  clearGroupTransitions,
+  listCookieTypes,
 } from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';

@@ -248,7 +248,9 @@ export function render(): void {
         // we can reuse the cached bitmap and just composite it at a new rect.
         // Animation time is bucketed to the anim-loop tick rate so we avoid
         // rebuilding every rAF during rapid zooms.
-        const animBucket = Math.floor(animClock / ANIM_INTERVAL_MS);
+        // animClock is seconds; ANIM_INTERVAL_MS is millis — convert before dividing
+        // so the bucket actually increments once per anim tick (not once per 50s).
+        const animBucket = Math.floor((animClock * 1000) / ANIM_INTERVAL_MS);
         const lightmapCacheKey =
           `${getLightingVersion()}|${animBucket}|${metadata.ambientLight}|` +
           `${metadata.ambientColor ?? '#ffffff'}|${LIGHT_PX_PER_FOOT}|` +

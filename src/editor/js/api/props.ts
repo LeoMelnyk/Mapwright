@@ -270,6 +270,11 @@ export function placeProp(
           if (lightEntry.angle != null) light.angle = lightEntry.angle;
           if (lightEntry.spread != null) light.spread = lightEntry.spread;
           if (preset.animation?.type) light.animation = { ...preset.animation };
+          // Cookie inheritance: per-light entry beats preset. The prop file
+          // can declare its own cookie inline (e.g. a stained-glass window
+          // overriding any preset default) without going through a preset.
+          const cookie = lightEntry.cookie ?? (preset as { cookie?: unknown }).cookie;
+          if (cookie) light.cookie = cookie;
           meta.lights.push(light as unknown as (typeof meta.lights)[number]);
           lightsAdded.push({ id: lightId, preset: lightEntry.preset });
         }

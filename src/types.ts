@@ -156,6 +156,8 @@ export interface Light {
    * single-ray hard shadow. Typical values: 0.5–2 ft.
    */
   softShadowRadius?: number;
+  /** Optional procedural cookie (gobo) — see {@link LightCookie}. */
+  cookie?: LightCookie | null;
   _propShadows?: {
     shadowPoly: number[][];
     nearCenter: number[];
@@ -287,6 +289,12 @@ export interface Metadata {
   themeOverrides?: Record<string, unknown> | null;
   texturesVersion?: number;
   ambientColor?: string;
+  /**
+   * Optional ambient-light animation. Currently only `strike` is meaningful
+   * (lightning storm flashes). Lives on metadata so the whole map shares one
+   * synchronized rhythm.
+   */
+  ambientAnimation?: LightAnimationConfig | null;
   backgroundMusic?: string;
   [key: string]: unknown;
 }
@@ -451,6 +459,13 @@ export interface PropLight {
   dimRadius?: number;
   angle?: number;
   spread?: number;
+  /**
+   * Optional procedural cookie/gobo declaration. Lets a prop (e.g. a stained-
+   * glass window) project a patterned mask through any light it auto-emits.
+   * The placed light inherits this verbatim unless explicit `cookie` set on
+   * the lightEntry overrides it. See {@link LightCookie}.
+   */
+  cookie?: LightCookie | null;
 }
 
 /** Prop catalog structure. */
@@ -581,10 +596,88 @@ export interface PropClipboardData {
 
 /** Light animation config. */
 export interface LightAnimationConfig {
+  /**
+   * Animation kind:
+   *   - `flicker` — chaotic flame (sine sum or 1D noise via `pattern`)
+   *   - `pulse`   — smooth sin-wave breathing
+   *   - `strobe`  — binary on/off
+   *   - `strike`  — long-quiet → brief bright flash (lightning)
+   *   - `sweep`   — rotate `angle` over time (directional lights only)
+   */
   type: string;
   speed: number;
   amplitude: number;
+  /** Oscillate light radius. Now honored by flicker, pulse, and strobe. */
   radiusVariation?: number;
+  /**
+   * Per-light phase offset (seconds). When unset, a deterministic offset is
+   * derived from the light's id so co-located identical-speed lights desync
+   * naturally. Set to 0 explicitly to force lock-step sync (alarm bells,
+   * ritual circles).
+   */
+  phase?: number;
+  /**
+   * Color modulation as intensity dips:
+   *   - `auto` — physically motivated red-shift toward dimmer warm color
+   *   - `secondary` — blend `color` ↔ `colorSecondary` driven by waveform
+   *   - `none` (default) — leave color alone
+   */
+  colorMode?: 'none' | 'auto' | 'secondary';
+  /** Strength of color modulation, 0–1. */
+  colorVariation?: number;
+  /** Second color pole for `colorMode: 'secondary'`. */
+  colorSecondary?: string;
+  /**
+   * For `flicker`:
+   *   - `sine` (default) — three-incommensurate-sine sum
+   *   - `noise` — 1D simplex-style noise, gusty/wind feel
+   */
+  pattern?: 'sine' | 'noise';
+  /**
+   * Optional guttering envelope applied on top of any flicker pattern.
+   * 0 = no guttering, 1 = strong dropouts (light occasionally dies near zero).
+   */
+  guttering?: number;
+  /** ── strike (lightning) only ── */
+  /** Average strikes per second. Defaults to 0.2 (one every 5s). */
+  frequency?: number;
+  /** Fraction of each window during which the flash is visible (0–1). */
+  duration?: number;
+  /** Probability of any given window producing a strike (0–1). */
+  probability?: number;
+  /** Floor intensity multiplier between strikes. Defaults to 0.05. */
+  baseline?: number;
+  /** ── sweep (lighthouse) only ── */
+  /** Degrees per second. Positive = clockwise. */
+  angularSpeed?: number;
+  /** When set, sweep oscillates within ±arcRange/2 instead of full 360°. */
+  arcRange?: number;
+  /** Center of sweep arc in degrees (only meaningful with arcRange). */
+  arcCenter?: number;
+}
+
+/**
+ * Procedural cookie (gobo) — a grayscale mask multiplied into a light's
+ * gradient. No external assets; cookies are drawn procedurally on first use
+ * and cached. Animatable via scrollX/scrollY/rotationSpeed.
+ */
+export interface LightCookie {
+  /** Cookie pattern id. */
+  type: 'slats' | 'dapple' | 'caustics' | 'sigil' | 'grid' | 'stained-glass';
+  /** Mask scale multiplier — relative to light bounding box. Default 1. */
+  scale?: number;
+  /** Static rotation in degrees. Default 0. */
+  rotation?: number;
+  /** Static scroll in mask space (0–1 wraps). */
+  scrollX?: number;
+  scrollY?: number;
+  /** Animate rotation (degrees per second). */
+  rotationSpeed?: number;
+  /** Animate scroll (units per second). */
+  scrollSpeedX?: number;
+  scrollSpeedY?: number;
+  /** Strength of the cookie effect, 0 = no cookie, 1 = full mask. Default 1. */
+  strength?: number;
 }
 
 /** The full editor state object. */
@@ -792,6 +885,11 @@ export interface PlaceLightConfig {
   category?: string;
   id?: string;
   animation?: LightAnimationConfig | null;
+  cookie?: LightCookie | null;
+  group?: string;
+  name?: string;
+  range?: number;
+  softShadowRadius?: number;
 }
 
 /** Options for createTrim API method. */

@@ -1,0 +1,18 @@
+{
+  "displayName": "Water Caustics",
+  "category": "Utility",
+  "description": "Underwater rippling light pattern — slow scrolling caustic veins",
+  "type": "point",
+  "color": "#88bbff",
+  "radius": 22,
+  "intensity": 0.85,
+  "falloff": "smooth",
+  "z": 12,
+  "cookie": {
+    "type": "caustics",
+    "scale": 1.0,
+    "scrollSpeedX": 0.08,
+    "scrollSpeedY": 0.05,
+    "strength": 0.85
+  }
+}

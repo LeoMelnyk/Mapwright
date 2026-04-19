@@ -56,12 +56,32 @@ function buildFromMetadata(entries: Record<string, unknown>[]): LightCatalog {
     if (data.z != null) entry.z = data.z as number;
     const animData = data.animation as Record<string, unknown> | null;
     if (animData?.type) {
+      // Pass through every animation field. The renderer ignores fields it
+      // doesn't recognize, so we don't need to gate per-type here — extension
+      // points (strike/sweep/cookie/colorMode) get to the engine for free.
       entry.animation = {
         type: str(animData.type, ''),
         speed: num(animData.speed, 1),
         amplitude: num(animData.amplitude, 0.5),
         ...(animData.radiusVariation != null ? { radiusVariation: animData.radiusVariation as number } : {}),
+        ...(animData.phase != null ? { phase: animData.phase as number } : {}),
+        ...(animData.colorMode != null ? { colorMode: animData.colorMode as 'none' | 'auto' | 'secondary' } : {}),
+        ...(animData.colorVariation != null ? { colorVariation: animData.colorVariation as number } : {}),
+        ...(animData.colorSecondary != null ? { colorSecondary: animData.colorSecondary as string } : {}),
+        ...(animData.pattern != null ? { pattern: animData.pattern as 'sine' | 'noise' } : {}),
+        ...(animData.guttering != null ? { guttering: animData.guttering as number } : {}),
+        ...(animData.frequency != null ? { frequency: animData.frequency as number } : {}),
+        ...(animData.duration != null ? { duration: animData.duration as number } : {}),
+        ...(animData.probability != null ? { probability: animData.probability as number } : {}),
+        ...(animData.baseline != null ? { baseline: animData.baseline as number } : {}),
+        ...(animData.angularSpeed != null ? { angularSpeed: animData.angularSpeed as number } : {}),
+        ...(animData.arcRange != null ? { arcRange: animData.arcRange as number } : {}),
+        ...(animData.arcCenter != null ? { arcCenter: animData.arcCenter as number } : {}),
       };
+    }
+    if (data.cookie && typeof data.cookie === 'object') {
+      // Pass cookie through verbatim — renderer validates the `type` field.
+      (entry as unknown as { cookie?: unknown }).cookie = data.cookie;
     }
 
     lights[key] = entry;
@@ -132,7 +152,9 @@ export async function loadLightCatalog(): Promise<LightCatalog | null> {
         falloff: data.falloff ?? 'smooth',
         spread: data.spread ?? null,
         dimRadius: data.dimRadius ?? null,
+        z: data.z ?? null,
         animation: data.animation ?? null,
+        cookie: data.cookie ?? null,
       });
     }
 

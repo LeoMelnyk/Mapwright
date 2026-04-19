@@ -16,7 +16,7 @@ import {
 import { invalidateDecorationCache } from './decoration-cache.js';
 
 // ── Sub-module imports ──────────────────────────────────────────────────────
-import { cvState, ANIM_INTERVAL_MS, getMapCache, getCachedBgImage } from './canvas-view-state.js';
+import { cvState, ANIM_INTERVAL_MS, isInteracting, getMapCache, getCachedBgImage } from './canvas-view-state.js';
 import { requestRender, resizeCanvas, getTransform, setTickAnimLoopRef } from './canvas-view-render.js';
 import { onMouseDown, onMouseMove, onMouseUp, onMouseLeave, onWheel, restoreToolCursor } from './canvas-view-input.js';
 import { zoomToFit, panToLevel } from './canvas-view-viewport.js';
@@ -166,8 +166,15 @@ function tickAnimLoop() {
   cvState.animLoopId = null;
   const { metadata } = state.dungeon;
   if (!metadata.lightingEnabled) return;
-  state.animClock = performance.now() / 1000;
-  requestRender();
+  // Suspend animation while the user is mid-zoom or mid-pan. During interaction,
+  // every rAF hits the lightmap cache short-circuit (one cheap drawImage),
+  // keeping the viewport responsive on maps with many animated lights. Visual
+  // masking hides the paused flicker — the brain doesn't notice. Animation
+  // resumes within INTERACTION_QUIET_MS of the user stopping.
+  if (!isInteracting()) {
+    state.animClock = performance.now() / 1000;
+    requestRender();
+  }
   cvState.animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
 }
 

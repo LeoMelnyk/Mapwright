@@ -7,7 +7,26 @@ export const CELL_SIZE = 40; // pixels per cell at zoom=1
 export const MIN_ZOOM = 0.2;
 export const MAX_ZOOM = 5.0;
 export const PAN_THRESHOLD = 5; // pixels before a right-click becomes a pan
-export const ANIM_INTERVAL_MS = 50; // 20fps — sufficient for fire/pulse, avoids 60fps render spam
+// Animation tick rate. Each tick triggers a lightmap rebuild for animated
+// lights, so this directly trades CPU/GPU cost against animation smoothness.
+// 50ms (20fps) is enough headroom for fast strobes/sweeps; the heavier per-
+// rebuild cost is mitigated by `INTERACTION_QUIET_MS` below — animation is
+// suspended while the user is actively zooming/panning.
+export const ANIM_INTERVAL_MS = 50;
+
+/**
+ * How long after the last zoom event before animation resumes ticking.
+ * During zoom, every rAF hits the lightmap cache short-circuit (one cheap
+ * drawImage with multiply at the new dest rect) instead of rebuilding the
+ * animated overlay — keeping the wheel-zoom responsive on maps with many
+ * animated lights. 150ms is below the perceptual threshold for "is the
+ * flame frozen?" — the brain reads the resumed flicker as continuous.
+ *
+ * Pan does NOT throttle animation: pan keeps the destination rect size
+ * constant, the multiply-blend GPU framebuffer can be reused across frames,
+ * and there's no measurable pan-time perf hit even with full animation.
+ */
+export const INTERACTION_QUIET_MS = 150;
 
 /**
  * Central mutable state object shared across canvas-view sub-modules.
@@ -71,6 +90,16 @@ export const cvState: {
 
   // Coalesced wheel input (Fix 2). Accumulated inside onWheel, flushed in rAF.
   _pendingWheel: { deltaY: number; posX: number; posY: number } | null;
+
+  /**
+   * Monotonic timestamp (ms, performance.now()) of the most recent zoom
+   * event. Animation tick is suppressed while
+   * `now - _lastInteractionAt < INTERACTION_QUIET_MS`, keeping zoom snappy
+   * on maps with many animated lights. Pan deliberately does NOT bump this
+   * — pan has no measurable perf hit and pausing animation during pan would
+   * just be needlessly jarring.
+   */
+  _lastInteractionAt: number;
 } = {
   // Canvas / context
   canvas: null,
@@ -139,7 +168,21 @@ export const cvState: {
 
   // Coalesced wheel input (Fix 2)
   _pendingWheel: null,
+
+  // Interaction throttle (Fix 4). Set to performance.now() by wheel/pan
+  // handlers; checked by tickAnimLoop to suspend animation during interaction.
+  _lastInteractionAt: 0,
 };
+
+/** Mark a zoom event as having just happened. Called from `onWheel`. */
+export function noteInteraction(): void {
+  cvState._lastInteractionAt = performance.now();
+}
+
+/** True when the user is mid-zoom (wheel event within the quiet window). */
+export function isInteracting(): boolean {
+  return performance.now() - cvState._lastInteractionAt < INTERACTION_QUIET_MS;
+}
 
 // ── Offscreen map cache ─────────────────────────────────────────────────────
 // renderCells is expensive (thousands of GPU commands). We render it once to an

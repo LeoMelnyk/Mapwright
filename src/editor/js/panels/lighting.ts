@@ -3,7 +3,7 @@ import type { FalloffType, Light, LightAnimationConfig, LightPreset } from '../.
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
-import { kelvinToRgb, falloffMultiplier } from '../../../render/index.js';
+import { kelvinToRgb, falloffMultiplier, beginGroupTransition } from '../../../render/index.js';
 
 let container: HTMLElement | null = null;
 
@@ -132,6 +132,37 @@ function render() {
       (v: number) => (v === 0 ? 'Off' : `${Math.round(v * 100)}%`),
     ),
   );
+
+  // Ambient animation — currently a Storm toggle (lightning strike across the
+  // whole canvas at irregular intervals). Strike color follows ambientColor,
+  // so set ambientColor to a pale blue (#bbccff) for a thunderstorm.
+  const stormCfg = metadata.ambientAnimation;
+  const stormRow = el('label', 'lighting-toggle');
+  const stormCb = document.createElement('input');
+  stormCb.type = 'checkbox';
+  stormCb.checked = stormCfg?.type === 'strike';
+  stormCb.addEventListener('change', () => {
+    if (stormCb.checked) {
+      metadata.ambientAnimation = {
+        type: 'strike',
+        speed: 1,
+        amplitude: 0.7,
+        frequency: 0.08,
+        duration: 0.18,
+        probability: 0.5,
+        baseline: 0,
+      };
+    } else {
+      delete metadata.ambientAnimation;
+    }
+    invalidateLightmap('lights');
+    markDirty();
+    notify();
+    requestRender();
+  });
+  stormRow.appendChild(stormCb);
+  stormRow.appendChild(document.createTextNode(' Storm (ambient lightning flashes)'));
+  ambientSection.appendChild(stormRow);
 
   container.appendChild(ambientSection);
 
@@ -333,7 +364,7 @@ function render() {
       ),
     );
 
-    // Animation controls
+    // ── Animation controls ───────────────────────────────────────────────
     selSection.appendChild(sectionLabel('Animation'));
     const animTypeRow = el('div', 'lighting-slider-row');
     animTypeRow.appendChild(labelEl('Type'));
@@ -344,6 +375,8 @@ function render() {
       ['flicker', 'Flicker'],
       ['pulse', 'Pulse'],
       ['strobe', 'Strobe'],
+      ['strike', 'Strike (lightning)'],
+      ['sweep', 'Sweep (lighthouse)'],
     ] as const) {
       const opt = document.createElement('option');
       opt.value = val;
@@ -382,21 +415,183 @@ function render() {
       () => applyAnim(),
       (v: number) => v.toFixed(2),
     );
+    // Flicker-only: pattern + guttering
+    const flickerPatternRow = el('div', 'lighting-slider-row');
+    flickerPatternRow.appendChild(labelEl('Pattern'));
+    const flickerPatternSelect = document.createElement('select');
+    flickerPatternSelect.className = 'lighting-select';
+    for (const [val, lbl] of [
+      ['sine', 'Sine (default)'],
+      ['noise', 'Noise (windblown)'],
+    ] as const) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = lbl;
+      opt.selected = (existingAnim.pattern ?? 'sine') === val;
+      flickerPatternSelect.appendChild(opt);
+    }
+    flickerPatternSelect.addEventListener('change', () => applyAnim());
+    flickerPatternRow.appendChild(flickerPatternSelect);
+    const guttRow = sliderRow(
+      'Guttering',
+      existingAnim.guttering ?? 0,
+      0,
+      1,
+      0.05,
+      () => applyAnim(),
+      (v: number) => (v === 0 ? 'Off' : v.toFixed(2)),
+    );
+    // Strike-only: frequency / duration / probability / baseline
+    const strikeFreqRow = sliderRow(
+      'Frequency',
+      existingAnim.frequency ?? 0.2,
+      0.05,
+      2,
+      0.05,
+      () => applyAnim(),
+      (v: number) => `${v.toFixed(2)}/s`,
+    );
+    const strikeDurRow = sliderRow(
+      'Flash Length',
+      existingAnim.duration ?? 0.12,
+      0.02,
+      1,
+      0.02,
+      () => applyAnim(),
+      (v: number) => v.toFixed(2),
+    );
+    const strikeProbRow = sliderRow(
+      'Probability',
+      existingAnim.probability ?? 0.4,
+      0,
+      1,
+      0.05,
+      () => applyAnim(),
+      (v: number) => v.toFixed(2),
+    );
+    const strikeBaseRow = sliderRow(
+      'Baseline',
+      existingAnim.baseline ?? 0.05,
+      0,
+      1,
+      0.05,
+      () => applyAnim(),
+      (v: number) => v.toFixed(2),
+    );
+    // Sweep-only: angularSpeed / arcRange
+    const sweepSpeedRow = sliderRow(
+      'Angular Speed',
+      existingAnim.angularSpeed ?? 60,
+      -360,
+      360,
+      5,
+      () => applyAnim(),
+      (v: number) => `${v}°/s`,
+    );
+    const sweepArcRow = sliderRow(
+      'Arc Range',
+      existingAnim.arcRange ?? 0,
+      0,
+      360,
+      5,
+      () => applyAnim(),
+      (v: number) => (v === 0 ? 'Full 360°' : `±${v / 2}°`),
+    );
+    // Sync toggle (forces phase = 0 instead of id-derived)
+    const syncRow = el('label', 'lighting-toggle');
+    const syncCb = document.createElement('input');
+    syncCb.type = 'checkbox';
+    syncCb.checked = existingAnim.phase === 0;
+    syncCb.addEventListener('change', () => applyAnim());
+    syncRow.appendChild(syncCb);
+    syncRow.appendChild(document.createTextNode(' Sync to other group lights'));
+
     selSection.appendChild(animSpeedRow);
     selSection.appendChild(animAmpRow);
     selSection.appendChild(animRadRow);
+    selSection.appendChild(flickerPatternRow);
+    selSection.appendChild(guttRow);
+    selSection.appendChild(strikeFreqRow);
+    selSection.appendChild(strikeDurRow);
+    selSection.appendChild(strikeProbRow);
+    selSection.appendChild(strikeBaseRow);
+    selSection.appendChild(sweepSpeedRow);
+    selSection.appendChild(sweepArcRow);
+    selSection.appendChild(syncRow);
+
+    // ── Color modulation (works with any anim type) ───────────────────────
+    const colorModeRow = el('div', 'lighting-slider-row');
+    colorModeRow.appendChild(labelEl('Color Mode'));
+    const colorModeSelect = document.createElement('select');
+    colorModeSelect.className = 'lighting-select';
+    for (const [val, lbl] of [
+      ['none', 'None'],
+      ['auto', 'Auto (red-shift)'],
+      ['secondary', 'Two-color blend'],
+    ] as const) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = lbl;
+      opt.selected = (existingAnim.colorMode ?? 'none') === val;
+      colorModeSelect.appendChild(opt);
+    }
+    colorModeSelect.addEventListener('change', () => applyAnim());
+    colorModeRow.appendChild(colorModeSelect);
+    const colorVarRow = sliderRow(
+      'Color Variation',
+      existingAnim.colorVariation ?? 0.5,
+      0,
+      1,
+      0.05,
+      () => applyAnim(),
+      (v: number) => v.toFixed(2),
+    );
+    const colorSecRow = el('div', 'lighting-color-row');
+    colorSecRow.appendChild(labelEl('Secondary Color'));
+    const colorSecInput = document.createElement('input');
+    colorSecInput.type = 'color';
+    colorSecInput.value = existingAnim.colorSecondary ?? '#ffffff';
+    colorSecInput.addEventListener('input', () => applyAnim());
+    colorSecRow.appendChild(colorSecInput);
+    selSection.appendChild(colorModeRow);
+    selSection.appendChild(colorVarRow);
+    selSection.appendChild(colorSecRow);
 
     function applyAnim() {
       const animType = animTypeSelect.value;
       if (animType === 'none') {
         delete selectedLight!.animation;
       } else {
-        selectedLight!.animation = {
+        const colorMode = colorModeSelect.value as 'none' | 'auto' | 'secondary';
+        const animObj: LightAnimationConfig = {
           type: animType,
           speed: parseFloat(animSpeedRow.querySelector('input')!.value),
           amplitude: parseFloat(animAmpRow.querySelector('input')!.value),
           radiusVariation: parseFloat(animRadRow.querySelector('input')!.value),
         };
+        if (animType === 'flicker') {
+          animObj.pattern = flickerPatternSelect.value as 'sine' | 'noise';
+          const g = parseFloat(guttRow.querySelector('input')!.value);
+          if (g > 0) animObj.guttering = g;
+        }
+        if (animType === 'strike') {
+          animObj.frequency = parseFloat(strikeFreqRow.querySelector('input')!.value);
+          animObj.duration = parseFloat(strikeDurRow.querySelector('input')!.value);
+          animObj.probability = parseFloat(strikeProbRow.querySelector('input')!.value);
+          animObj.baseline = parseFloat(strikeBaseRow.querySelector('input')!.value);
+        }
+        if (animType === 'sweep') {
+          animObj.angularSpeed = parseFloat(sweepSpeedRow.querySelector('input')!.value);
+          const arc = parseFloat(sweepArcRow.querySelector('input')!.value);
+          if (arc > 0) animObj.arcRange = arc;
+        }
+        if (colorMode !== 'none') {
+          animObj.colorMode = colorMode;
+          animObj.colorVariation = parseFloat(colorVarRow.querySelector('input')!.value);
+          if (colorMode === 'secondary') animObj.colorSecondary = colorSecInput.value;
+        }
+        if (syncCb.checked) animObj.phase = 0;
+        selectedLight!.animation = animObj;
       }
       delete selectedLight!.presetId; // sever preset link on manual animation edit
       updateAnimRows();
@@ -407,12 +602,138 @@ function render() {
     animTypeSelect.addEventListener('change', applyAnim);
 
     function updateAnimRows() {
-      const show = animTypeSelect.value !== 'none';
+      const at = animTypeSelect.value;
+      const show = at !== 'none';
       animSpeedRow.style.display = show ? '' : 'none';
-      animAmpRow.style.display = show ? '' : 'none';
-      animRadRow.style.display = show ? '' : 'none';
+      animAmpRow.style.display = show && at !== 'sweep' ? '' : 'none';
+      animRadRow.style.display = show && (at === 'flicker' || at === 'pulse' || at === 'strobe') ? '' : 'none';
+      flickerPatternRow.style.display = at === 'flicker' ? '' : 'none';
+      guttRow.style.display = at === 'flicker' || at === 'strike' ? '' : 'none';
+      strikeFreqRow.style.display = at === 'strike' ? '' : 'none';
+      strikeDurRow.style.display = at === 'strike' ? '' : 'none';
+      strikeProbRow.style.display = at === 'strike' ? '' : 'none';
+      strikeBaseRow.style.display = at === 'strike' ? '' : 'none';
+      sweepSpeedRow.style.display = at === 'sweep' ? '' : 'none';
+      sweepArcRow.style.display = at === 'sweep' ? '' : 'none';
+      syncRow.style.display = show ? '' : 'none';
+      colorModeRow.style.display = show ? '' : 'none';
+      const cmShow = show && colorModeSelect.value !== 'none';
+      colorVarRow.style.display = cmShow ? '' : 'none';
+      colorSecRow.style.display = cmShow && colorModeSelect.value === 'secondary' ? '' : 'none';
     }
     updateAnimRows();
+
+    // ── Cookie / Gobo controls ───────────────────────────────────────────
+    selSection.appendChild(sectionLabel('Cookie (Gobo)'));
+    const cookieTypeRow = el('div', 'lighting-slider-row');
+    cookieTypeRow.appendChild(labelEl('Pattern'));
+    const cookieTypeSelect = document.createElement('select');
+    cookieTypeSelect.className = 'lighting-select';
+    for (const [val, lbl] of [
+      ['none', 'None'],
+      ['slats', 'Slats (prison bars)'],
+      ['dapple', 'Canopy Dapple'],
+      ['caustics', 'Water Caustics'],
+      ['sigil', 'Magical Sigil'],
+      ['grid', 'Grid (window)'],
+      ['stained-glass', 'Stained Glass'],
+    ] as const) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = lbl;
+      opt.selected = (selectedLight.cookie?.type ?? 'none') === val;
+      cookieTypeSelect.appendChild(opt);
+    }
+    cookieTypeRow.appendChild(cookieTypeSelect);
+    selSection.appendChild(cookieTypeRow);
+
+    const existingCookie = selectedLight.cookie ?? null;
+    const cookieScaleRow = sliderRow(
+      'Scale',
+      existingCookie?.scale ?? 1.0,
+      0.25,
+      4.0,
+      0.05,
+      () => applyCookie(),
+      (v: number) => `${v.toFixed(2)}×`,
+    );
+    const cookieStrengthRow = sliderRow(
+      'Strength',
+      existingCookie?.strength ?? 1.0,
+      0,
+      1,
+      0.05,
+      () => applyCookie(),
+      (v: number) => v.toFixed(2),
+    );
+    const cookieRotSpeedRow = sliderRow(
+      'Rotation Speed',
+      existingCookie?.rotationSpeed ?? 0,
+      -90,
+      90,
+      1,
+      () => applyCookie(),
+      (v: number) => (v === 0 ? 'Static' : `${v}°/s`),
+    );
+    const cookieScrollXRow = sliderRow(
+      'Scroll X',
+      existingCookie?.scrollSpeedX ?? 0,
+      -0.5,
+      0.5,
+      0.01,
+      () => applyCookie(),
+      (v: number) => v.toFixed(2),
+    );
+    const cookieScrollYRow = sliderRow(
+      'Scroll Y',
+      existingCookie?.scrollSpeedY ?? 0,
+      -0.5,
+      0.5,
+      0.01,
+      () => applyCookie(),
+      (v: number) => v.toFixed(2),
+    );
+    selSection.appendChild(cookieScaleRow);
+    selSection.appendChild(cookieStrengthRow);
+    selSection.appendChild(cookieRotSpeedRow);
+    selSection.appendChild(cookieScrollXRow);
+    selSection.appendChild(cookieScrollYRow);
+
+    function applyCookie() {
+      const cType = cookieTypeSelect.value;
+      if (cType === 'none') {
+        delete selectedLight!.cookie;
+      } else {
+        const c: NonNullable<Light['cookie']> = {
+          type: cType as NonNullable<Light['cookie']>['type'],
+          scale: parseFloat(cookieScaleRow.querySelector('input')!.value),
+          strength: parseFloat(cookieStrengthRow.querySelector('input')!.value),
+        };
+        const rs = parseFloat(cookieRotSpeedRow.querySelector('input')!.value);
+        if (rs !== 0) c.rotationSpeed = rs;
+        const sx = parseFloat(cookieScrollXRow.querySelector('input')!.value);
+        if (sx !== 0) c.scrollSpeedX = sx;
+        const sy = parseFloat(cookieScrollYRow.querySelector('input')!.value);
+        if (sy !== 0) c.scrollSpeedY = sy;
+        selectedLight!.cookie = c;
+      }
+      delete selectedLight!.presetId;
+      updateCookieRows();
+      invalidateLightmap(false);
+      markDirty();
+      requestRender();
+    }
+    cookieTypeSelect.addEventListener('change', applyCookie);
+
+    function updateCookieRows() {
+      const show = cookieTypeSelect.value !== 'none';
+      cookieScaleRow.style.display = show ? '' : 'none';
+      cookieStrengthRow.style.display = show ? '' : 'none';
+      cookieRotSpeedRow.style.display = show ? '' : 'none';
+      cookieScrollXRow.style.display = show ? '' : 'none';
+      cookieScrollYRow.style.display = show ? '' : 'none';
+    }
+    updateCookieRows();
 
     // Delete button
     const deleteBtn = document.createElement('button');
@@ -542,24 +863,58 @@ function render() {
     const disabled = new Set(metadata.disabledLightGroups ?? []);
     const groupsSection = el('div', 'lighting-section');
     groupsSection.appendChild(sectionLabel('Groups'));
+    // Per-group fade-envelope picker (applies on the next toggle).
+    const envChoiceByGroup = new Map<string, 'instant' | 'simple-fade' | 'ignite' | 'extinguish'>();
     for (const name of [...groupNames].sort((a, b) => a.localeCompare(b))) {
       const count = lights.filter((l) => l.group === name).length;
-      const row = el('label', 'lighting-toggle');
+      const row = el('div', 'lighting-slider-row');
       const cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.checked = !disabled.has(name);
+      cb.style.marginRight = '6px';
+      const envSelect = document.createElement('select');
+      envSelect.className = 'lighting-select';
+      envSelect.style.marginLeft = '4px';
+      for (const [val, lbl] of [
+        ['instant', 'Instant'],
+        ['simple-fade', 'Fade'],
+        ['ignite', 'Ignite'],
+        ['extinguish', 'Extinguish'],
+      ] as const) {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = lbl;
+        if (val === 'instant') opt.selected = true;
+        envSelect.appendChild(opt);
+      }
+      envSelect.addEventListener('change', () => {
+        envChoiceByGroup.set(name, envSelect.value as 'instant' | 'simple-fade' | 'ignite' | 'extinguish');
+      });
       cb.addEventListener('change', () => {
         const next = new Set(metadata.disabledLightGroups ?? []);
         if (cb.checked) next.delete(name);
         else next.add(name);
         metadata.disabledLightGroups = next.size > 0 ? [...next] : undefined;
+        const envelope = envChoiceByGroup.get(name) ?? 'instant';
+        if (envelope !== 'instant') {
+          // Pick a sensible default envelope based on direction if user left
+          // it on Fade — Ignite reads better on enable, Extinguish on disable.
+          const eff =
+            envelope === 'simple-fade'
+              ? cb.checked
+                ? 'ignite'
+                : 'extinguish'
+              : envelope;
+          beginGroupTransition(name, cb.checked, eff, 700);
+        }
         invalidateLightmap('lights');
         markDirty();
         notify();
         requestRender();
       });
       row.appendChild(cb);
-      row.appendChild(document.createTextNode(` ${name} (${count})`));
+      row.appendChild(document.createTextNode(` ${name} (${count}) `));
+      row.appendChild(envSelect);
       groupsSection.appendChild(row);
     }
     container.appendChild(groupsSection);

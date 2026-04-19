@@ -1,0 +1,21 @@
+{
+  "displayName": "Malfunctioning Portal",
+  "category": "Magical",
+  "description": "A flickering arcane gate, color-shifting between blue and violet",
+  "type": "point",
+  "color": "#3366ff",
+  "radius": 18,
+  "dimRadius": 28,
+  "intensity": 1.1,
+  "falloff": "smooth",
+  "z": 4,
+  "animation": {
+    "type": "strobe",
+    "speed": 2.5,
+    "amplitude": 0.5,
+    "radiusVariation": 0.2,
+    "colorMode": "secondary",
+    "colorVariation": 0.8,
+    "colorSecondary": "#9933ff"
+  }
+}

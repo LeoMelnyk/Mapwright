@@ -1569,6 +1569,8 @@ export class PropTool extends Tool {
             if (lightDef.angle != null) light.angle = lightDef.angle;
             if (lightDef.spread != null) light.spread = lightDef.spread;
             if (preset.animation?.type) light.animation = { ...preset.animation };
+            const cookie = lightDef.cookie ?? (preset as { cookie?: unknown }).cookie;
+            if (cookie) light.cookie = cookie as Light['cookie'];
 
             meta.lights.push(light);
           }

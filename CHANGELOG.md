@@ -10,6 +10,14 @@
 
 ### Lighting
 
+- **Light cookies (gobos)** — every light can now project a patterned mask through its gradient: stained-glass shards, prison bars, water caustics, dappled tree canopy, magical sigils, or a plain window grid. Six built-in patterns; no asset files to manage. Cookies support static rotation/scale/scroll, plus animated rotation and scroll for moving effects (slow-rotating sigils, drifting canopy dapple). Configure on any light from the new Cookie section of the lighting panel, or declare one inline on a prop's `lights:` field so window/grate props auto-project their pattern.
+- **More flame personality** — flicker animation gains four optional modifiers: a *noise* pattern variant (windblown gusty feel vs. the default sine flicker), a *guttering* envelope (occasional dropouts simulating a dying flame), an *auto* color-shift mode (flames red-shift as they dim), and an explicit *two-color* mode (blend between two arbitrary colors driven by the waveform — green↔purple faerie fire, blue↔cyan arcane portals). Radius variation now applies to pulse and strobe too, not just flicker.
+- **New animation types** — *Strike* gives a light long-quiet stretches punctuated by brief bright flashes (electrical hazards, malfunctioning crystals, broken lighthouses). *Sweep* rotates a directional light's cone over time, full 360° or back-and-forth within an arc (lighthouse beams, nervous lantern carriers).
+- **Storm mode** — new toggle in the Ambient section paints map-wide lightning flashes at irregular intervals, color-keyed to the ambient color (set ambient to pale blue for a thunderstorm). Synced across the whole map; great for outdoor encounters.
+- **Light group transitions** — the Groups toggles gain a transition picker (Instant / Fade / Ignite / Extinguish). Igniting a group ramps from zero with a brief mid-flicker; extinguishing guttering down before going dark. Lets DMs cut the chandeliers mid-session without a hard pop.
+- **Same lighting in editor preview and PNG export** — the export pipeline used to run a separate per-pixel renderer that subtly diverged from what you saw in the editor. PNG exports now use the same engine the editor preview uses, so cookies, color shifts, sweep angles, group fades, and ambient strikes all show up identically in `--export-png` output.
+- **Twelve new presets** — Magical Ward, Malfunctioning Portal, Arcing Crystal, Summoning Sigil, Lighthouse Beam, Nervous Lantern, Stained-Glass Window, Prison Bars Light, Canopy Dapple, Water Caustics, Windblown Torch, Dying Candle. Each demonstrates one or more of the new features so you have working starting points.
+- **Co-located identical lights no longer flicker in lockstep** — two torches with the same speed used to share an animation phase, so their flames pulsed in perfect sync (visible on hallway runs of identical sconces). Each light now derives a stable per-id phase offset, so a row of torches looks naturally chaotic out of the box. Set `phase: 0` on every member of a group if you actually want sync (alarm bells, ritual chants).
 - **Light groups** — tag any light with a group name ("torches", "traps", "magic auras") and toggle the whole group on/off in the new Groups section at the bottom of the Lighting panel. The toggle affects both the live editor preview and PNG exports, so DMs can dim every torch in the dungeon mid-session without re-placing anything. Ungrouped lights are always visible.
 - **Darkness / anti-light** — new checkbox per light. When enabled, the light SUBTRACTS illumination from the area it covers (D&D Darkness spell, cursed zones, shadow auras) instead of brightening it. Works with every existing feature — falloff curves, radius, animation, directional cones — the area just ends up dark instead of bright.
 - **Soft shadows** — new per-light Soft Shadow slider (0–4 ft). Non-zero values cast four jittered sample rays from a disc around the light center and blend the results, so wall corners fade through a realistic penumbra instead of snapping from fully-lit to fully-dark. Reads as a hand-drawn aesthetic on printed maps.
@@ -19,6 +27,7 @@
 
 ### Performance
 
+- **Wheel-zoom stays smooth even with all the new animation features turned on** — animated cookies, sweep lights, color-shifting torches, and storm flashes are individually cheap, but together they add measurable per-frame lighting work. The animation tick now suspends itself for 150ms after each wheel event, so every zoom frame hits the lightmap cache short-circuit (one drawImage) instead of rebuilding the animated overlay. Animation resumes the moment the wheel goes idle; the brief flicker pause during a zoom is invisible (visual masking suppresses fine flicker detail during fast viewport motion). Pan was never affected and isn't throttled.
 - **Zoom is now smooth on maps with animated lights** — on torch-heavy maps the editor used to rebuild the full lightmap on every wheel tick, blowing the 60 fps budget and making zoom feel like it was dragging. The lightmap bitmap is now reused across pan and zoom frames (it only changes when a light actually animates or moves), and the canvas just recomposites it at the new viewport — turning most zoom frames into a single `drawImage` instead of a full light pipeline rebuild.
 - **Wheel events are coalesced per frame** — a fast-spinning mouse wheel can fire 100+ events per second. Each one used to mutate zoom state immediately, triggering duplicate work even though `requestAnimationFrame` collapses the paints. Deltas are now accumulated and applied once per frame, so rapid zooms produce one clean zoom step per frame regardless of how many wheel events arrived.
 - **Off-screen grid lines skipped on oversized maps** — when a map is too large for the offscreen cache (rare, >16k px on either axis) the editor falls back to direct rendering. The matrix-grid pass used to iterate every cell on the map even though only a small portion was in view. It now culls to the viewport like the other phases, so scrolling and zooming on these huge maps scales with screen size, not grid size.
@@ -33,9 +42,13 @@
 ### New API methods
 
 - `setLightGroup(id, group | null)` — assign a light to a group or clear its group
-- `setLightGroupEnabled(group, enabled)` — toggle every light in a group on/off
+- `setLightGroupEnabled(group, enabled, { transition?, durationMs? })` — toggle every light in a group on/off; optional `transition: 'simple-fade' | 'ignite' | 'extinguish'` ramps the change instead of hard-cutting
+- `setLightAnimation(id, animation | null)` — set or clear the animation config on a light
+- `setLightCookie(id, cookie | null)` — attach (or remove) a procedural cookie/gobo on a light
+- `setAmbientAnimation(animation | null)` — set/clear the map-wide ambient animation (currently `strike` for storm flashes)
+- `listCookies()` — list available procedural cookie types
 - `listLightGroups()` — summarize the groups present on the map with counts and enabled state
-- `placeLight` now accepts `darkness: true` alongside the existing fields
+- `placeLight` now also forwards `animation`, `cookie`, `dimRadius`, `range`, `softShadowRadius`, `group`, and `name` from preset/config (in addition to `darkness: true`)
 
 ---
 

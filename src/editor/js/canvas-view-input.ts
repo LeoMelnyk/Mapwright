@@ -4,7 +4,7 @@ import { pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
 import { renderTimings, getTimingFrame } from '../../render/index.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
-import { cvState, CELL_SIZE, MIN_ZOOM, MAX_ZOOM, PAN_THRESHOLD } from './canvas-view-state.js';
+import { cvState, CELL_SIZE, MIN_ZOOM, MAX_ZOOM, PAN_THRESHOLD, noteInteraction } from './canvas-view-state.js';
 import { requestRender, getTransform } from './canvas-view-render.js';
 import { clampPan } from './canvas-view-viewport.js';
 
@@ -324,6 +324,10 @@ export function onWheel(e: WheelEvent): void {
     cvState.activeTool.onWheel(cell.row, cell.col, e.deltaY, e);
     return;
   }
+
+  // Mark zoom interaction so tickAnimLoop pauses lightmap animation rebuilds
+  // until the user stops scrolling (see INTERACTION_QUIET_MS).
+  noteInteraction();
 
   // Coalesce rapid wheel events into a single rAF-synced zoom (Fix 2).
   // Wheel events can arrive 100+/sec; without coalescing each schedules a

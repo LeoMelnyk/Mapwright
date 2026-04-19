@@ -1,0 +1,20 @@
+{
+  "displayName": "Dying Candle",
+  "category": "Fire & Flame",
+  "description": "A guttering candle on its last minute — small, frequent dropouts",
+  "type": "point",
+  "color": "#ff9944",
+  "radius": 7,
+  "dimRadius": 14,
+  "intensity": 0.45,
+  "falloff": "smooth",
+  "z": 3.5,
+  "animation": {
+    "type": "flicker",
+    "speed": 2.0,
+    "amplitude": 0.5,
+    "guttering": 0.8,
+    "colorMode": "auto",
+    "colorVariation": 1.0
+  }
+}
