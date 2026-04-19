@@ -975,31 +975,20 @@ export function renderLightmap(
   // Only rebuilt when visibility cache is invalidated (wall/light changes).
   const staticCanvas = _getStaticLmCanvas(lmW, lmH);
   if (!_staticLmValid) {
-    _t('lighting:staticBuild', () => {
-      const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-      slctx.globalCompositeOperation = 'source-over';
-
-      // Fill with ambient
-      const amb = Math.max(0, Math.min(1, ambientLevel));
-      const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-      slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-      slctx.fillRect(0, 0, lmW, lmH);
-
-      // Additively blend each static light
-      slctx.globalCompositeOperation = 'lighter';
-      for (const light of staticLights) {
-        _renderOneLight(slctx, light, time, segments, lmTransform, propShadowIndex);
-      }
-
-      // Normal map bump uses all lights for direction, but only apply on static pass
-      if (textureCatalog) {
-        _t('lighting:normalMap', () =>
-          applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog),
-        );
-      }
-
-      _staticLmValid = true;
-    });
+    _t('lighting:staticBuild', () =>
+      _buildStaticLightmap(staticCanvas, lmW, lmH, staticLights, activeLights, {
+        time,
+        ambientLevel,
+        ambientColor,
+        segments,
+        propShadowIndex,
+        lmTransform,
+        cells,
+        gridSize,
+        textureCatalog,
+      }),
+    );
+    _staticLmValid = true;
   }
 
   // Determine where to draw the lightmap on the target canvas.
@@ -1022,68 +1011,134 @@ export function renderLightmap(
   }
 
   // ── Animated lights: blit static cache + render animated lights ──
-  _t('lighting:animated', () => {
-    const lightCanvas = _getLightmapCanvas(lmW, lmH);
-    const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-
-    // Start from the cached static lightmap
-    lctx.globalCompositeOperation = 'source-over';
-    lctx.drawImage(staticCanvas, 0, 0);
-
-    // Additively blend animated lights
-    lctx.globalCompositeOperation = 'lighter';
-    for (const light of animatedLights) {
-      _renderOneLight(lctx, light, time, segments, lmTransform, propShadowIndex);
-    }
-
-    // Composite lightmap onto main canvas with multiply
-    ctx.save();
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(lightCanvas, dx, dy, dw, dh);
-    ctx.restore();
-  });
+  _t('lighting:animated', () =>
+    _renderAnimatedOverlay(ctx, staticCanvas, lmW, lmH, animatedLights, {
+      time,
+      segments,
+      propShadowIndex,
+      lmTransform,
+      dest: { x: dx, y: dy, w: dw, h: dh },
+    }),
+  );
 }
 
-/** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
-function _renderOneLight(
-  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  light: Light,
-  time: number,
-  segments: WallSegment[],
-  transform: RenderTransform,
-  propShadowIndex: PropShadowIndex,
-) {
-  const eff = getEffectiveLight(light, time);
-  const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
-  const effectiveRadius = eff.range ?? outerRadius;
-  const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
+/**
+ * Per-frame build of the cached static lightmap layer: ambient fill + every
+ * non-animated light + normal-map bump. Caller flips `_staticLmValid = true`
+ * on return. Split out of renderLightmap so the invalidation-driven rebuild
+ * is easy to follow and to benchmark in isolation.
+ */
+function _buildStaticLightmap(
+  staticCanvas: OffscreenCanvas | HTMLCanvasElement,
+  lmW: number,
+  lmH: number,
+  staticLights: Light[],
+  allLights: Light[],
+  params: {
+    time: number;
+    ambientLevel: number;
+    ambientColor: string;
+    segments: WallSegment[];
+    propShadowIndex: PropShadowIndex;
+    lmTransform: RenderTransform;
+    cells: CellGrid;
+    gridSize: number;
+    textureCatalog: TextureCatalog | null;
+  },
+): void {
+  const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+  slctx.globalCompositeOperation = 'source-over';
 
-  // Cull lights whose bounding circle doesn't touch the lightmap canvas.
-  // Avoids running computeVisibility (which does ray casts against every
-  // nearby wall endpoint) on lights that can never contribute a pixel.
-  // `transform` is the lightmap transform, so (x,y)*scale+offset lands in
-  // lctx.canvas-space directly.
-  const cxPx = eff.x * transform.scale + transform.offsetX;
-  const cyPx = eff.y * transform.scale + transform.offsetY;
-  const rPx = effectiveRadius * transform.scale;
-  const vpW = lctx.canvas.width;
-  const vpH = lctx.canvas.height;
-  if (cxPx + rPx < 0 || cxPx - rPx > vpW || cyPx + rPx < 0 || cyPx - rPx > vpH) {
-    return;
+  // Fill with ambient
+  const amb = Math.max(0, Math.min(1, params.ambientLevel));
+  const { r: ar, g: ag, b: ab } = parseColor(params.ambientColor);
+  slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
+  slctx.fillRect(0, 0, lmW, lmH);
+
+  // Additively blend each static light
+  slctx.globalCompositeOperation = 'lighter';
+  for (const light of staticLights) {
+    _renderOneLight(slctx, light, params.time, params.segments, params.lmTransform, params.propShadowIndex);
   }
 
-  const cacheKey = `${light.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
+  // Normal map bump uses all lights for direction, but only apply on static pass
+  if (params.textureCatalog) {
+    _t('lighting:normalMap', () =>
+      applyNormalMapBump(slctx, allLights, params.cells, params.gridSize, params.lmTransform, params.textureCatalog),
+    );
+  }
+}
+
+/**
+ * Per-frame animated overlay: copy the baked static layer onto the scratch
+ * canvas, render each animated light on top, then composite the combined
+ * lightmap onto the main context with 'multiply'.
+ */
+function _renderAnimatedOverlay(
+  ctx: CanvasRenderingContext2D,
+  staticCanvas: OffscreenCanvas | HTMLCanvasElement,
+  lmW: number,
+  lmH: number,
+  animatedLights: Light[],
+  params: {
+    time: number;
+    segments: WallSegment[];
+    propShadowIndex: PropShadowIndex;
+    lmTransform: RenderTransform;
+    dest: { x: number; y: number; w: number; h: number };
+  },
+): void {
+  const lightCanvas = _getLightmapCanvas(lmW, lmH);
+  const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+
+  // Start from the cached static lightmap
+  lctx.globalCompositeOperation = 'source-over';
+  lctx.drawImage(staticCanvas, 0, 0);
+
+  // Additively blend animated lights
+  lctx.globalCompositeOperation = 'lighter';
+  for (const light of animatedLights) {
+    _renderOneLight(lctx, light, params.time, params.segments, params.lmTransform, params.propShadowIndex);
+  }
+
+  // Composite lightmap onto main canvas with multiply
+  const { x, y, w, h } = params.dest;
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightCanvas, x, y, w, h);
+  ctx.restore();
+}
+
+/**
+ * Cache-keyed per-light geometry: (visibility polygon, prop shadow polygons).
+ * Both depend only on light position/z/radius + world geometry, so animated
+ * flicker/pulse lights that only vary intensity reuse the same entries every
+ * frame. Cache is cleared by invalidateVisibilityCache().
+ */
+function _getOrComputeLightGeometry(
+  eff: Light,
+  effectiveRadius: number,
+  lightZ: number,
+  segments: WallSegment[],
+  propShadowIndex: PropShadowIndex,
+): {
+  cacheKey: string;
+  visibility: Float32Array;
+  propShadows: Array<{
+    shadowPoly: number[][];
+    nearCenter: number[];
+    farCenter: number[];
+    opacity: number;
+    hard: boolean;
+  }>;
+} {
+  const cacheKey = `${eff.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
   let visibility = visibilityCache.get(cacheKey);
   if (!visibility) {
     visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     visibilityCache.set(cacheKey, visibility);
   }
-
-  // Compute z-height prop shadow polygons for this light. Shadow geometry
-  // only depends on light position+z+radius and prop zones (both invalidated
-  // via invalidateVisibilityCache → propShadowsCache.clear), so animated
-  // flicker/pulse lights that only vary intensity reuse the cached polygons.
   let propShadows = propShadowsCache.get(cacheKey);
   if (!propShadows) {
     propShadows = [];
@@ -1110,6 +1165,42 @@ function _renderOneLight(
     }
     propShadowsCache.set(cacheKey, propShadows);
   }
+  return { cacheKey, visibility, propShadows };
+}
+
+/** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
+function _renderOneLight(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  time: number,
+  segments: WallSegment[],
+  transform: RenderTransform,
+  propShadowIndex: PropShadowIndex,
+) {
+  const eff = getEffectiveLight(light, time);
+  const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
+  const effectiveRadius = eff.range ?? outerRadius;
+  const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
+
+  // Cull lights whose bounding circle doesn't touch the lightmap canvas.
+  // Avoids running computeVisibility (which does ray casts against every
+  // nearby wall endpoint) on lights that can never contribute a pixel.
+  const cxPx = eff.x * transform.scale + transform.offsetX;
+  const cyPx = eff.y * transform.scale + transform.offsetY;
+  const rPx = effectiveRadius * transform.scale;
+  const vpW = lctx.canvas.width;
+  const vpH = lctx.canvas.height;
+  if (cxPx + rPx < 0 || cxPx - rPx > vpW || cyPx + rPx < 0 || cyPx - rPx > vpH) {
+    return;
+  }
+
+  const { visibility, propShadows } = _getOrComputeLightGeometry(
+    eff,
+    effectiveRadius,
+    lightZ,
+    segments,
+    propShadowIndex,
+  );
   // Attach shadow data to the effective light so render functions can use it
   eff._propShadows = propShadows;
 
