@@ -195,6 +195,26 @@ function render() {
     darknessRow.appendChild(document.createTextNode(' Darkness (subtract light)'));
     selSection.appendChild(darknessRow);
 
+    // Soft-shadow radius — 0 disables (hard shadows). Even small values
+    // (0.5–1.5 ft) give a noticeable penumbra at wall corners.
+    selSection.appendChild(
+      sliderRow(
+        'Soft Shadow',
+        selectedLight.softShadowRadius ?? 0,
+        0,
+        4,
+        0.25,
+        (v: number) => {
+          if (v > 0) selectedLight.softShadowRadius = v;
+          else delete selectedLight.softShadowRadius;
+          invalidateLightmap('lights');
+          markDirty();
+          requestRender();
+        },
+        (v: number) => (v === 0 ? 'Off' : `${v.toFixed(2)} ft`),
+      ),
+    );
+
     // Preset dropdown for selected light — re-applies a preset and restores the presetId link
     selSection.appendChild(
       presetDropdown(selectedLight.presetId ?? null, (preset: LightPreset) => {

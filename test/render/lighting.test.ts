@@ -477,6 +477,65 @@ describe('blend-mode stacking', () => {
     expect(p.b).toBeGreaterThan(240);
   });
 
+  it('soft shadows smooth the edge of a wall shadow', () => {
+    // Room wide enough that the shadow cast by the single wall cell has room
+    // to extend. Light is at top-left; wall sits in the middle; shadow falls
+    // below-right of the wall, where we sample.
+    const rows = 15;
+    const cols = 25;
+    const withWall = openRoomCells(rows, cols);
+    // Single wall cell at (row=7, col=12) surrounded on every edge so it's
+    // fully opaque. Surrounded cells are still floor, so light can reach right
+    // up to the wall's edge.
+    if (withWall[7]) withWall[7]![12] = { north: 'w', south: 'w', east: 'w', west: 'w' };
+    const canvas = createCanvas(cols * gridSize, rows * gridSize);
+    const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
+    function sample(softR: number) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cols * gridSize, rows * gridSize);
+      invalidateVisibilityCache('walls');
+      const light: Light = {
+        id: 1,
+        x: 15, // cell (1, 3) — upper-left of wall
+        y: 15,
+        type: 'point',
+        radius: 80,
+        color: '#ffffff',
+        intensity: 1,
+        falloff: 'linear',
+        softShadowRadius: softR,
+      };
+      renderLightmap(
+        ctx,
+        [light],
+        withWall,
+        gridSize,
+        transform,
+        cols * gridSize,
+        rows * gridSize,
+        0,
+        null,
+        null,
+        null,
+        null,
+      );
+      return ctx.getImageData(0, 0, cols * gridSize, rows * gridSize);
+    }
+    const hard = sample(0);
+    const soft = sample(3);
+    // Sum pixel-wise |soft - hard| across the shadow-edge zone. If soft
+    // shadows have any effect at all, the two renders disagree in the
+    // penumbra region (soft light leaks into pixels the hard version
+    // left fully dark, and vice versa near the lit edge).
+    let totalDiff = 0;
+    for (let y = 45; y < 70; y++) {
+      for (let x = 60; x < 100; x++) {
+        totalDiff += Math.abs(pixelAt(soft, x, y).r - pixelAt(hard, x, y).r);
+      }
+    }
+    expect(totalDiff).toBeGreaterThan(0);
+  });
+
   it('darkness light carves a dark pocket out of bright ambient', () => {
     const imgLight = renderAt([], 1); // ambient only, full bright
     const imgDark = renderAt(

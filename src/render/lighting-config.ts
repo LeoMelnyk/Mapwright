@@ -120,3 +120,21 @@ export const DEFAULT_CONE_SPREAD_DEG = 45;
 /** Clamp range for directional light spread (see clampSpread in lighting.ts). */
 export const CONE_SPREAD_MIN_DEG = 0;
 export const CONE_SPREAD_MAX_DEG = 180;
+
+// ─── Soft shadows (multi-ray PCF) ──────────────────────────────────────────
+
+/**
+ * Number of jittered sample points used when a light has softShadowRadius > 0.
+ * 4 samples is the classic PCF "good enough" count — gives convincing
+ * penumbra at wall corners without costing 4× the ray-cast time for every
+ * light in the map. Raise for hero lights; don't go above 8 without a reason
+ * (returns diminish fast and visibility recompute is the dominant cost).
+ */
+export const SOFT_SHADOW_SAMPLES = 4;
+
+/**
+ * Golden-angle stride (radians) used to place the jittered samples around the
+ * light's center. Irrational rotation avoids grid artefacts that a round
+ * (π/2 between samples) arrangement would produce.
+ */
+export const SOFT_SHADOW_GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));

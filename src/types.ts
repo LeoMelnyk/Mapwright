@@ -148,6 +148,14 @@ export interface Light {
    * the darkness gets at the center.
    */
   darkness?: boolean;
+  /**
+   * Per-light soft-shadow radius (world-feet). When > 0, the visibility
+   * mask is rasterized from several jittered sample points on a disc of
+   * this radius around the light center and averaged together, yielding
+   * penumbra wedges at wall corners. 0 (the default) keeps the classic
+   * single-ray hard shadow. Typical values: 0.5–2 ft.
+   */
+  softShadowRadius?: number;
   _propShadows?: {
     shadowPoly: number[][];
     nearCenter: number[];

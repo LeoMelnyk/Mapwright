@@ -105,6 +105,7 @@ function rasterizeShadowMask(
   bbY: number,
   bbW: number,
   bbH: number,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   if (!maskCanvas) {
     if (typeof OffscreenCanvas !== 'undefined') {
@@ -124,20 +125,39 @@ function rasterizeShadowMask(
   }
 
   maskCtx!.clearRect(0, 0, bbW, bbH);
-  maskCtx!.fillStyle = '#ffffff';
 
-  // Draw visibility polygon offset by bounding box origin
-  maskCtx!.beginPath();
   const sx = transform.scale;
   const ox = transform.offsetX - bbX;
   const oy = transform.offsetY - bbY;
-  const n = visibility.length;
-  maskCtx!.moveTo(visibility[0]! * sx + ox, visibility[1]! * sx + oy);
-  for (let i = 2; i < n; i += 2) {
-    maskCtx!.lineTo(visibility[i]! * sx + ox, visibility[i + 1]! * sx + oy);
+
+  function drawPoly(vis: Float32Array) {
+    maskCtx!.beginPath();
+    const n = vis.length;
+    maskCtx!.moveTo(vis[0]! * sx + ox, vis[1]! * sx + oy);
+    for (let i = 2; i < n; i += 2) {
+      maskCtx!.lineTo(vis[i]! * sx + ox, vis[i + 1]! * sx + oy);
+    }
+    maskCtx!.closePath();
+    maskCtx!.fill();
   }
-  maskCtx!.closePath();
-  maskCtx!.fill();
+
+  if (softVisibilities && softVisibilities.length > 0) {
+    // Soft shadows: average N sample polygons by stacking them additively
+    // at alpha = 1/N so pixels seen by every sample reach full white and
+    // pixels seen by some fade toward gray (penumbra).
+    maskCtx!.save();
+    const alpha = 1 / softVisibilities.length;
+    maskCtx!.globalCompositeOperation = 'lighter';
+    maskCtx!.fillStyle = `rgba(255,255,255,${alpha.toFixed(4)})`;
+    for (const vis of softVisibilities) {
+      if (vis.length < 6) continue;
+      drawPoly(vis);
+    }
+    maskCtx!.restore();
+  } else {
+    maskCtx!.fillStyle = '#ffffff';
+    drawPoly(visibility);
+  }
 
   // Read back R channel as shadow mask
   const imageData = maskCtx!.getImageData(0, 0, bbW, bbH);
@@ -231,6 +251,23 @@ export function renderLightmapHQ(
     const visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     if (visibility.length < 3) continue;
 
+    // Soft-shadow samples: same golden-angle disc sampling as the real-time
+    // path so export PNGs match the editor preview on the same map.
+    let softVisibilities: Float32Array[] | null = null;
+    const softR = eff.softShadowRadius ?? 0;
+    if (softR > 0) {
+      softVisibilities = [];
+      const N = 4; // matches SOFT_SHADOW_SAMPLES
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < N; i++) {
+        const angle = i * golden;
+        const r = Math.sqrt((i + 0.5) / N) * softR;
+        const sx = eff.x + Math.cos(angle) * r;
+        const sy = eff.y + Math.sin(angle) * r;
+        softVisibilities.push(computeVisibility(sx, sy, effectiveRadius, segments));
+      }
+    }
+
     // Compute z-height prop shadow polygons for this light. Cull zones whose
     // centroid lies outside the light's radius (mirrors the realtime path in
     // lighting.ts) so a map with many distant props doesn't pay per-pixel
@@ -270,8 +307,9 @@ export function renderLightmapHQ(
     const bbH = bbY2 - bbY;
     if (bbW <= 0 || bbH <= 0) continue;
 
-    // Rasterize shadow mask for this light's bounding box
-    const shadowMask = rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH);
+    // Rasterize shadow mask for this light's bounding box (soft version if
+    // the light opted in — sample polygons get averaged inside).
+    const shadowMask = rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH, softVisibilities);
 
     // Parse light color to [0,1]
     const { r, g, b } = parseColor(eff.color || '#ff9944');

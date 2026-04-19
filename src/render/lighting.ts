@@ -45,6 +45,8 @@ import {
   DEFAULT_CONE_SPREAD_DEG,
   CONE_SPREAD_MIN_DEG,
   CONE_SPREAD_MAX_DEG,
+  SOFT_SHADOW_SAMPLES,
+  SOFT_SHADOW_GOLDEN_ANGLE,
 } from './lighting-config.js';
 import { log } from '../util/index.js';
 
@@ -538,6 +540,68 @@ function _applyPropShadowsToRT(
  *
  * `visibility` is an interleaved Float32Array [x0, y0, x1, y1, ...].
  */
+// Reusable offscreen canvas for the soft-shadow mask. Shared across every
+// light in a frame to avoid per-light allocation.
+let softMaskCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+let softMaskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
+function ensureSoftMaskCanvas(w: number, h: number) {
+  if (!softMaskCanvas || softMaskCanvas.width < w || softMaskCanvas.height < h) {
+    // Split branches so TS narrows canvas → getContext return type in each
+    // case instead of widening to the full RenderingContext union, which
+    // would require an explicit cast the no-unnecessary-type-assertion rule
+    // then strips back out.
+    if (typeof OffscreenCanvas !== 'undefined') {
+      softMaskCanvas = new OffscreenCanvas(Math.max(w, 64), Math.max(h, 64));
+      softMaskCtx = softMaskCanvas.getContext('2d');
+    } else {
+      softMaskCanvas = Object.assign(document.createElement('canvas'), {
+        width: Math.max(w, 64),
+        height: Math.max(h, 64),
+      });
+      softMaskCtx = softMaskCanvas.getContext('2d');
+    }
+  }
+  return softMaskCtx!;
+}
+
+/**
+ * Rasterize N sample visibility polygons into a single averaged grayscale
+ * mask, then destination-in the light's gradient against it. Rationale: the
+ * outer gctx already holds the colored gradient; we don't want to overwrite
+ * it with the mask, we want to restrict it proportionally.
+ */
+function _applySoftVisibilityMask(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  visibilities: Float32Array[],
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+  bbW: number,
+  bbH: number,
+) {
+  const mctx = ensureSoftMaskCanvas(bbW, bbH);
+  mctx.save();
+  mctx.globalCompositeOperation = 'source-over';
+  mctx.clearRect(0, 0, bbW, bbH);
+  // Additively accumulate each sample polygon at alpha = 1/N so a pixel
+  // visible from every sample reaches full alpha.
+  const alpha = 1 / visibilities.length;
+  mctx.globalCompositeOperation = 'lighter';
+  mctx.fillStyle = `rgba(255, 255, 255, ${alpha.toFixed(4)})`;
+  for (const vis of visibilities) {
+    if (vis.length < 6) continue;
+    clipToVisibility(mctx, vis, transform, bbX, bbY);
+  }
+  mctx.restore();
+
+  // Apply mask: destination-in with the averaged grayscale — dimmer pixels
+  // in the mask proportionally dim the colored gradient on gctx.
+  gctx.save();
+  gctx.globalCompositeOperation = 'destination-in';
+  gctx.drawImage(softMaskCanvas!, 0, 0, bbW, bbH, 0, 0, bbW, bbH);
+  gctx.restore();
+}
+
 function clipToVisibility(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   visibility: Float32Array,
@@ -610,6 +674,7 @@ function buildPointLightComposite(
   cy: number,
   rPx: number,
   dimRPx: number | null,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   // Darkness lights paint BLACK into the lightmap (any brightness -> zero when
   // the lightmap is later multiplied onto the base). Same falloff shape as a
@@ -643,10 +708,17 @@ function buildPointLightComposite(
     gctx.fillRect(0, 0, bbW, bbH);
   }
 
-  gctx.globalCompositeOperation = 'destination-in';
-  gctx.fillStyle = '#ffffff';
-  clipToVisibility(gctx, visibility, transform, bbX, bbY);
-  gctx.globalCompositeOperation = 'source-over';
+  if (softVisibilities && softVisibilities.length > 0) {
+    // Soft shadows: average the sample polygons into a grayscale mask, then
+    // destination-in against it. Walls seen by every sample stay fully lit;
+    // corners seen by some samples fade toward dark, producing a penumbra.
+    _applySoftVisibilityMask(gctx, softVisibilities, transform, bbX, bbY, bbW, bbH);
+  } else {
+    gctx.globalCompositeOperation = 'destination-in';
+    gctx.fillStyle = '#ffffff';
+    clipToVisibility(gctx, visibility, transform, bbX, bbY);
+    gctx.globalCompositeOperation = 'source-over';
+  }
 
   if (light._propShadows?.length) {
     _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
@@ -679,6 +751,7 @@ function renderPointLight(
   light: Light,
   visibility: Float32Array,
   transform: RenderTransform,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   if (visibility.length < 6) return; // < 3 points
 
@@ -698,7 +771,21 @@ function renderPointLight(
 
   const gctx = ensureLightRTCanvas(bbW, bbH);
   gctx.clearRect(0, 0, bbW, bbH);
-  buildPointLightComposite(gctx, light, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
+  buildPointLightComposite(
+    gctx,
+    light,
+    visibility,
+    transform,
+    bbX,
+    bbY,
+    bbW,
+    bbH,
+    cx,
+    cy,
+    rPx,
+    dimRPx,
+    softVisibilities,
+  );
   if (light.darkness) {
     // The RT gradient is already colored black for darkness lights. Use
     // source-over so the black pixels OVERWRITE ambient + any accumulated
@@ -725,6 +812,7 @@ function _bakePointLight(
   transform: RenderTransform,
   vpW: number,
   vpH: number,
+  softVisibilities: Float32Array[] | null = null,
 ): BakedLight | null {
   const { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH } = _computePointLightBBox(light, transform, vpW, vpH);
   if (bbW <= 0 || bbH <= 0) return null;
@@ -732,7 +820,21 @@ function _bakePointLight(
   const gctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   // Bake at intensity=1 so per-frame globalAlpha scales the whole composite.
   const bakeLight: Light = { ...light, intensity: 1 };
-  buildPointLightComposite(gctx, bakeLight, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
+  buildPointLightComposite(
+    gctx,
+    bakeLight,
+    visibility,
+    transform,
+    bbX,
+    bbY,
+    bbW,
+    bbH,
+    cx,
+    cy,
+    rPx,
+    dimRPx,
+    softVisibilities,
+  );
   return { canvas, bbX, bbY, bbW, bbH, scale: transform.scale };
 }
 
@@ -744,6 +846,7 @@ function renderDirectionalLight(
   light: Light,
   visibility: Float32Array,
   transform: RenderTransform,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   if (visibility.length < 6) return; // < 3 points
 
@@ -791,10 +894,14 @@ function renderDirectionalLight(
   gctx.fill();
 
   // Visibility polygon (further restricts)
-  gctx.globalCompositeOperation = 'destination-in';
-  gctx.fillStyle = '#ffffff';
-  clipToVisibility(gctx, visibility, transform, bbX, bbY);
-  gctx.globalCompositeOperation = 'source-over';
+  if (softVisibilities && softVisibilities.length > 0) {
+    _applySoftVisibilityMask(gctx, softVisibilities, transform, bbX, bbY, bbW, bbH);
+  } else {
+    gctx.globalCompositeOperation = 'destination-in';
+    gctx.fillStyle = '#ffffff';
+    clipToVisibility(gctx, visibility, transform, bbX, bbY);
+    gctx.globalCompositeOperation = 'source-over';
+  }
 
   // Apply z-height prop shadows
   if (light._propShadows?.length) {
@@ -815,6 +922,8 @@ function renderDirectionalLight(
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
 const visibilityCache = new Map();
+/** Cached jittered-sample visibility polygons per light (soft shadows only). */
+const softVisibilitiesCache = new Map<string, Float32Array[]>();
 const propShadowsCache = new Map<
   string,
   Array<{ shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }>
@@ -911,6 +1020,7 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
   const resolved: LightCacheScope = scope === true ? 'walls' : scope === false ? 'lights' : scope;
 
   visibilityCache.clear();
+  softVisibilitiesCache.clear();
   propShadowsCache.clear();
   bakedLightCache.clear();
   if (resolved === 'walls') {
@@ -1220,6 +1330,7 @@ function _getOrComputeLightGeometry(
 ): {
   cacheKey: string;
   visibility: Float32Array;
+  softVisibilities: Float32Array[] | null;
   propShadows: Array<{
     shadowPoly: number[][];
     nearCenter: number[];
@@ -1233,6 +1344,28 @@ function _getOrComputeLightGeometry(
   if (!visibility) {
     visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     visibilityCache.set(cacheKey, visibility);
+  }
+  // Soft-shadow samples: compute N extra visibility polygons at jittered
+  // offsets around the light center, cached separately so the hot flicker/
+  // pulse path doesn't recompute them every frame.
+  let softVisibilities: Float32Array[] | null = null;
+  const softR = eff.softShadowRadius ?? 0;
+  if (softR > 0) {
+    const softKey = `${cacheKey}|soft${softR}`;
+    softVisibilities = softVisibilitiesCache.get(softKey) ?? null;
+    if (!softVisibilities) {
+      softVisibilities = [];
+      for (let i = 0; i < SOFT_SHADOW_SAMPLES; i++) {
+        // Golden-angle disc sampling: angle spirals, radius = √(i/N)·softR
+        // → samples spread uniformly across the disc.
+        const angle = i * SOFT_SHADOW_GOLDEN_ANGLE;
+        const r = Math.sqrt((i + 0.5) / SOFT_SHADOW_SAMPLES) * softR;
+        const sx = eff.x + Math.cos(angle) * r;
+        const sy = eff.y + Math.sin(angle) * r;
+        softVisibilities.push(computeVisibility(sx, sy, effectiveRadius, segments));
+      }
+      softVisibilitiesCache.set(softKey, softVisibilities);
+    }
   }
   let propShadows = propShadowsCache.get(cacheKey);
   if (!propShadows) {
@@ -1260,7 +1393,7 @@ function _getOrComputeLightGeometry(
     }
     propShadowsCache.set(cacheKey, propShadows);
   }
-  return { cacheKey, visibility, propShadows };
+  return { cacheKey, visibility, softVisibilities, propShadows };
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
@@ -1289,7 +1422,7 @@ function _renderOneLight(
     return;
   }
 
-  const { visibility, propShadows } = _getOrComputeLightGeometry(
+  const { visibility, softVisibilities, propShadows } = _getOrComputeLightGeometry(
     eff,
     effectiveRadius,
     lightZ,
@@ -1300,7 +1433,7 @@ function _renderOneLight(
   eff._propShadows = propShadows;
 
   if (eff.type === 'directional') {
-    renderDirectionalLight(lctx, eff, visibility, transform);
+    renderDirectionalLight(lctx, eff, visibility, transform, softVisibilities);
     return;
   }
 
@@ -1322,7 +1455,7 @@ function _renderOneLight(
       const vpH2 = lctx.canvas.height;
       // Bake the light with propShadows attached at intensity=1.
       const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows };
-      baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2) ?? undefined;
+      baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2, softVisibilities) ?? undefined;
       if (baked) bakedLightCache.set(bakeKey, baked);
     }
     if (baked) {
@@ -1340,7 +1473,7 @@ function _renderOneLight(
     }
   }
 
-  renderPointLight(lctx, eff, visibility, transform);
+  renderPointLight(lctx, eff, visibility, transform, softVisibilities);
 }
 
 // ─── Simplified Normal Map Bump Effect ─────────────────────────────────────
