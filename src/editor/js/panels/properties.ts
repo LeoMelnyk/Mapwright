@@ -274,14 +274,14 @@ function buildPropExplorer(container: HTMLElement) {
   const applySize = (next: ThumbSize) => {
     thumbSize = next;
     saveThumbSize();
-    if (explorer) explorer.dataset.size = String(next);
+    explorer.dataset.size = String(next);
     for (const key of [3, 2, 1] as ThumbSize[]) {
       const btn = sizeButtons[key];
       if (btn) btn.classList.toggle('active', key === next);
     }
     // Clear rendered flag so all thumbs re-render at the new internal resolution
     // the next time they scroll into view.
-    explorer?.querySelectorAll<HTMLElement>('.prop-thumb').forEach((t) => {
+    explorer.querySelectorAll<HTMLElement>('.prop-thumb').forEach((t) => {
       delete t.dataset.rendered;
       const existingCanvas = t.querySelector('canvas');
       if (existingCanvas) {
