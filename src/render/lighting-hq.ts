@@ -18,6 +18,7 @@ import {
   clampSpread,
   DEFAULT_LIGHT_Z,
 } from './lighting.js';
+import { BUMP_LIGHT_HEIGHT_FRAC } from './lighting-config.js';
 
 // ─── Normal Map Cache ─────────────────────────────────────────────────────────
 
@@ -283,7 +284,7 @@ export function renderLightmapHQ(
     }
 
     // Light height above floor for 3D normal map direction
-    const lightHeight = gridSize * 0.7;
+    const lightHeight = gridSize * BUMP_LIGHT_HEIGHT_FRAC;
 
     // Per-pixel iteration
     for (let py = bbY; py < bbY2; py++) {

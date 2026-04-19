@@ -11,6 +11,15 @@
 
 import type { CellGrid, Metadata, OverlayProp, PropCatalog, PropDefinition } from '../types.js';
 import { extractOverlayPropLightSegments } from './props.js';
+import {
+  PROP_SHADOW_MAX_RATIO,
+  PROP_SHADOW_EPSILON_FT,
+  PROP_SHADOW_WITHIN_BASE,
+  PROP_SHADOW_WITHIN_SPAN,
+  PROP_SHADOW_ABOVE_BASE,
+  PROP_SHADOW_ABOVE_SPAN,
+  PROP_SHADOW_ABOVE_MAX,
+} from './lighting-config.js';
 
 /** A line segment in world-feet coordinates. */
 export type WallSegment = { x1: number; y1: number; x2: number; y2: number };
@@ -356,8 +365,8 @@ export function computePropShadowPolygon(
   // Height difference between light and prop top. When near zero, shadow is very long.
   const heightDiff = Math.abs(lz - zTop);
   // Cap ratio to avoid extreme/infinite shadows when light ≈ prop top height
-  const MAX_RATIO = 20;
-  const projRatio = heightDiff < 0.1 ? MAX_RATIO : Math.min(MAX_RATIO, zTop / heightDiff);
+  const projRatio =
+    heightDiff < PROP_SHADOW_EPSILON_FT ? PROP_SHADOW_MAX_RATIO : Math.min(PROP_SHADOW_MAX_RATIO, zTop / heightDiff);
 
   // Find the silhouette edges: vertices on the shadow-facing side of the polygon
   // as seen from the light position. We find the two tangent vertices.
@@ -435,10 +444,11 @@ export function computePropShadowPolygon(
 
   // Opacity: higher when light is within or near the zone (more occlusion),
   // lower when light is well above (only the top edge casts a faint shadow)
-  const occlusionFraction =
+  const opacity =
     lz <= zTop
-      ? 0.7 + 0.3 * ((zTop - lz) / (zTop - zBottom || 1)) // within zone: 0.7–1.0
-      : Math.min(0.85, 0.4 + 0.45 * (zTop / lz)); // above zone: 0.4–0.85
-  const opacity = occlusionFraction;
+      ? // Within zone: skim over top → BASE, down at base → BASE + SPAN = 1.0.
+        PROP_SHADOW_WITHIN_BASE + PROP_SHADOW_WITHIN_SPAN * ((zTop - lz) / (zTop - zBottom || 1))
+      : // Above zone: only the upper slice occludes, so the shadow stays soft.
+        Math.min(PROP_SHADOW_ABOVE_MAX, PROP_SHADOW_ABOVE_BASE + PROP_SHADOW_ABOVE_SPAN * (zTop / lz));
   return { shadowPoly, nearCenter, farCenter, opacity, hard: false };
 }

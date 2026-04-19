@@ -30,6 +30,22 @@ import {
   type WallSegment,
 } from './lighting-geometry.js';
 import { _t } from './render-state.js';
+import {
+  INVERSE_SQUARE_K,
+  RAY_EPSILON,
+  ANIM_TIME_SCALE,
+  GRADIENT_STOPS,
+  FLICKER_FREQS,
+  FLICKER_WEIGHTS,
+  FLICKER_RADIUS_FREQ,
+  BUMP_SAMPLE_SIZE,
+  BUMP_RT_BASE,
+  BUMP_RT_SPAN,
+  BUMP_LIGHT_HEIGHT_FRAC,
+  DEFAULT_CONE_SPREAD_DEG,
+  CONE_SPREAD_MIN_DEG,
+  CONE_SPREAD_MAX_DEG,
+} from './lighting-config.js';
 import { log } from '../util/index.js';
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
@@ -45,10 +61,8 @@ export {
 export type { WallSegment };
 
 // ─── Constants ─────
-const INVERSE_SQUARE_K = 25;
-const RAY_EPSILON = 0.00001;
-const ANIM_TIME_SCALE = 0.4;
-const GRADIENT_STOPS = 16;
+// Tunable numbers live in lighting-config.ts. Only re-local wrappers for
+// derived/cached values stay here.
 
 /**
  * Unpack a normal-map RGB triple (0–255 bytes) into a unit-ish vector with
@@ -72,9 +86,9 @@ export function unpackNormal(data: Uint8ClampedArray | Uint8Array, idx: number):
  * in agreement regardless of how bad data entered the map.
  */
 export function clampSpread(spread: number | undefined): number {
-  const s = spread ?? 45;
-  if (!Number.isFinite(s)) return 45;
-  return Math.max(0, Math.min(180, s));
+  const s = spread ?? DEFAULT_CONE_SPREAD_DEG;
+  if (!Number.isFinite(s)) return DEFAULT_CONE_SPREAD_DEG;
+  return Math.max(CONE_SPREAD_MIN_DEG, Math.min(CONE_SPREAD_MAX_DEG, s));
 }
 
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
@@ -369,10 +383,14 @@ export function getEffectiveLight(light: Light, time: number): Light {
   let radiusMult = 1.0;
 
   switch (type) {
-    case 'flicker':
-      intensityMult = 1 + amplitude * (0.5 * Math.sin(t * 17.3) + 0.3 * Math.sin(t * 31.7) + 0.2 * Math.sin(t * 7.1));
-      if (radiusVariation > 0) radiusMult = 1 + radiusVariation * Math.sin(t * 11.3);
+    case 'flicker': {
+      // Three incommensurate sines blended for chaotic non-repeating flicker.
+      const [f1, f2, f3] = FLICKER_FREQS;
+      const [w1, w2, w3] = FLICKER_WEIGHTS;
+      intensityMult = 1 + amplitude * (w1 * Math.sin(t * f1) + w2 * Math.sin(t * f2) + w3 * Math.sin(t * f3));
+      if (radiusVariation > 0) radiusMult = 1 + radiusVariation * Math.sin(t * FLICKER_RADIUS_FREQ);
       break;
+    }
     case 'pulse':
       intensityMult = 1 + amplitude * Math.sin(2 * Math.PI * t);
       break;
@@ -1145,7 +1163,6 @@ function _renderOneLight(
  * modifier that gives textured surfaces visual depth under lighting.
  */
 // Reusable temp canvas for normal map sampling (avoids per-cell allocation)
-const BUMP_SAMPLE_SIZE = 4;
 let bumpTmpCanvas = null;
 let bumpTmpCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
 
@@ -1216,7 +1233,7 @@ function applyNormalMapBump(
       // Light direction as a 3D vector: (lx, ly, 0.7) normalized — slight top-down bias
       const lx3 = lenXY > 0 ? (totalLightX / lenXY) * 0.5 : 0;
       const ly3 = lenXY > 0 ? (totalLightY / lenXY) * 0.5 : 0;
-      const lz3 = 0.7;
+      const lz3 = BUMP_LIGHT_HEIGHT_FRAC;
       const lLen = Math.sqrt(lx3 * lx3 + ly3 * ly3 + lz3 * lz3);
 
       // Sample normal map at 4x4 grid and average the dot product
@@ -1248,8 +1265,9 @@ function applyNormalMapBump(
       if (sampleCount === 0) continue;
       const avgDot = dotSum / sampleCount;
 
-      // Map to a subtle brightness range: 0.85 (steep surfaces) to 1.1 (flat/aligned surfaces)
-      const bumpFactor = 0.85 + avgDot * 0.25;
+      // Map avgDot (0 = grazing / steep, 1 = head-on) into a subtle brightness
+      // range via lighting-config.BUMP_RT_BASE + avgDot * BUMP_RT_SPAN.
+      const bumpFactor = BUMP_RT_BASE + avgDot * BUMP_RT_SPAN;
       const bumpByte = Math.round(Math.max(0, Math.min(255, bumpFactor * 255)));
 
       // Draw cell overlay
