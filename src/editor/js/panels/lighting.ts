@@ -3,7 +3,7 @@ import type { FalloffType, Light, LightAnimationConfig, LightPreset } from '../.
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
-import { kelvinToRgb } from '../../../render/index.js';
+import { kelvinToRgb, falloffMultiplier } from '../../../render/index.js';
 
 let container: HTMLElement | null = null;
 
@@ -123,6 +123,23 @@ function render() {
       sectionLabel(selectedLight.name ? `Selected — ${selectedLight.name}` : `Selected Light #${selectedLight.id}`),
     );
 
+    // Preview thumbnail — updates on any field change via re-render().
+    const previewRow = el('div', 'lighting-slider-row');
+    previewRow.appendChild(labelEl('Preview'));
+    const previewImg = document.createElement('img');
+    previewImg.src = buildLightPreview(
+      selectedLight.color || '#ff9944',
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      selectedLight.falloff || 'smooth',
+      !!selectedLight.darkness,
+    );
+    previewImg.width = PREVIEW_SIZE;
+    previewImg.height = PREVIEW_SIZE;
+    previewImg.style.border = '1px solid #444';
+    previewImg.style.borderRadius = '4px';
+    previewRow.appendChild(previewImg);
+    selSection.appendChild(previewRow);
+
     // Name input
     const nameRow = el('div', 'lighting-slider-row');
     nameRow.appendChild(labelEl('Name'));
@@ -240,6 +257,17 @@ function render() {
             else delete selectedLight.dimRadius;
           }
           delete selectedLight.presetId; // sever preset link on manual edit
+          // Live-update the preview thumbnail so color/falloff changes reflect
+          // immediately — the panel's top-level render() skips rebuilds when
+          // only a Light field mutates.
+          if (field === 'color' || field === 'falloff') {
+            previewImg.src = buildLightPreview(
+              selectedLight.color || '#ff9944',
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              selectedLight.falloff || 'smooth',
+              !!selectedLight.darkness,
+            );
+          }
           invalidateLightmap(false);
           markDirty();
           requestRender();
@@ -687,6 +715,51 @@ function el(tag: string, className?: string) {
   const e = document.createElement(tag);
   if (className) e.className = className;
   return e;
+}
+
+/**
+ * Render a circular light thumbnail (hex color + falloff curve) to a data URI.
+ * Used for the selected-light preview tile and cached per light spec so
+ * sliders get live feedback without redrawing every pixel each tick.
+ */
+const PREVIEW_SIZE = 64;
+const _previewCache = new Map<string, string>();
+function buildLightPreview(color: string, falloff: FalloffType, darkness: boolean): string {
+  const key = `${color}|${falloff}|${darkness ? '1' : '0'}`;
+  const cached = _previewCache.get(key);
+  if (cached) return cached;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = PREVIEW_SIZE;
+  const ctx = canvas.getContext('2d')!;
+  // Dark-slate backdrop so light colors read correctly against it.
+  ctx.fillStyle = darkness ? '#e8e8e8' : '#1a1a1a';
+  ctx.fillRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
+
+  const cx = PREVIEW_SIZE / 2;
+  const cy = PREVIEW_SIZE / 2;
+  const r = PREVIEW_SIZE / 2 - 2;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  const hex = color.replace('#', '');
+  const hi = darkness ? '000000' : hex.length === 6 ? hex : 'ffffff';
+  // Sample the falloff curve into gradient stops so preview matches render.
+  const stops = 12;
+  for (let i = 0; i <= stops; i++) {
+    const t = i / stops;
+    const a = Math.max(0, Math.min(1, falloffMultiplier(t * 20, 20, falloff)));
+    grad.addColorStop(
+      t,
+      `#${hi}${Math.round(a * 255)
+        .toString(16)
+        .padStart(2, '0')}`,
+    );
+  }
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, PREVIEW_SIZE, PREVIEW_SIZE);
+
+  const url = canvas.toDataURL();
+  _previewCache.set(key, url);
+  return url;
 }
 
 function sectionLabel(text: string) {
