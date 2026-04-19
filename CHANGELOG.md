@@ -6,6 +6,7 @@
 
 - **Thumbnail size toggle** — three new buttons at the top of the prop panel switch between 3-per-row (default), 2-per-row, and 1-per-row (full-width) layouts, so you can preview prop artwork at glance-sized or hero-sized without leaving the panel. The setting persists across sessions, and thumbnails re-render at a higher internal resolution at larger sizes so they stay crisp instead of pixelating.
 - **Secondary toolbar row** — the Collapse All / Expand All buttons have moved out of the search bar onto a dedicated toolbar row alongside the new size toggle, giving the search input the full width of the panel.
+- **Canvas interactions stay fast with the prop panel open** — the panel used to drag down pan/zoom and other canvas work because the browser had to re-evaluate layout for all ~1400 prop thumbnails every time the mouse moved, even though only a few were visible. Offscreen category grids are now culled from layout, style, and paint until they scroll into view, so panning the map with the panel open is roughly as snappy as with it closed.
 
 ### Lighting
 

@@ -1589,6 +1589,11 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   grid-template-columns: repeat(var(--prop-cols, 3), 1fr);
   gap: 4px;
   margin-bottom: 8px;
+  // Skip style/layout/paint for category grids that are scrolled out of view.
+  // Applied at the grid level rather than per-thumb so the browser runs ~35
+  // intersection checks (one per category) instead of ~1400 (one per thumb).
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 
 .prop-thumb {
