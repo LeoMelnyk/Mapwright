@@ -4,7 +4,14 @@
  * These test the core raycasting functions used by the dungeon lighting system.
  */
 import { describe, it, expect } from 'vitest';
-import { extractWallSegments, computeVisibility } from '../../src/render/lighting.js';
+import {
+  extractWallSegments,
+  computeVisibility,
+  falloffMultiplier,
+  clampSpread,
+  getEffectiveLight,
+} from '../../src/render/lighting.js';
+import type { Light } from '../../src/types.js';
 
 // ---------------------------------------------------------------------------
 // extractWallSegments
@@ -206,5 +213,133 @@ describe('computeVisibility', () => {
     // in the shadow zone (roughly y=7..13, x>20)
     const shadowZonePoints = points.filter((pt) => pt.x > 25 && pt.y > 7 && pt.y < 13);
     expect(shadowZonePoints).toHaveLength(0);
+  });
+});
+
+// ─── falloffMultiplier ─────────────────────────────────────────────────────
+//
+// Lock in the shape of each curve so the real-time gradient-stops path and
+// the HQ per-pixel path can't silently diverge — both import the same
+// function, but a regression that "simplifies" the formula in one branch
+// would show up here.
+
+describe('falloffMultiplier', () => {
+  const radius = 30;
+
+  it('peaks at 1.0 at distance 0 for every curve', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(falloffMultiplier(0, radius, f)).toBeCloseTo(1.0, 5);
+    }
+  });
+
+  it('reaches 0 at the radius boundary for every curve', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(falloffMultiplier(radius, radius, f)).toBeLessThanOrEqual(0.01);
+    }
+  });
+
+  it('linear is monotonically decreasing', () => {
+    let prev = 1.1;
+    for (let d = 0; d <= radius; d += 2) {
+      const v = falloffMultiplier(d, radius, 'linear');
+      expect(v).toBeLessThanOrEqual(prev);
+      prev = v;
+    }
+  });
+
+  it('quadratic falls faster than linear at mid-range', () => {
+    const lin = falloffMultiplier(radius / 2, radius, 'linear');
+    const quad = falloffMultiplier(radius / 2, radius, 'quadratic');
+    expect(quad).toBeLessThan(lin);
+  });
+
+  it('inverse-square is sharper than smooth near the light', () => {
+    const inv = falloffMultiplier(radius * 0.1, radius, 'inverse-square');
+    const smooth = falloffMultiplier(radius * 0.1, radius, 'smooth');
+    // Both should be high near the source, but inverse-square drops faster
+    // once you leave the 10% zone — locks in the current visual feel.
+    const invMid = falloffMultiplier(radius * 0.5, radius, 'inverse-square');
+    const smoothMid = falloffMultiplier(radius * 0.5, radius, 'smooth');
+    expect(inv).toBeGreaterThan(0.3);
+    expect(smooth).toBeGreaterThan(0.3);
+    expect(invMid).toBeLessThan(smoothMid);
+  });
+
+  it('handles negative / out-of-range inputs without returning NaN', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(Number.isFinite(falloffMultiplier(-5, radius, f))).toBe(true);
+      expect(Number.isFinite(falloffMultiplier(radius * 2, radius, f))).toBe(true);
+    }
+  });
+});
+
+// ─── clampSpread ───────────────────────────────────────────────────────────
+
+describe('clampSpread', () => {
+  it('passes through values inside [0, 180]', () => {
+    expect(clampSpread(0)).toBe(0);
+    expect(clampSpread(45)).toBe(45);
+    expect(clampSpread(90)).toBe(90);
+    expect(clampSpread(180)).toBe(180);
+  });
+
+  it('clamps out-of-range values', () => {
+    expect(clampSpread(-10)).toBe(0);
+    expect(clampSpread(360)).toBe(180);
+    expect(clampSpread(1000)).toBe(180);
+  });
+
+  it('returns the default (45°) for undefined/NaN', () => {
+    expect(clampSpread(undefined)).toBe(45);
+    expect(clampSpread(NaN)).toBe(45);
+    expect(clampSpread(Infinity)).toBe(45);
+  });
+});
+
+// ─── getEffectiveLight ─────────────────────────────────────────────────────
+
+describe('getEffectiveLight', () => {
+  const baseLight: Light = {
+    id: 1,
+    x: 10,
+    y: 10,
+    type: 'point',
+    radius: 20,
+    color: '#ffffff',
+    intensity: 1,
+    falloff: 'smooth',
+  };
+
+  it('returns the input reference unchanged for non-animated lights', () => {
+    const eff = getEffectiveLight(baseLight, 0);
+    expect(eff).toBe(baseLight);
+  });
+
+  it('applies pulse animation to intensity', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 0.5 } };
+    // The per-light buffer is reused (see "ephemeral" contract), so snapshot
+    // the intensity immediately after each call instead of reading from two
+    // returned references.
+    const loIntensity = getEffectiveLight(animated, 0).intensity;
+    const hiIntensity = getEffectiveLight(animated, 0.625).intensity;
+    expect(loIntensity).toBeGreaterThan(0);
+    expect(hiIntensity).toBeGreaterThan(0);
+    expect(loIntensity).not.toBe(hiIntensity);
+  });
+
+  it('never drops below 0.01 intensity even with a mean-negative animation', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 5 } };
+    for (let t = 0; t < 10; t += 0.1) {
+      const eff = getEffectiveLight(animated, t);
+      expect(eff.intensity).toBeGreaterThanOrEqual(0.01);
+    }
+  });
+
+  it('reuses the same per-light buffer across frames (GC sanity)', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 0.3 } };
+    const a = getEffectiveLight(animated, 0.1);
+    const b = getEffectiveLight(animated, 0.2);
+    // Same backing buffer, different intensity
+    expect(a).toBe(b);
   });
 });

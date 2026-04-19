@@ -522,6 +522,52 @@ describe('computePropShadowPolygon', () => {
     expect(farDist).toBeGreaterThan(nearDist);
   });
 
+  it('opacity scales down as light height approaches prop top', () => {
+    // Same prop, same horizontal position — vary lz through the zone.
+    // At the base: highest opacity. At the top: lowest opacity (~0.7).
+    const atBase = computePropShadowPolygon(-10, 1, 0, square, 0, 6, 100);
+    const atMid = computePropShadowPolygon(-10, 1, 3, square, 0, 6, 100);
+    const atTop = computePropShadowPolygon(-10, 1, 6, square, 0, 6, 100);
+    expect(atBase!.opacity).toBeGreaterThan(atMid!.opacity);
+    expect(atMid!.opacity).toBeGreaterThan(atTop!.opacity);
+    expect(atBase!.opacity).toBeCloseTo(1.0, 2);
+    expect(atTop!.opacity).toBeCloseTo(0.7, 2);
+  });
+
+  it('shadow length grows as light height approaches prop top', () => {
+    // A light just above the prop top produces a long shadow (projRatio caps);
+    // a light well above produces a shorter one.
+    const justAbove = computePropShadowPolygon(-10, 1, 4.2, square, 0, 4, 200);
+    const wellAbove = computePropShadowPolygon(-10, 1, 40, square, 0, 4, 200);
+    expect(justAbove).not.toBeNull();
+    expect(wellAbove).not.toBeNull();
+    const lenJust = Math.hypot(
+      justAbove!.farCenter[0] - justAbove!.nearCenter[0],
+      justAbove!.farCenter[1] - justAbove!.nearCenter[1],
+    );
+    const lenWell = Math.hypot(
+      wellAbove!.farCenter[0] - wellAbove!.nearCenter[0],
+      wellAbove!.farCenter[1] - wellAbove!.nearCenter[1],
+    );
+    expect(lenJust).toBeGreaterThan(lenWell);
+  });
+
+  it('clamps far-edge shadow length by lightRadius (cannot project past reach)', () => {
+    // Light close to the prop with a modest radius. The far polygon vertices
+    // should never sit further than `lightRadius` from the light; the near
+    // vertices live on the prop itself (within radius by construction).
+    const result = computePropShadowPolygon(-3, 1, 10, square, 0, 4, 10);
+    expect(result).not.toBeNull();
+    const n = result!.shadowPoly.length;
+    // The polygon is built as [...shadowFace, ...farVertices.reverse()] so the
+    // second half of the vertices are the projected ones.
+    const farVerts = result!.shadowPoly.slice(n / 2);
+    for (const [fx, fy] of farVerts) {
+      const d = Math.hypot(fx! - -3, fy! - 1);
+      expect(d).toBeLessThanOrEqual(10 + 0.01);
+    }
+  });
+
   it('DEFAULT_LIGHT_Z is a reasonable default', () => {
     expect(DEFAULT_LIGHT_Z).toBe(8);
     expect(typeof DEFAULT_LIGHT_Z).toBe('number');
