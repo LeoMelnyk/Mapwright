@@ -39,6 +39,10 @@
 - **HQ exports skip distant prop shadows** — the PNG export path mirrored the real-time renderer's prop shadow list without the real-time path's radius culling, paying per-pixel point-in-polygon cost for shadows that couldn't reach. Now it does the same centroid-distance pre-filter, speeding up exports on dense maps.
 - **Directional cone spread is clamped** — spread values over 180° used to diverge between the editor preview (wrapped to full circle) and the PNG export (narrowed back), producing inconsistent output. The cone half-angle is now clamped into [0°, 180°] at both the API boundary and the render entry points, so preview and export always agree.
 
+### Fixed
+
+- **Erase tool drag can be cancelled** — pressing Escape or right-clicking during an erase-tool drag now clears the selection box without erasing anything, matching the cancel behavior of the other selection tools.
+
 ### New API methods
 
 - `setLightGroup(id, group | null)` — assign a light to a group or clear its group
