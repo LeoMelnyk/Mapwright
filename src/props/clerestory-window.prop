@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 0
-lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#fff4d0","intensity":0.7,"falloff":"quadratic"}]
+lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#fff4d0","intensity":0.7,"falloff":"quadratic","cookie":{"type":"grid","scale":0.7,"strength":0.85}}]
 placement: wall
 room_types: dock-warehouse, warehouse, temple, cathedral, great-hall, barn, workshop
 typical_count: few

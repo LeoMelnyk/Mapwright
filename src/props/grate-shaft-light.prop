@@ -4,7 +4,7 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
-lights: [{"preset":"daylight","x":0.5,"y":0.5,"radius":10,"color":"#fff8d0","intensity":0.8}]
+lights: [{"preset":"daylight","x":0.5,"y":0.5,"radius":10,"color":"#fff8d0","intensity":0.8,"cookie":{"type":"grid","scale":0.8,"strength":0.95}}]
 placement: center
 room_types: sewer-junction, sewer, undercity
 typical_count: single

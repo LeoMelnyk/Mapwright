@@ -10,7 +10,7 @@ room_types: fey-glade, fey-court, druid-grove, forest, enchanted-grove
 typical_count: few
 clusters_with: fey-mushroom-ring, fey-lantern-bloom, dew-drop-sparkle, mushroom
 notes: Large ancient tree with shimmering bark and glowing lichen — fey forest centerpiece
-lights: [{"preset":"dim","x":1,"y":1,"radius":4,"intensity":0.25,"color":"#ddcc66"}]
+lights: [{"preset":"dim","x":1,"y":1,"radius":4,"intensity":0.25,"color":"#ddcc66","cookie":{"type":"dapple","scale":1.5,"strength":0.7,"scrollSpeedX":0.04}}]
 ---
 # Footprint 2x2: x 0-2, y 0-2
 

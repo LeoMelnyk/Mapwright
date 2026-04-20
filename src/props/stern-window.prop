@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 6
-lights: [{"preset":"moonlight","x":1.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#aaccee"}]
+lights: [{"preset":"moonlight","x":1.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#aaccee","cookie":{"type":"grid","scale":0.6,"strength":0.8}}]
 placement: wall
 room_types: ship, captain-cabin, officer-quarters
 typical_count: single
