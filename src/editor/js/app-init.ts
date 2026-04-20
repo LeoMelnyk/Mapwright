@@ -20,6 +20,7 @@ import { loadPropCatalog, ensurePropHitboxesForMap, scheduleBackgroundPropHitbox
 import { invalidateMinimapCache } from './minimap.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
+import { loadGoboCatalog } from './gobo-catalog.js';
 import {
   sessionState,
   renderSessionOverlay,
@@ -417,6 +418,12 @@ export async function initApp(
       notify();
     })
     .catch((err) => console.warn('Failed to load light catalog:', err));
+
+  // Load gobo catalog — tiny bundle, populates the render-side gobo registry so
+  // `extractGoboZones` can resolve pattern/density when props declare `gobos:`.
+  loadGoboCatalog()
+    .then(() => invalidateLightmap())
+    .catch((err) => console.warn('Failed to load gobo catalog:', err));
 
   // Load prop catalog (async, doesn't block editor)
   const propCatalogPromise = loadPropCatalog((loaded, total) => onAssetProgress('props', loaded, total))

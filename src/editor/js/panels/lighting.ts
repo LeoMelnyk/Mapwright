@@ -666,6 +666,15 @@ function render() {
       () => applyCookie(),
       (v: number) => v.toFixed(2),
     );
+    const cookieFocusRow = sliderRow(
+      'Focus Radius',
+      existingCookie?.focusRadius ?? 0,
+      0,
+      10,
+      0.1,
+      () => applyCookie(),
+      (v: number) => (v === 0 ? 'Full' : `${v.toFixed(1)} ft`),
+    );
     const cookieRotSpeedRow = sliderRow(
       'Rotation Speed',
       existingCookie?.rotationSpeed ?? 0,
@@ -693,6 +702,7 @@ function render() {
       () => applyCookie(),
       (v: number) => v.toFixed(2),
     );
+    selSection.appendChild(cookieFocusRow);
     selSection.appendChild(cookieScaleRow);
     selSection.appendChild(cookieStrengthRow);
     selSection.appendChild(cookieRotSpeedRow);
@@ -709,6 +719,8 @@ function render() {
           scale: parseFloat(cookieScaleRow.querySelector('input')!.value),
           strength: parseFloat(cookieStrengthRow.querySelector('input')!.value),
         };
+        const fr = parseFloat(cookieFocusRow.querySelector('input')!.value);
+        if (fr > 0) c.focusRadius = fr;
         const rs = parseFloat(cookieRotSpeedRow.querySelector('input')!.value);
         if (rs !== 0) c.rotationSpeed = rs;
         const sx = parseFloat(cookieScrollXRow.querySelector('input')!.value);
@@ -727,6 +739,7 @@ function render() {
 
     function updateCookieRows() {
       const show = cookieTypeSelect.value !== 'none';
+      cookieFocusRow.style.display = show ? '' : 'none';
       cookieScaleRow.style.display = show ? '' : 'none';
       cookieStrengthRow.style.display = show ? '' : 'none';
       cookieRotSpeedRow.style.display = show ? '' : 'none';
@@ -899,12 +912,7 @@ function render() {
         if (envelope !== 'instant') {
           // Pick a sensible default envelope based on direction if user left
           // it on Fade — Ignite reads better on enable, Extinguish on disable.
-          const eff =
-            envelope === 'simple-fade'
-              ? cb.checked
-                ? 'ignite'
-                : 'extinguish'
-              : envelope;
+          const eff = envelope === 'simple-fade' ? (cb.checked ? 'ignite' : 'extinguish') : envelope;
           beginGroupTransition(name, cb.checked, eff, 700);
         }
         invalidateLightmap('lights');

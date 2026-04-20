@@ -4,11 +4,12 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+gobos: [{"x1":0.20,"y1":0.18,"x2":0.80,"y2":0.18,"zBottom":1,"zTop":4,"gobo":"vertical-bars"}]
 placement: wall
 room_types: sewer-junction, sewer, undercity, prison, dungeon
 typical_count: few
 clusters_with: sewage-channel, grate-floor
-notes: Iron grate set into stone wall; rusted bars, darkness beyond. Mount along wall edges — place with wall at north.
+notes: Iron grate set into stone wall; rusted bars, darkness beyond. Mount along wall edges — place with wall at north. Bars are an upright gobo — a torch on an invisible-wall side of this grate projects vertical-bar shadows across the adjacent cell.
 ---
 # footprint 1x1: x range 0-1, y range 0-1; wall at north (low y)
 

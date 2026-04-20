@@ -140,6 +140,14 @@
     "*.{ts,js,cjs,mjs}": [
       "node ./node_modules/eslint/bin/eslint.js --fix",
       "node ./node_modules/prettier/bin/prettier.cjs --write"
+    ],
+    "src/props/*.prop": [
+      "node tools/update-manifest.js",
+      "git add src/props/manifest.json src/props/bundle.json"
+    ],
+    "src/gobos/*.gobo": [
+      "node tools/update-gobo-manifest.js",
+      "git add src/gobos/manifest.json src/gobos/bundle.json"
     ]
   },
   "optionalDependencies": {

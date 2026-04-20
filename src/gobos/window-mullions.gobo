@@ -1,0 +1,4 @@
+name: Window Mullions
+description: Six-pane window grid cast by a mullioned wall window.
+pattern: grid
+density: 6

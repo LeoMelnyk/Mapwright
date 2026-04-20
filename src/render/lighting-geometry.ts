@@ -9,8 +9,9 @@
  * Public exports here are re-exported from lighting.ts for backwards compat.
  */
 
-import type { CellGrid, Metadata, OverlayProp, PropCatalog, PropDefinition } from '../types.js';
+import type { CellGrid, GoboMode, GoboPattern, Metadata, OverlayProp, PropCatalog, PropDefinition } from '../types.js';
 import { extractOverlayPropLightSegments } from './props.js';
+import { getGoboDefinition } from './gobo-registry.js';
 import {
   PROP_SHADOW_MAX_RATIO,
   PROP_SHADOW_EPSILON_FT,
@@ -451,4 +452,206 @@ export function computePropShadowPolygon(
       : // Above zone: only the upper slice occludes, so the shadow stays soft.
         Math.min(PROP_SHADOW_ABOVE_MAX, PROP_SHADOW_ABOVE_BASE + PROP_SHADOW_ABOVE_SPAN * (zTop / lz));
   return { shadowPoly, nearCenter, farCenter, opacity, hard: false };
+}
+
+// ─── Gobo (Projected Pattern) Zones ────────────────────────────────────────
+//
+// A gobo is an upright patterned occluder declared on a prop — e.g. the
+// mullions of a window or the bars of a prison grate. When a light hits the
+// gobo segment from above (light z > gobo zBottom), the pattern is projected
+// onto the floor on the FAR side of the segment from the light, same math as
+// prop-shadow projection but on a line segment rather than a polygon.
+//
+// The pattern itself is multiplied into the lightmap at render time; the
+// geometry here only owns the projected quadrilateral.
+
+/** A single upright gobo segment flattened out for the spatial index. */
+export interface GoboZone {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  centroidX: number;
+  centroidY: number;
+  zBottom: number;
+  zTop: number;
+  goboId: string;
+  /** Resolved pattern from the gobo catalog (registry lookup at extraction time). */
+  pattern: GoboPattern;
+  /** Effective density: prop's per-placement override if set, else the gobo definition's. */
+  density: number;
+  /** Slat orientation — only meaningful for `slats` pattern. */
+  orientation?: 'vertical' | 'horizontal';
+  /** Projection mode — see {@link GoboMode}. */
+  mode: GoboMode;
+  strength: number;
+  sourcePropId: number | string;
+}
+
+/**
+ * Flat spatial index over gobo zones. Identical bucket strategy to
+ * {@link PropShadowIndex} — prop shadows and gobos both gate on the light's
+ * bounding circle and benefit from the same 30-ft bucket size.
+ */
+export class GoboIndex {
+  private buckets = new Map<number, GoboZone[]>();
+  readonly bucketSize = SHADOW_INDEX_BUCKET_FT;
+  readonly size: number;
+
+  constructor(zones: GoboZone[]) {
+    this.size = zones.length;
+    for (const zone of zones) {
+      const key = this.bucketKey(zone.centroidX, zone.centroidY);
+      let list = this.buckets.get(key);
+      if (!list) this.buckets.set(key, (list = []));
+      list.push(zone);
+    }
+  }
+
+  private bucketKey(x: number, y: number): number {
+    const bx = Math.floor(x / this.bucketSize);
+    const by = Math.floor(y / this.bucketSize);
+    return (bx + 16384) * 32768 + (by + 16384);
+  }
+
+  *query(lx: number, ly: number, radius: number): Generator<GoboZone> {
+    if (this.size === 0) return;
+    const b = this.bucketSize;
+    const bx0 = Math.floor((lx - radius) / b);
+    const bx1 = Math.floor((lx + radius) / b);
+    const by0 = Math.floor((ly - radius) / b);
+    const by1 = Math.floor((ly + radius) / b);
+    for (let bx = bx0; bx <= bx1; bx++) {
+      for (let by = by0; by <= by1; by++) {
+        const list = this.buckets.get((bx + 16384) * 32768 + (by + 16384));
+        if (!list) continue;
+        for (const zone of list) yield zone;
+      }
+    }
+  }
+}
+
+/**
+ * Build a spatial index over every gobo segment on the map. Call once per
+ * lightmap rebuild alongside `extractPropShadowZones` — the per-light loop
+ * then does `goboIndex.query(lx, ly, radius)` exactly the same way.
+ */
+export function buildGoboIndex(zones: GoboZone[]): { flat: GoboZone[]; index: GoboIndex } {
+  return { flat: zones, index: new GoboIndex(zones) };
+}
+
+/**
+ * Extract every gobo segment on the map in world-feet coordinates.
+ *
+ * Mirrors `extractPropShadowZones`: iterates every placed overlay prop whose
+ * definition declares `gobos:`, transforms each gobo's local-space segment
+ * endpoints to world space, and precomputes a centroid for fast bucket culling.
+ */
+export function extractGoboZones(
+  propCatalog: PropCatalog | null,
+  metadata: Metadata | null,
+  gridSize: number,
+): GoboZone[] {
+  const result: GoboZone[] = [];
+  if (!propCatalog?.props || !metadata?.props?.length) return result;
+
+  for (const op of metadata.props) {
+    const propDef = propCatalog.props[op.type];
+    if (!propDef?.gobos?.length) continue;
+
+    const propScale = op.scale;
+    for (const g of propDef.gobos) {
+      // Resolve pattern + density via the registry. If the catalog isn't loaded
+      // (e.g. Node CLI render without a gobo catalog), skip the zone silently.
+      const def = getGoboDefinition(g.gobo);
+      if (!def) continue;
+      // Transform local-cell endpoints through the same flip/rotate/scale/
+      // translate pipeline used for hitbox polygons.
+      const world = transformHitboxToWorld(
+        [
+          [g.x1, g.y1],
+          [g.x2, g.y2],
+        ],
+        propDef,
+        op,
+        gridSize,
+      );
+      const [wx1, wy1] = world[0]! as [number, number];
+      const [wx2, wy2] = world[1]! as [number, number];
+      result.push({
+        x1: wx1,
+        y1: wy1,
+        x2: wx2,
+        y2: wy2,
+        centroidX: (wx1 + wx2) / 2,
+        centroidY: (wy1 + wy2) / 2,
+        zBottom: g.zBottom * propScale,
+        zTop: g.zTop * propScale,
+        goboId: g.gobo,
+        pattern: def.pattern,
+        density: g.density ?? def.density,
+        ...(def.orientation ? { orientation: def.orientation } : {}),
+        mode: g.mode ?? 'occluder',
+        strength: g.strength ?? 1,
+        sourcePropId: op.id,
+      });
+    }
+  }
+  return result;
+}
+
+/**
+ * Compute the projected gobo quadrilateral on the floor from a single light
+ * hitting a single upright gobo segment.
+ *
+ * Mirrors {@link computePropShadowPolygon} but for a line segment: each of
+ * the two segment endpoints projects outward from the light to a far point,
+ * and the four corners form a trapezoid. The renderer multiplies the gobo
+ * texture into this quad — near edge = the gobo itself, far edge = where the
+ * pattern fades out.
+ *
+ * Returns null if the light is below `zBottom` (passes underneath) or the
+ * resulting projection is too small to be worth drawing.
+ */
+export function computeGoboProjectionPolygon(
+  lx: number,
+  ly: number,
+  lz: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  zBottom: number,
+  zTop: number,
+  lightRadius: number,
+): { quad: number[][]; nearP1: number[]; nearP2: number[]; farP1: number[]; farP2: number[] } | null {
+  if (lz < zBottom) return null;
+
+  const heightDiff = Math.abs(lz - zTop);
+  const projRatio =
+    heightDiff < PROP_SHADOW_EPSILON_FT ? PROP_SHADOW_MAX_RATIO : Math.min(PROP_SHADOW_MAX_RATIO, zTop / heightDiff);
+
+  const projectPoint = (px: number, py: number): { far: [number, number]; shadowLen: number } => {
+    const dx = px - lx;
+    const dy = py - ly;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const shadowLen = dist * projRatio;
+    const maxExt = Math.max(0, lightRadius - dist);
+    const clampedLen = Math.min(shadowLen, maxExt);
+    if (dist < 0.001) return { far: [px, py], shadowLen: 0 };
+    return { far: [px + (dx / dist) * clampedLen, py + (dy / dist) * clampedLen], shadowLen };
+  };
+
+  const a = projectPoint(x1, y1);
+  const b = projectPoint(x2, y2);
+  // Skip negligible projections.
+  if (Math.max(a.shadowLen, b.shadowLen) < 0.5) return null;
+
+  // Near edge = the segment itself (world-feet).
+  const nearP1: [number, number] = [x1, y1];
+  const nearP2: [number, number] = [x2, y2];
+  // Winding: nearP1 → nearP2 → farP2 → farP1 keeps the quad non-self-intersecting
+  // whether the light is "above" or "below" the segment in world space.
+  const quad: number[][] = [nearP1, nearP2, b.far, a.far];
+  return { quad, nearP1, nearP2, farP1: a.far, farP2: b.far };
 }

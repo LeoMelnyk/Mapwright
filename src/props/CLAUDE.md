@@ -561,21 +561,22 @@ lights: false
 **Cookie / gobo (`cookie`)** — declare a grayscale pattern that gets multiplied into the light's gradient. Useful for any prop that should project a *pattern* rather than a uniform glow: stained-glass windows, barred grates, magical sigils, lattices, water surfaces above a sunlit pool, tree canopies, etc. The placed light inherits the cookie verbatim; the prop is the natural place to declare it because the cookie is a property of the *fixture*, not the light source.
 
 ```yaml
-# Stained-glass window casting colored shards on the floor
-lights: [{"preset":"daylight","x":1.0,"y":0,"cookie":{"type":"stained-glass","scale":1.2,"strength":0.9}}]
+# Stained-glass window casting colored shards on the floor (1×2 wall prop)
+lights: [{"preset":"daylight","x":1.0,"y":0.5,"cookie":{"type":"stained-glass","focusRadius":1.5,"strength":0.9}}]
 
-# Barred prison window — vertical slats projected across the cell
-lights: [{"preset":"daylight","x":0.5,"y":0,"cookie":{"type":"slats","scale":1.0}}]
+# Barred prison window — vertical slats projected across one cell
+lights: [{"preset":"daylight","x":0.5,"y":0.5,"cookie":{"type":"slats","focusRadius":0.7}}]
 
-# Slowly rotating summoning sigil
-lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"cookie":{"type":"sigil","rotationSpeed":8}}]
+# Slowly rotating summoning sigil (3×3 floor prop)
+lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"cookie":{"type":"sigil","focusRadius":1.5,"rotationSpeed":8}}]
 ```
 
 **Cookie fields** (all optional except `type`):
 | Field | Type | Notes |
 |---|---|---|
 | `type` | `slats` / `dapple` / `caustics` / `sigil` / `grid` / `stained-glass` | Pattern. Procedural — no asset files. |
-| `scale` | number | Mask scale. 1.0 covers the light; >1 zooms in, <1 zooms out. Default 1. |
+| `focusRadius` | feet | **Set this for prop-attached cookies.** Hard cap on cookie projection — outside this radius, the gradient is preserved unchanged. Models the top-down reality that a window/grate only projects its pattern onto the floor area immediately beneath it, not the whole light radius. Sensible value: roughly half the prop's longest footprint dimension. Without `focusRadius`, the cookie spans the full light bbox (only sensible for free-floating magical effects, never for physical fixtures). |
+| `scale` | number | Pattern density inside the focus area. 1.0 = one cookie texture across the focus diameter; >1 zooms in (denser pattern), <1 zooms out. Default 1. |
 | `strength` | number 0–1 | Mask opacity. 1 = full pattern, 0 = no cookie effect. Default 1. |
 | `rotation` | degrees | Static rotation. Default 0. |
 | `scrollX` / `scrollY` | number | Static scroll offset (0–1 wraps). |
@@ -583,6 +584,40 @@ lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"cookie":{"type":"sigil","rotat
 | `scrollSpeedX` / `scrollSpeedY` | per sec | Animate scroll (e.g. canopy dapple, water caustics). |
 
 Cookies work on both point and directional lights. For window props, pair with a directional preset (`daylight`, `sunbeam`) so the projection has a clear direction. Animated cookies (`rotationSpeed` / `scrollSpeed*`) bypass the per-light bake cache, so use them sparingly on prop-heavy maps.
+
+**Use cookies for:** floor-level pattern effects (water caustics, tree dapple, magical sigils, stained-glass pool). **Use `gobos:` (below) for:** upright patterned occluders (window mullions, prison bars, lattice walls). Gobos are physically projected by any nearby light the same way prop z-shadows are, so the pattern falls on the far side of the fixture.
+
+### `gobos:` (optional — OMIT if the prop isn't a patterned occluder)
+
+Declare upright patterned planes on the prop. Any light that clears the gobo's `zBottom` projects the pattern onto the floor on the FAR SIDE of the segment from the light — same projection math as the z-height prop shadow system, but with a multiply-blended pattern mask instead of uniform darkening.
+
+**Format: single-line JSON array** (same constraint as `lights:`).
+
+```yaml
+# Clerestory window — 1×2 wall prop, mullions between floor+4ft and floor+7ft
+gobos: [{"x1":0.15,"y1":0.05,"x2":1.85,"y2":0.05,"zBottom":4,"zTop":7,"gobo":"window-mullions"}]
+
+# Wall-mounted prison grate — 1×1, vertical bars from knee height to head height
+gobos: [{"x1":0.20,"y1":0.18,"x2":0.80,"y2":0.18,"zBottom":1,"zTop":4,"gobo":"vertical-bars"}]
+```
+
+**Fields per entry:**
+| Field | Type | Meaning |
+|---|---|---|
+| `x1`, `y1`, `x2`, `y2` | number | Segment endpoints in prop-local cell coordinates (0..cols, 0..rows). Defines the gobo's footprint on the prop. |
+| `zBottom` | feet | Gobo base height above the floor. Lights below this height pass underneath and don't project. |
+| `zTop` | feet | Gobo top height. Projection length scales with `zTop / (lz - zTop)` — higher lights cast shorter projections. |
+| `gobo` | string | Id in `src/gobos/manifest.json`. Shipped gobos: `window-mullions`, `vertical-bars`, `horizontal-slats`, `ceiling-grate`. |
+| `density` | number (optional) | Override the gobo catalog's default density (grid divisions / slat bands). Useful when the same pattern fits a small and a large window. |
+| `strength` | 0..1 (optional, default 1) | Pattern opacity. 1 = full multiply mask, 0 = no effect. |
+
+**When to use cookies vs gobos:**
+- **Cookie** — pattern is part of the LIGHT, always visible at the light source. Use for floor-level phenomena (water caustics, tree-dapple, runic sigils, stained-glass pools) and for props whose "sunlight pool" is the whole visual.
+- **Gobo** — pattern is part of the PROP, projected only when a light hits it from the correct side. Use for physical occluders where the pattern's position depends on the light (prison bars, overhead lattices, barred windows seen from inside when a torch is behind them).
+
+**Gobo props are passive — do not add `lights:`.** A window/grate/lattice doesn't emit light, it modulates incoming light. Drop the prop with only a `gobos:` declaration and let any nearby torch, daylight source, or magical light supply the actual illumination. The shipped `clerestory-window`, `stern-window`, `sun-window`, and `grate-wall` follow this convention — place them and then place a separate light source on whichever side should be the "outside."
+
+**Adding a new gobo:** drop a `.gobo` YAML file into `src/gobos/` with `name`, `description`, `pattern` (`grid`/`slats`/`sigil`/`caustics`/`dapple`/`stained-glass`), `density`, and optionally `orientation: horizontal`. Run `node tools/update-gobo-manifest.js` to regenerate the manifest + bundle.
 
 **Available presets** (see `src/lights/manifest.json` for the authoritative list):
 

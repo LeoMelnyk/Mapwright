@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 0.01
-lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#ffeaa0","intensity":0.6,"cookie":{"type":"stained-glass","scale":1.0,"strength":0.6}}]
+gobos: [{"x1":0.30,"y1":0.05,"x2":1.70,"y2":0.05,"zBottom":4,"zTop":6,"gobo":"window-mullions","density":3,"mode":"aperture"}]
 placement: wall
 room_types: noble-solar, mansion-grand-hall, house-noble-townhouse, library, study, mansion-bedroom-master, chapel
 typical_count: single

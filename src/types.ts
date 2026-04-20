@@ -165,6 +165,32 @@ export interface Light {
     opacity: number;
     hard: boolean;
   }[];
+  /**
+   * Per-light projected gobo patterns. Populated per-frame alongside
+   * `_propShadows` — a pattern-multiplied floor footprint cast from each
+   * prop-declared gobo that this light clears. See
+   * {@link computeGoboProjectionPolygon}.
+   */
+  _gobos?: {
+    /** Quadrilateral footprint in world-feet: [nearP1, nearP2, farP2, farP1]. */
+    quad: number[][];
+    /** Gobo segment z-range (feet), copied from the source zone. Used by the
+     *  procedural line-based renderer to project each mullion/bar individually. */
+    zBottom: number;
+    zTop: number;
+    /** Gobo id (for debugging/inspection). */
+    goboId: string;
+    /** Resolved pattern key — see {@link GoboPattern}. */
+    pattern: GoboPattern;
+    /** Effective density (pattern divisions / band count). */
+    density: number;
+    /** Slat orientation (only meaningful for the `slats` pattern). */
+    orientation: 'vertical' | 'horizontal';
+    /** Projection mode — see {@link GoboMode}. */
+    mode: GoboMode;
+    /** Strength in 0..1 multiplied onto the pattern (1 = full mask). */
+    strength: number;
+  }[];
 }
 
 /** A light preset from the catalog. */
@@ -191,6 +217,71 @@ export interface LightCatalog {
   lights: Record<string, LightPreset | undefined>;
   categoryOrder: string[];
   byCategory: Record<string, string[]>;
+}
+
+// ── Gobos ──────────────────────────────────────────────────────────────────
+
+/** Procedural gobo pattern built into the renderer. */
+export type GoboPattern = 'grid' | 'slats' | 'sigil' | 'caustics' | 'dapple' | 'stained-glass';
+
+/** A parsed .gobo asset. Procedural only; image-backed gobos are TODO. */
+export interface GoboDefinition {
+  id: string;
+  name: string;
+  description: string;
+  pattern: GoboPattern;
+  /** Divisions / bands count for procedural patterns. Meaning depends on pattern. */
+  density: number;
+  /** For `slats` pattern: orientation of the slats. Default vertical. */
+  orientation?: 'vertical' | 'horizontal';
+}
+
+/** Gobo catalog loaded from manifest/bundle. */
+export interface GoboCatalog {
+  names: string[];
+  gobos: Record<string, GoboDefinition | undefined>;
+}
+
+/**
+ * Projection mode for a gobo.
+ *
+ * `occluder` — default. Gobo is a silhouette in open air; light reaches the
+ * whole scene normally, the gobo just carves dark bars out of the lit region.
+ * Use for prison bars, lattices, anything where the light source and the
+ * shadow-receiving surface are in the same open space.
+ *
+ * `aperture` — gobo is a hole in an otherwise-opaque surface. The light is
+ * clipped to the projection quad on the floor, producing a defined "sunpool"
+ * with the mullion bars cast inside it. Outside the pool, this light
+ * contributes nothing. Use for windows in walls, grates above shafts, any
+ * scenario where the gobo acts like a cookie-cutter over a blocked light.
+ */
+export type GoboMode = 'occluder' | 'aperture';
+
+/**
+ * A gobo footprint declared on a prop. The pattern lives on the prop (upright
+ * patterned occluder — window mullions, prison bars, lattice). Any nearby
+ * light that clears the gobo's `zBottom` projects the pattern onto the floor
+ * on the far side, mirroring the z-height prop shadow system.
+ */
+export interface PropGobo {
+  /** Segment endpoints in prop-local cell coordinates (0..cols, 0..rows). */
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  /** Gobo base height above the floor, in feet. */
+  zBottom: number;
+  /** Gobo top height in feet. */
+  zTop: number;
+  /** Gobo catalog id. */
+  gobo: string;
+  /** Projection mode — see {@link GoboMode}. Defaults to `occluder`. */
+  mode?: GoboMode;
+  /** Optional density override (otherwise taken from the .gobo definition). */
+  density?: number;
+  /** Optional strength in 0..1 — 1 full pattern, 0 no effect. Default 1. */
+  strength?: number;
 }
 
 // ── Stairs & Bridges ───────────────────────────────────────────────────────
@@ -386,6 +477,8 @@ export interface PropDefinition {
   lights: PropLight[] | null;
   manualHitbox: PropCommand[] | null;
   manualSelection: PropCommand[] | null;
+  /** Upright patterned occluders — see {@link PropGobo}. */
+  gobos?: PropGobo[] | null;
   hitbox?: number[][];
   hitboxZones?: { polygon: number[][]; zBottom: number; zTop: number }[];
   selectionHitbox?: number[][];
@@ -666,7 +759,17 @@ export interface LightAnimationConfig {
 export interface LightCookie {
   /** Cookie pattern id. */
   type: 'slats' | 'dapple' | 'caustics' | 'sigil' | 'grid' | 'stained-glass';
-  /** Mask scale multiplier — relative to light bounding box. Default 1. */
+  /**
+   * Hard cap on cookie projection size, in feet. Outside this radius the
+   * cookie has no effect — the light continues as plain gradient. Models the
+   * physical reality that a window/grate only projects its pattern onto the
+   * floor area immediately downstream of the prop, while the rest of the
+   * light radius is diffuse ambient glow. When unset, the cookie spans the
+   * full light bounding box (legacy behavior — useful for cookies placed
+   * directly on a light, not via a prop).
+   */
+  focusRadius?: number;
+  /** Mask scale multiplier — pattern density within the focus area. Default 1. */
   scale?: number;
   /** Static rotation in degrees. Default 0. */
   rotation?: number;

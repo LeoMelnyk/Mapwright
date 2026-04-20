@@ -15,6 +15,7 @@ import { createCanvas, Path2D, ImageData } from '@napi-rs/canvas';
 import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile.js';
 import { THEMES } from './src/render/themes.js';
 import { loadPropCatalogSync } from './src/render/prop-catalog-node.js';
+import { loadGoboCatalogSync } from './src/render/gobo-catalog-node.js';
 import {
   loadTextureCatalogMetadata,
   ensureTexturesForConfig,
@@ -158,10 +159,7 @@ function writeManifest(destDir) {
       }
     }
     const version = hasher.digest('hex').slice(0, 16);
-    fs.writeFileSync(
-      path.join(texturesDir, 'bundle.json'),
-      JSON.stringify({ version, textures }),
-    );
+    fs.writeFileSync(path.join(texturesDir, 'bundle.json'), JSON.stringify({ version, textures }));
   } catch {
     /* ignore — dir may not exist yet */
   }
@@ -170,6 +168,7 @@ function writeManifest(destDir) {
 // ── Load asset catalogs at startup ──────────────────────────────────────────
 
 const propCatalog = loadPropCatalogSync();
+loadGoboCatalogSync();
 let textureCatalog = loadTextureCatalogMetadata();
 
 // Load themes
@@ -242,6 +241,7 @@ app.use('/user-themes', express.static(userThemePath));
 // Data assets (props, lights, themes, rooms) always served from src/ — they're not code
 app.use('/props', express.static(path.join(__dirname, 'src', 'props')));
 app.use('/lights', express.static(path.join(__dirname, 'src', 'lights')));
+app.use('/gobos', express.static(path.join(__dirname, 'src', 'gobos')));
 app.use('/themes', express.static(path.join(__dirname, 'src', 'themes')));
 app.use('/rooms', express.static(path.join(__dirname, 'src', 'rooms')));
 

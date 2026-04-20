@@ -25,9 +25,14 @@ import {
   extractPropShadowZones,
   buildPropShadowIndex,
   computePropShadowPolygon,
+  extractGoboZones,
+  buildGoboIndex,
+  computeGoboProjectionPolygon,
   DEFAULT_LIGHT_Z,
   PropShadowIndex,
+  GoboIndex,
   type WallSegment,
+  type GoboZone,
 } from './lighting-geometry.js';
 import { _t } from './render-state.js';
 import {
@@ -62,10 +67,14 @@ export {
   extractPropShadowZones,
   buildPropShadowIndex,
   computePropShadowPolygon,
+  extractGoboZones,
+  buildGoboIndex,
+  computeGoboProjectionPolygon,
   DEFAULT_LIGHT_Z,
   PropShadowIndex,
+  GoboIndex,
 };
-export type { WallSegment };
+export type { WallSegment, GoboZone };
 
 // ─── Constants ─────
 // Tunable numbers live in lighting-config.ts. Only re-local wrappers for
@@ -609,6 +618,7 @@ export function getEffectiveLight(light: Light, time: number): Light {
     }
     Object.assign(result, light);
     result._propShadows = undefined;
+    result._gobos = undefined;
     result.intensity = Math.max(0, light.intensity * groupScale);
     return result;
   }
@@ -928,6 +938,326 @@ export function listCookieTypes(): string[] {
   return ['slats', 'dapple', 'caustics', 'sigil', 'grid', 'stained-glass'];
 }
 
+// ─── Procedural Gobo Textures (density-parameterized) ──────────────────────
+//
+// Gobos reuse the cookie texture infrastructure but support per-zone density,
+// since the whole point of a gobo is "this window has 6 panes, that grate has
+// 4 bars." Cache key includes density + orientation. For pattern types that
+// aren't density-sensitive (sigil, caustics, dapple, stained-glass) the
+// cached cookie texture is reused verbatim.
+
+const goboTexCache = new Map<string, OffscreenCanvas | HTMLCanvasElement>();
+
+function _drawGoboGrid(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, divisions: number) {
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  ctx.fillStyle = '#000';
+  const step = COOKIE_TEX_SIZE / divisions;
+  const bar = step * 0.18;
+  for (let i = 0; i <= divisions; i++) {
+    ctx.fillRect(i * step - bar / 2, 0, bar, COOKIE_TEX_SIZE);
+    ctx.fillRect(0, i * step - bar / 2, COOKIE_TEX_SIZE, bar);
+  }
+}
+
+function _drawGoboSlats(
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  bands: number,
+  orientation: 'vertical' | 'horizontal',
+) {
+  // White background = light passes through gaps.
+  // Black bars = slat shadow. Multiply composite turns black into darkened
+  // gradient, white into unchanged — so we see light stripes between dark bars.
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  ctx.fillStyle = '#000';
+  const step = COOKIE_TEX_SIZE / bands;
+  const barFrac = 0.35;
+  for (let i = 0; i < bands; i++) {
+    const o = (i + (1 - barFrac) / 2) * step;
+    if (orientation === 'horizontal') {
+      ctx.fillRect(0, o, COOKIE_TEX_SIZE, step * barFrac);
+    } else {
+      ctx.fillRect(o, 0, step * barFrac, COOKIE_TEX_SIZE);
+    }
+  }
+}
+
+function _getGoboTexture(
+  pattern: string,
+  density: number,
+  orientation: 'vertical' | 'horizontal' = 'vertical',
+): OffscreenCanvas | HTMLCanvasElement | null {
+  // Non-density-sensitive patterns fall back to the cookie cache.
+  if (pattern === 'sigil' || pattern === 'caustics' || pattern === 'dapple' || pattern === 'stained-glass') {
+    return _getCookieTexture(pattern);
+  }
+  const key = `${pattern}:${density}:${orientation}`;
+  let tex = goboTexCache.get(key);
+  if (tex) return tex;
+  tex = _allocCookieCanvas();
+  const ctx = tex.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  if (pattern === 'grid') {
+    _drawGoboGrid(ctx, Math.max(1, Math.round(density)));
+  } else if (pattern === 'slats') {
+    _drawGoboSlats(ctx, Math.max(1, Math.round(density)), orientation);
+  } else {
+    return null;
+  }
+  goboTexCache.set(key, tex);
+  return tex;
+}
+
+/**
+ * Multiply projected gobo patterns into the per-light RT, one per gobo that
+ * this light clears.
+ *
+ * For `grid` and `slats` patterns the bars are rendered PROCEDURALLY — each
+ * mullion / transom / slat projects to its own floor-line via the same
+ * light-through-point math the projection polygon uses, and is drawn as a
+ * black stroke. This gives physically-correct fanning (bars diverge from
+ * the light's ground position exactly as sun-through-mullions would),
+ * no affine-approximation distortion, and no triangle-seam artifacts.
+ *
+ * For `sigil`/`caustics`/`dapple`/`stained-glass` patterns (which can't be
+ * expressed as a set of straight lines) the renderer falls back to
+ * two-triangle affine texture mapping across the projected quad.
+ */
+function _applyGobosToRT(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+) {
+  if (!light._gobos?.length) return;
+  const lx = light.x;
+  const ly = light.y;
+  const lz = light.z ?? DEFAULT_LIGHT_Z;
+  const sx = transform.scale;
+  const ox = transform.offsetX - bbX;
+  const oy = transform.offsetY - bbY;
+
+  for (const entry of light._gobos) {
+    const strength = Math.max(0, Math.min(1, entry.strength));
+    if (strength === 0) continue;
+
+    if (entry.pattern === 'grid' || entry.pattern === 'slats') {
+      _renderProceduralGoboLines(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
+    } else {
+      _renderGoboTexturePattern(gctx, entry, sx, ox, oy, strength);
+    }
+  }
+}
+
+/**
+ * Procedural polygon rendering for `grid` / `slats` gobos. Each bar in the
+ * gobo's 2D plane is a real 3D rectangle — width along the gobo segment,
+ * height in z — and its floor shadow is the quadrilateral formed by
+ * projecting all four corners via the light's perspective. Filled with a
+ * black multiply pass so the shadow is a solid dark band, not a thin stroke
+ * that vanishes in the gradient falloff. Correctly fanning, no affine
+ * artifacts, no triangle-seam discontinuities.
+ */
+function _renderProceduralGoboLines(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  entry: NonNullable<Light['_gobos']>[number],
+  lx: number,
+  ly: number,
+  lz: number,
+  sx: number,
+  ox: number,
+  oy: number,
+  strength: number,
+) {
+  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
+  const x1 = nearP1[0]!;
+  const y1 = nearP1[1]!;
+  const x2 = nearP2[0]!;
+  const y2 = nearP2[1]!;
+  const { zBottom, zTop, density, pattern, orientation } = entry;
+  if (lz <= zBottom) return;
+
+  // Project a 3D point onto the z=0 floor from the light position.
+  const proj = (px: number, py: number, pz: number): [number, number] => {
+    const denom = lz - pz;
+    if (Math.abs(denom) < 1e-6) return [px, py];
+    const t = lz / denom;
+    return [lx + t * (px - lx), ly + t * (py - ly)];
+  };
+  // World-feet → RT canvas pixels.
+  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
+
+  // Proportional bar width: how much of each cell the mullion/slat occupies.
+  // Grid = thin dividers (like window muntins), slats = thick bars (iron).
+  const barFrac = pattern === 'slats' ? 0.45 : 0.22;
+
+  gctx.save();
+  gctx.globalCompositeOperation = 'multiply';
+  gctx.globalAlpha = strength;
+  gctx.fillStyle = '#000';
+
+  const drawMullions = pattern === 'grid' || (pattern === 'slats' && orientation !== 'horizontal');
+  const drawTransoms = pattern === 'grid' || (pattern === 'slats' && orientation === 'horizontal');
+
+  // Fill a 4-corner polygon in canvas pixel coordinates.
+  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
+    gctx.beginPath();
+    gctx.moveTo(a[0], a[1]);
+    gctx.lineTo(b[0], b[1]);
+    gctx.lineTo(c[0], c[1]);
+    gctx.lineTo(d[0], d[1]);
+    gctx.closePath();
+    gctx.fill();
+  };
+
+  if (drawMullions) {
+    // Each vertical mullion is a 3D rectangle (bar_width × gobo_height) at
+    // u-position u_center ± hw along the gobo segment. Project the four
+    // corners to the floor and fill the trapezoid.
+    const hwU = barFrac / (2 * density); // half-width in normalized u
+    const count = pattern === 'grid' ? density + 1 : density;
+    for (let i = 0; i < count; i++) {
+      const uCenter = pattern === 'grid' ? i / density : (i + 0.5) / density;
+      const uL = uCenter - hwU;
+      const uR = uCenter + hwU;
+      const xL = x1 + uL * (x2 - x1);
+      const yL = y1 + uL * (y2 - y1);
+      const xR = x1 + uR * (x2 - x1);
+      const yR = y1 + uR * (y2 - y1);
+      const a = toPx(...proj(xL, yL, zBottom));
+      const b = toPx(...proj(xR, yR, zBottom));
+      const c = toPx(...proj(xR, yR, zTop));
+      const d = toPx(...proj(xL, yL, zTop));
+      fillQuad(a, b, c, d);
+    }
+  }
+
+  if (drawTransoms) {
+    // Each horizontal transom is a 3D rectangle (gobo_width × bar_height) at
+    // z-center ± half-bar-height. Project the four corners and fill.
+    const zSpan = zTop - zBottom;
+    const hwZ = (barFrac * zSpan) / (2 * density);
+    const count = pattern === 'grid' ? density + 1 : density;
+    for (let i = 0; i < count; i++) {
+      const zFrac = pattern === 'grid' ? i / density : (i + 0.5) / density;
+      const zCenter = zBottom + zFrac * zSpan;
+      const zL = Math.max(zBottom, zCenter - hwZ);
+      const zU = Math.min(zTop, zCenter + hwZ);
+      if (lz <= zL) continue;
+      const a = toPx(...proj(x1, y1, zL));
+      const b = toPx(...proj(x2, y2, zL));
+      const c = toPx(...proj(x2, y2, zU));
+      const d = toPx(...proj(x1, y1, zU));
+      fillQuad(a, b, c, d);
+    }
+  }
+  gctx.restore();
+}
+
+/**
+ * Two-triangle affine texture mapping for non-grid patterns (sigil,
+ * caustics, dapple, stained-glass). Each triangle's 3 corners land exactly
+ * on projected quad corners; the texture is stretched linearly inside.
+ */
+function _renderGoboTexturePattern(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  entry: NonNullable<Light['_gobos']>[number],
+  sx: number,
+  ox: number,
+  oy: number,
+  strength: number,
+) {
+  const W = COOKIE_TEX_SIZE;
+  const H = COOKIE_TEX_SIZE;
+  const [nearP1, nearP2, farP2, farP1] = entry.quad as [number[], number[], number[], number[]];
+  const tex = _getGoboTexture(entry.pattern, entry.density, entry.orientation);
+  if (!tex) return;
+
+  const nP1x = nearP1[0]! * sx + ox;
+  const nP1y = nearP1[1]! * sx + oy;
+  const nP2x = nearP2[0]! * sx + ox;
+  const nP2y = nearP2[1]! * sx + oy;
+  const fP1x = farP1[0]! * sx + ox;
+  const fP1y = farP1[1]! * sx + oy;
+  const fP2x = farP2[0]! * sx + ox;
+  const fP2y = farP2[1]! * sx + oy;
+
+  gctx.save();
+  gctx.globalCompositeOperation = 'multiply';
+  gctx.globalAlpha = strength;
+
+  const drawTriangle = (
+    tu1: number,
+    tv1: number,
+    wx1: number,
+    wy1: number,
+    tu2: number,
+    tv2: number,
+    wx2: number,
+    wy2: number,
+    tu3: number,
+    tv3: number,
+    wx3: number,
+    wy3: number,
+  ) => {
+    const det = tu1 * (tv2 - tv3) - tv1 * (tu2 - tu3) + (tu2 * tv3 - tu3 * tv2);
+    if (Math.abs(det) < 1e-9) return;
+    const invDet = 1 / det;
+    const m11 = (tv2 - tv3) * invDet,
+      m12 = (tv3 - tv1) * invDet,
+      m13 = (tv1 - tv2) * invDet;
+    const m21 = (tu3 - tu2) * invDet,
+      m22 = (tu1 - tu3) * invDet,
+      m23 = (tu2 - tu1) * invDet;
+    const m31 = (tu2 * tv3 - tu3 * tv2) * invDet,
+      m32 = (tu3 * tv1 - tu1 * tv3) * invDet,
+      m33 = (tu1 * tv2 - tu2 * tv1) * invDet;
+    const a = m11 * wx1 + m12 * wx2 + m13 * wx3;
+    const c = m21 * wx1 + m22 * wx2 + m23 * wx3;
+    const e = m31 * wx1 + m32 * wx2 + m33 * wx3;
+    const b = m11 * wy1 + m12 * wy2 + m13 * wy3;
+    const d = m21 * wy1 + m22 * wy2 + m23 * wy3;
+    const f = m31 * wy1 + m32 * wy2 + m33 * wy3;
+    gctx.save();
+    gctx.beginPath();
+    gctx.moveTo(wx1, wy1);
+    gctx.lineTo(wx2, wy2);
+    gctx.lineTo(wx3, wy3);
+    gctx.closePath();
+    gctx.clip();
+    const pat = gctx.createPattern(tex, 'no-repeat');
+    if (!pat) {
+      gctx.restore();
+      return;
+    }
+    pat.setTransform({ a, b, c, d, e, f });
+    gctx.fillStyle = pat;
+    const minX = Math.min(wx1, wx2, wx3);
+    const minY = Math.min(wy1, wy2, wy3);
+    const maxX = Math.max(wx1, wx2, wx3);
+    const maxY = Math.max(wy1, wy2, wy3);
+    gctx.fillRect(minX, minY, maxX - minX, maxY - minY);
+    gctx.restore();
+  };
+  drawTriangle(0, 0, nP1x, nP1y, W, 0, nP2x, nP2y, 0, H, fP1x, fP1y);
+  drawTriangle(W, 0, nP2x, nP2y, W, H, fP2x, fP2y, 0, H, fP1x, fP1y);
+
+  if (strength < 1) {
+    gctx.globalCompositeOperation = 'lighter';
+    gctx.globalAlpha = 1 - strength;
+    gctx.fillStyle = '#ffffff';
+    gctx.beginPath();
+    gctx.moveTo(nP1x, nP1y);
+    gctx.lineTo(nP2x, nP2y);
+    gctx.lineTo(fP2x, fP2y);
+    gctx.lineTo(fP1x, fP1y);
+    gctx.closePath();
+    gctx.fill();
+  }
+  gctx.restore();
+}
+
 /**
  * Apply a cookie mask onto the per-light RT (which already holds the
  * gradient). Composited with `multiply` so dark cookie pixels darken the
@@ -941,6 +1271,7 @@ function _applyCookieToRT(
   bbH: number,
   time: number,
   lightId: number,
+  pxPerFoot: number,
 ) {
   const tex = _getCookieTexture(cookie.type);
   if (!tex) return;
@@ -958,8 +1289,15 @@ function _applyCookieToRT(
   // Center, rotate, scale — then tile the cookie texture so it always covers.
   gctx.translate(bbW / 2, bbH / 2);
   gctx.rotate(rot);
-  // Scale: cookie covers roughly the whole bounding box at scale=1.
-  const cover = Math.max(bbW, bbH) * 1.5 * scale;
+  // Cookie projection size. When `focusRadius` is set (typical for prop-
+  // attached cookies like windows or grates), constrain the cookie to a
+  // circle of that radius in feet — outside it, the cookie texture isn't
+  // drawn so the gradient is preserved. This models the top-down reality
+  // that a prop only projects its pattern onto the floor area immediately
+  // beneath/beside it, not the entire light radius. Without focusRadius,
+  // fall back to the legacy "cover the whole bbox" behavior.
+  const cover =
+    cookie.focusRadius != null ? cookie.focusRadius * 2 * pxPerFoot * scale : Math.max(bbW, bbH) * 1.5 * scale;
   gctx.scale(cover / COOKIE_TEX_SIZE, cover / COOKIE_TEX_SIZE);
   // Apply scroll (mod 1 wraps cleanly because the texture itself isn't tiled
   // here — for non-tile cookies the scroll just slides the visible window).
@@ -1235,9 +1573,21 @@ function buildPointLightComposite(
 
   // Cookie / gobo: multiply a procedural mask over the gradient before the
   // visibility clip. Skipped for darkness lights (the mask would just darken
-  // already-black pixels with no visible effect).
+  // already-black pixels with no visible effect). `transform.scale` is the
+  // lightmap's pixels-per-foot, used by `focusRadius` to size the cookie in
+  // world feet rather than viewport pixels.
   if (light.cookie && !light.darkness) {
-    _applyCookieToRT(gctx, light.cookie, bbW, bbH, _currentFrameTime, light.id);
+    _applyCookieToRT(gctx, light.cookie, bbW, bbH, _currentFrameTime, light.id, transform.scale);
+  }
+
+  // Gobo projections run BEFORE the visibility clip: `multiply` composite
+  // combines alpha additively (not multiplicatively), so drawing a gobo
+  // pattern over an already-transparent region would make that region
+  // opaque and leak bars into void/out-of-view cells. Applying before the
+  // destination-in pass means the visibility clip trims the pattern to the
+  // lit area just like it trims the gradient.
+  if (!light.darkness && light._gobos?.length) {
+    _applyGobosToRT(gctx, light, transform, bbX, bbY);
   }
 
   if (softVisibilities && softVisibilities.length > 0) {
@@ -1414,6 +1764,11 @@ function renderDirectionalLight(
   gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, range, r, g, b, intensity, effRadius, falloff);
   gctx.fillRect(0, 0, bbW, bbH);
 
+  // Gobo projections — see the point-light path for the ordering rationale.
+  if (light._gobos?.length) {
+    _applyGobosToRT(gctx, light, transform, bbX, bbY);
+  }
+
   // Mask: intersection of visibility polygon AND cone
   gctx.globalCompositeOperation = 'destination-in';
   gctx.fillStyle = '#ffffff';
@@ -1460,6 +1815,8 @@ const propShadowsCache = new Map<
   string,
   Array<{ shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }>
 >();
+/** Cached per-light gobo projections. Same lifecycle as `propShadowsCache`. */
+const goboProjectionsCache = new Map<string, NonNullable<Light['_gobos']>>();
 type BakedLight = {
   canvas: OffscreenCanvas | HTMLCanvasElement;
   bbX: number;
@@ -1478,6 +1835,8 @@ const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
 let cachedPropShadowIndex: PropShadowIndex | null = null;
+let cachedGoboZones: GoboZone[] | null = null;
+let cachedGoboIndex: GoboIndex | null = null;
 let _lightingVersion = 0;
 
 /**
@@ -1560,15 +1919,20 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
   visibilityCache.clear();
   softVisibilitiesCache.clear();
   propShadowsCache.clear();
+  goboProjectionsCache.clear();
   bakedLightCache.clear();
   if (resolved === 'walls') {
     cachedWallSegments = null;
     cachedPropShadowZones = null;
     cachedPropShadowIndex = null;
+    cachedGoboZones = null;
+    cachedGoboIndex = null;
   } else if (resolved === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
     cachedPropShadowIndex = null;
+    cachedGoboZones = null;
+    cachedGoboIndex = null;
   }
   // Static lightmap depends on wall segments, prop shadows, AND any non-animated
   // light's position/intensity, so every scope currently invalidates it.
@@ -1719,6 +2083,16 @@ export function renderLightmap(
     });
   }
   const propShadowIndex = cachedPropShadowIndex!;
+
+  // Gobo zones (upright patterned occluders — window mullions, prison bars).
+  // Built alongside prop shadows; projection is computed per-light in
+  // _getOrComputeLightGeometry and cached until invalidation.
+  if (!cachedGoboIndex) {
+    _t('lighting:goboZones', () => {
+      cachedGoboZones ??= extractGoboZones(propCatalog, metadata, gridSize);
+      cachedGoboIndex = buildGoboIndex(cachedGoboZones).index;
+    });
+  }
 
   // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
   // resolution, render at reduced size and upscale. Lightmaps are smooth
@@ -2015,6 +2389,7 @@ function _getOrComputeLightGeometry(
     opacity: number;
     hard: boolean;
   }>;
+  gobos: NonNullable<Light['_gobos']>;
 } {
   const cacheKey = `${eff.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
   let visibility = visibilityCache.get(cacheKey);
@@ -2070,7 +2445,48 @@ function _getOrComputeLightGeometry(
     }
     propShadowsCache.set(cacheKey, propShadows);
   }
-  return { cacheKey, visibility, softVisibilities, propShadows };
+
+  // Gobo projections (upright patterned occluders → multiply-masked quads on
+  // the floor). Read the module-level index directly — it's rebuilt in
+  // renderLightmap before any per-light work runs.
+  let gobos = goboProjectionsCache.get(cacheKey);
+  if (!gobos) {
+    gobos = [];
+    if (cachedGoboIndex && cachedGoboIndex.size > 0) {
+      const rSq = effectiveRadius * effectiveRadius;
+      for (const zone of cachedGoboIndex.query(eff.x, eff.y, effectiveRadius)) {
+        const dx = zone.centroidX - eff.x;
+        const dy = zone.centroidY - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+        const proj = computeGoboProjectionPolygon(
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.x1,
+          zone.y1,
+          zone.x2,
+          zone.y2,
+          zone.zBottom,
+          zone.zTop,
+          effectiveRadius,
+        );
+        if (!proj) continue;
+        gobos.push({
+          quad: proj.quad,
+          zBottom: zone.zBottom,
+          zTop: zone.zTop,
+          goboId: zone.goboId,
+          pattern: zone.pattern,
+          density: zone.density,
+          orientation: zone.orientation ?? 'vertical',
+          mode: zone.mode,
+          strength: zone.strength,
+        });
+      }
+    }
+    goboProjectionsCache.set(cacheKey, gobos);
+  }
+  return { cacheKey, visibility, softVisibilities, propShadows, gobos };
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
@@ -2100,15 +2516,16 @@ function _renderOneLight(
     return;
   }
 
-  const { visibility, softVisibilities, propShadows } = _getOrComputeLightGeometry(
+  const { visibility, softVisibilities, propShadows, gobos } = _getOrComputeLightGeometry(
     eff,
     effectiveRadius,
     lightZ,
     segments,
     propShadowIndex,
   );
-  // Attach shadow data to the effective light so render functions can use it
+  // Attach shadow + gobo data to the effective light so render functions can use it
   eff._propShadows = propShadows;
+  eff._gobos = gobos;
 
   if (eff.type === 'directional') {
     renderDirectionalLight(lctx, eff, visibility, transform, softVisibilities);
@@ -2140,8 +2557,8 @@ function _renderOneLight(
     if (baked?.scale !== transform.scale) {
       const vpW2 = lctx.canvas.width;
       const vpH2 = lctx.canvas.height;
-      // Bake the light with propShadows attached at intensity=1.
-      const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows };
+      // Bake the light with propShadows + gobos attached at intensity=1.
+      const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows, _gobos: gobos };
       baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2, softVisibilities) ?? undefined;
       if (baked) bakedLightCache.set(bakeKey, baked);
     }
