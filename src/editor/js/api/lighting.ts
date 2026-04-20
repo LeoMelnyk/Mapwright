@@ -1,4 +1,11 @@
-import type { FalloffType, LightPreset, Light, LightAnimationConfig, LightCookie, PlaceLightConfig } from '../../../types.js';
+import type {
+  FalloffType,
+  LightPreset,
+  Light,
+  LightAnimationConfig,
+  LightCookie,
+  PlaceLightConfig,
+} from '../../../types.js';
 import { clampSpread, beginGroupTransition, listCookieTypes } from '../../../render/index.js';
 import { state, mutate, requestRender, getLightCatalog, ApiValidationError } from './_shared.js';
 
@@ -236,7 +243,7 @@ export function setLightAnimation(id: number, animation: LightAnimationConfig | 
     'Set light animation',
     [],
     () => {
-      if (animation && animation.type) {
+      if (animation?.type) {
         light.animation = animation;
       } else {
         delete light.animation;
@@ -296,7 +303,7 @@ export function setAmbientAnimation(animation: LightAnimationConfig | null): { s
     'Set ambient animation',
     [],
     () => {
-      if (animation && animation.type) {
+      if (animation?.type) {
         state.dungeon.metadata.ambientAnimation = animation;
       } else {
         delete state.dungeon.metadata.ambientAnimation;

@@ -605,8 +605,10 @@ export interface LightAnimationConfig {
    *   - `sweep`   — rotate `angle` over time (directional lights only)
    */
   type: string;
-  speed: number;
-  amplitude: number;
+  /** Time-scale multiplier. Defaults to 1.0 if omitted. */
+  speed?: number;
+  /** Intensity swing magnitude. Defaults to 0.3 if omitted. */
+  amplitude?: number;
   /** Oscillate light radius. Now honored by flicker, pulse, and strobe. */
   radiusVariation?: number;
   /**

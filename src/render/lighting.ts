@@ -416,7 +416,7 @@ const effBufCache = new WeakMap<Light, Light>();
 /** Cheap 32-bit integer hash (Wang). Returns a uniform value in [0, 1). */
 function hash32(n: number): number {
   let x = n | 0;
-  x = (x ^ 61) ^ (x >>> 16);
+  x = x ^ 61 ^ (x >>> 16);
   x = x + (x << 3);
   x = x ^ (x >>> 4);
   x = Math.imul(x, 0x27d4eb2d);
@@ -461,7 +461,7 @@ function shiftHexHue(hex: string, hueDeltaDeg: number, lightnessDelta = 0): stri
     else if (max === gN) h = ((bN - rN) / d + 2) * 60;
     else h = ((rN - gN) / d + 4) * 60;
   }
-  const h2 = ((h + hueDeltaDeg) % 360 + 360) % 360;
+  const h2 = (((h + hueDeltaDeg) % 360) + 360) % 360;
   const l2 = Math.max(0, Math.min(1, l0 + lightnessDelta));
   // HSL → RGB
   const c = (1 - Math.abs(2 * l2 - 1)) * s;
@@ -658,7 +658,7 @@ export function getEffectiveLight(light: Light, time: number): Light {
       const win = 1 / Math.max(0.001, freq);
       const idx = Math.floor(t / win);
       const localT = (t - idx * win) / win; // 0..1
-      const roll = hash32(light.id * 2654435761 ^ idx);
+      const roll = hash32((light.id * 2654435761) ^ idx);
       if (roll < prob && localT < dur) {
         const env = strikeEnvelope(localT / dur);
         intensityMult = baseline + (1 + amplitude) * env;
@@ -677,7 +677,7 @@ export function getEffectiveLight(light: Light, time: number): Light {
         const center = a.arcCenter ?? baseDeg;
         const span = a.arcRange / 2;
         const period = (4 * span) / Math.max(0.001, Math.abs(angularSpeed));
-        const u = ((tSec % period) + period) % period / period; // 0..1
+        const u = (((tSec % period) + period) % period) / period; // 0..1
         const x = u < 0.5 ? -span + 4 * span * u : 3 * span - 4 * span * u;
         angleOverride = center + x;
       } else {
@@ -729,7 +729,8 @@ export function getEffectiveLight(light: Light, time: number): Light {
       // cool magical lights this still reads as "the color got darker and
       // shifted along its own hue ring," which is acceptable.
       result.color = shiftHexHue(light.color, -COLOR_SHIFT_MAX_DEG * dip * cv, -0.05 * dip * cv);
-    } else if (a.colorMode === 'secondary' && a.colorSecondary) {
+    } else if (a.colorSecondary) {
+      // colorMode is 'secondary' here (narrowed from 'auto' | 'secondary').
       result.color = mixHex(light.color, a.colorSecondary, dip * cv);
     }
   }
@@ -857,7 +858,11 @@ function _drawCookieStainedGlass(ctx: CanvasRenderingContext2D | OffscreenCanvas
   ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
   const sites: [number, number, number][] = [];
   for (let i = 0; i < 24; i++) {
-    sites.push([hash32(i * 31 + 1) * COOKIE_TEX_SIZE, hash32(i * 31 + 2) * COOKIE_TEX_SIZE, 0.55 + hash32(i * 31 + 3) * 0.45]);
+    sites.push([
+      hash32(i * 31 + 1) * COOKIE_TEX_SIZE,
+      hash32(i * 31 + 2) * COOKIE_TEX_SIZE,
+      0.55 + hash32(i * 31 + 3) * 0.45,
+    ]);
   }
   const img = ctx.getImageData(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
   const d = img.data;
@@ -941,8 +946,7 @@ function _applyCookieToRT(
   if (!tex) return;
   const scale = cookie.scale ?? 1;
   const phase = hash32(lightId * 1664525) * 1000;
-  const rot =
-    ((cookie.rotation ?? 0) + (cookie.rotationSpeed ?? 0) * (time + phase)) * (Math.PI / 180);
+  const rot = ((cookie.rotation ?? 0) + (cookie.rotationSpeed ?? 0) * (time + phase)) * (Math.PI / 180);
   const sx = (cookie.scrollX ?? 0) + (cookie.scrollSpeedX ?? 0) * (time + phase);
   const sy = (cookie.scrollY ?? 0) + (cookie.scrollSpeedY ?? 0) * (time + phase);
   const strength = Math.max(0, Math.min(1, cookie.strength ?? 1));
@@ -1890,7 +1894,16 @@ function _renderAnimatedOverlay(
     propShadowIndex: PropShadowIndex;
     lmTransform: RenderTransform;
     dest: { x: number; y: number; w: number; h: number };
-    ambientAnim?: { type: string; speed?: number; amplitude?: number; frequency?: number; duration?: number; probability?: number; baseline?: number; phase?: number } | null;
+    ambientAnim?: {
+      type: string;
+      speed?: number;
+      amplitude?: number;
+      frequency?: number;
+      duration?: number;
+      probability?: number;
+      baseline?: number;
+      phase?: number;
+    } | null;
     ambientColor?: string;
   },
 ): OffscreenCanvas | HTMLCanvasElement {
