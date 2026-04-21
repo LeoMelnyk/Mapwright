@@ -12,8 +12,11 @@ import type { GoboDefinition, GoboPattern } from '../types.js';
 import { setGoboDefinitions } from './gobo-registry.js';
 
 const VALID_PATTERNS: GoboPattern[] = [
+  'plain',
   'grid',
   'slats',
+  'slot',
+  'mosaic',
   'sigil',
   'caustics',
   'dapple',
@@ -43,6 +46,12 @@ function parseGoboText(id: string, text: string): GoboDefinition {
   const density = Number.parseFloat(header.density ?? '');
   const orientation =
     header.orientation === 'horizontal' ? 'horizontal' : header.orientation === 'vertical' ? 'vertical' : undefined;
+  const colors = header.colors
+    ? header.colors
+        .split(',')
+        .map((c) => c.trim())
+        .filter((c) => /^#[0-9a-fA-F]{3,8}$/.test(c))
+    : [];
   return {
     id,
     name: header.name ?? id,
@@ -50,6 +59,7 @@ function parseGoboText(id: string, text: string): GoboDefinition {
     pattern,
     density: Number.isFinite(density) && density > 0 ? density : 6,
     ...(orientation ? { orientation } : {}),
+    ...(colors.length > 0 ? { colors } : {}),
   };
 }
 

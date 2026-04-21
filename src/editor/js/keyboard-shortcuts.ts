@@ -341,6 +341,7 @@ export function initKeyboardShortcuts(
       q: 'prop',
       e: 'erase',
       l: 'light',
+      w: 'window',
     };
     if (state.sessionToolsActive) {
       // 1/2: switch session tools

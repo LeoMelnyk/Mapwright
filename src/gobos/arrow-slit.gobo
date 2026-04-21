@@ -1,5 +1,5 @@
 name: Arrow Slit
-description: Narrow vertical defensive loophole — a thin sliver of light on the floor.
-pattern: slats
+description: Narrow vertical defensive loophole — stone wall with a thin sliver of light slipping through the middle.
+pattern: slot
 density: 1
 orientation: vertical

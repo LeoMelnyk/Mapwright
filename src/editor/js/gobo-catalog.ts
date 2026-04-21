@@ -13,8 +13,11 @@ const CACHE_VER_KEY = 'gobo-catalog-ver';
 let catalog: GoboCatalog | null = null;
 
 const VALID_PATTERNS: GoboPattern[] = [
+  'plain',
   'grid',
   'slats',
+  'slot',
+  'mosaic',
   'sigil',
   'caustics',
   'dapple',
@@ -40,6 +43,7 @@ function parseGoboText(id: string, text: string): GoboDefinition {
   const density = Number.parseFloat(header.density ?? '');
   const orientation =
     header.orientation === 'horizontal' ? 'horizontal' : header.orientation === 'vertical' ? 'vertical' : undefined;
+  const colors = parseColorPalette(header.colors);
 
   return {
     id,
@@ -48,7 +52,18 @@ function parseGoboText(id: string, text: string): GoboDefinition {
     pattern,
     density: Number.isFinite(density) && density > 0 ? density : 6,
     ...(orientation ? { orientation } : {}),
+    ...(colors ? { colors } : {}),
   };
+}
+
+/** Parse a comma-separated list of hex colors (e.g. "#ff0000, #00ff00"). */
+function parseColorPalette(raw: string | undefined): string[] | undefined {
+  if (!raw) return undefined;
+  const colors = raw
+    .split(',')
+    .map((c) => c.trim())
+    .filter((c) => /^#[0-9a-fA-F]{3,8}$/.test(c));
+  return colors.length > 0 ? colors : undefined;
 }
 
 function buildCatalog(entries: GoboDefinition[]): GoboCatalog {

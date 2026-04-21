@@ -769,9 +769,13 @@ async function populateWindowGoboSelect() {
   let catalog = getGoboCatalog();
   catalog ??= await loadGoboCatalog();
 
-  // Build options sorted by the catalog's own `names` ordering.
+  // Build options sorted by the catalog's own `names` ordering, but hoist
+  // "none" to the top so "plain sunpool, no tracery" is easy to pick.
   select.innerHTML = '';
-  for (const id of catalog.names) {
+  const ordered = catalog.names.includes('none')
+    ? ['none', ...catalog.names.filter((id) => id !== 'none')]
+    : catalog.names;
+  for (const id of ordered) {
     const def = catalog.gobos[id];
     if (!def) continue;
     const opt = document.createElement('option');

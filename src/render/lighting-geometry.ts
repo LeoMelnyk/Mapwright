@@ -498,6 +498,12 @@ export interface GoboZone {
   mode: GoboMode;
   strength: number;
   sourcePropId: number | string;
+  /** Optional hex tint (stained-glass / mosaic). Applied as a multiplicative
+   *  filter on the light's color when re-admitted through the aperture. */
+  tintColor?: string;
+  /** Optional palette of hex colors for patterns that colorize per pane
+   *  (`mosaic`). Cycled through the cells of the pattern. */
+  colors?: string[];
 }
 
 /**
@@ -593,7 +599,16 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
     return [1, -1];
   };
 
-  type Entry = { row: number; col: number; direction: string; goboId: string; key: string };
+  type Entry = {
+    row: number;
+    col: number;
+    direction: string;
+    goboId: string;
+    tintColor?: string;
+    floorHeight: number;
+    ceilingHeight: number;
+    key: string;
+  };
   const keyOf = (dir: string, r: number, c: number) => `${dir}|${r}|${c}`;
 
   // Index windows by their (direction, row, col) key so we can walk runs.
@@ -606,10 +621,28 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
     if (!cell) continue;
     if ((cell as Record<string, unknown>)[w.direction] !== 'win') continue;
     const k = keyOf(w.direction, w.row, w.col);
-    byKey.set(k, { row: w.row, col: w.col, direction: w.direction, goboId: w.goboId, key: k });
+    byKey.set(k, {
+      row: w.row,
+      col: w.col,
+      direction: w.direction,
+      goboId: w.goboId,
+      ...(w.tintColor ? { tintColor: w.tintColor } : {}),
+      floorHeight: w.floorHeight ?? WINDOW_Z_BOTTOM,
+      ceilingHeight: w.ceilingHeight ?? WINDOW_Z_TOP,
+      key: k,
+    });
   }
 
   const visited = new Set<string>();
+  // Adjacent windows merge into one run only when they share BOTH gobo id and
+  // tint color — different tints need separate projections so each sunpool
+  // carries its own color.
+  const matches = (a: Entry | undefined, b: Entry): boolean =>
+    !!a &&
+    a.goboId === b.goboId &&
+    (a.tintColor ?? null) === (b.tintColor ?? null) &&
+    a.floorHeight === b.floorHeight &&
+    a.ceilingHeight === b.ceilingHeight;
   for (const entry of byKey.values()) {
     if (visited.has(entry.key)) continue;
     const [sdr, sdc] = stepFor(entry.direction);
@@ -620,7 +653,7 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
       const pr = sr - sdr;
       const pc = sc - sdc;
       const prev = byKey.get(keyOf(entry.direction, pr, pc));
-      if (prev?.goboId !== entry.goboId) break;
+      if (!matches(prev, entry)) break;
       sr = pr;
       sc = pc;
     }
@@ -631,7 +664,7 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
     for (;;) {
       const k = keyOf(entry.direction, er, ec);
       const next = byKey.get(k);
-      if (next?.goboId !== entry.goboId) break;
+      if (!matches(next, entry)) break;
       visited.add(k);
       runLen++;
       er += sdr;
@@ -683,8 +716,8 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
       y2,
       centroidX: (x1 + x2) / 2,
       centroidY: (y1 + y2) / 2,
-      zBottom: WINDOW_Z_BOTTOM,
-      zTop: WINDOW_Z_TOP,
+      zBottom: entry.floorHeight,
+      zTop: entry.ceilingHeight,
       goboId: entry.goboId,
       pattern: def.pattern,
       density: scaledDensity,
@@ -694,6 +727,8 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
       // Synthetic source id — windows aren't overlay props. Prefix avoids
       // collisions with numeric prop ids.
       sourcePropId: `window:${sr},${sc},${entry.direction}`,
+      ...(entry.tintColor ? { tintColor: entry.tintColor } : {}),
+      ...(def.colors?.length ? { colors: def.colors } : {}),
     });
   }
   return result;

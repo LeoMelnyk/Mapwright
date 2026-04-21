@@ -16,6 +16,7 @@ export {
   getDirtyRegion,
   consumeDirtyRegion,
   accumulateDirtyRect,
+  markDirtyFullRebuild,
   patchBlendForDirtyRegion,
   patchFluidForDirtyRegion,
   traceArcWedge,
@@ -60,6 +61,7 @@ export {
   clearGroupTransitions,
   listCookieTypes,
 } from './lighting.js';
+export { WINDOW_Z_BOTTOM, WINDOW_Z_TOP } from './lighting-geometry.js';
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features

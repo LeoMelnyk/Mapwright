@@ -245,7 +245,7 @@ Windows are edge-level entities that block light on the floor (like a wall) but 
 
 Directions: `"north"`, `"south"`, `"east"`, `"west"` only.
 
-**Available gobo ids** (14 total, all procedurally rendered — no texture assets required): `arrow-slit`, `ceiling-grate`, `cruciform`, `diamond-lattice`, `double-hung`, `horizontal-clerestory`, `horizontal-slats`, `leaded-grid`, `narrow-casement`, `portcullis-window`, `rose-window`, `tall-lancet`, `vertical-bars`, `window-mullions`. Invalid ids are accepted but produce no projection at render time.
+**Available gobo ids** (all procedurally rendered — no texture assets required): `none` (plain sunpool — clear aperture, no tracery), `arrow-slit`, `ceiling-grate`, `cruciform`, `diamond-lattice`, `double-hung`, `horizontal-clerestory`, `horizontal-slats`, `leaded-grid`, `narrow-casement`, `portcullis-window`, `rose-window`, `tall-lancet`, `vertical-bars`, `window-mullions`. Invalid ids are accepted but produce no projection at render time. Use `none` for open windows, broken panes, or modern glass where you want a sunpool without any mullion/bar shadow pattern.
 
 **Data model.** Windows live in `metadata.windows: [{ row, col, direction, goboId }]`. `direction` is always stored canonically as `"north"` or `"west"`; south/east edges of the clicked cell are transparently re-expressed as the neighbor's north/west. This means `getCellInfo` at a window cell shows `"north": "win"` on the owning cell and `"south": "win"` on its neighbor, but `metadata.windows` holds exactly one entry per physical window.
 

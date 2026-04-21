@@ -60,6 +60,7 @@ import {
   STRIKE_DEFAULT_BASELINE,
 } from './lighting-config.js';
 import { log } from '../util/index.js';
+import { applyGobosToRT } from './gobo.js';
 
 // Re-export geometry helpers so existing importers (render barrel, editor)
 // keep working without ripple after the split.
@@ -767,10 +768,10 @@ let _currentFrameTime = 0;
 // and is then transformed (rotation/scroll/scale) per draw. Animated cookies
 // re-transform per frame; the underlying texture is built once per type.
 
-const COOKIE_TEX_SIZE = 256;
+export const COOKIE_TEX_SIZE = 256;
 const cookieTexCache = new Map<string, OffscreenCanvas | HTMLCanvasElement>();
 
-function _allocCookieCanvas(): OffscreenCanvas | HTMLCanvasElement {
+export function _allocCookieCanvas(): OffscreenCanvas | HTMLCanvasElement {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
   const c = document.createElement('canvas');
   c.width = COOKIE_TEX_SIZE;
@@ -904,7 +905,7 @@ function _drawCookieStainedGlass(ctx: CanvasRenderingContext2D | OffscreenCanvas
   ctx.putImageData(img, 0, 0);
 }
 
-function _getCookieTexture(type: string): OffscreenCanvas | HTMLCanvasElement | null {
+export function _getCookieTexture(type: string): OffscreenCanvas | HTMLCanvasElement | null {
   let tex = cookieTexCache.get(type);
   if (tex) return tex;
   tex = _allocCookieCanvas();
@@ -938,688 +939,6 @@ function _getCookieTexture(type: string): OffscreenCanvas | HTMLCanvasElement | 
 /** List the names of every available procedural cookie. Exported for UI/API. */
 export function listCookieTypes(): string[] {
   return ['slats', 'dapple', 'caustics', 'sigil', 'grid', 'stained-glass'];
-}
-
-// ─── Procedural Gobo Textures (density-parameterized) ──────────────────────
-//
-// Gobos reuse the cookie texture infrastructure but support per-zone density,
-// since the whole point of a gobo is "this window has 6 panes, that grate has
-// 4 bars." Cache key includes density + orientation. For pattern types that
-// aren't density-sensitive (sigil, caustics, dapple, stained-glass) the
-// cached cookie texture is reused verbatim.
-
-const goboTexCache = new Map<string, OffscreenCanvas | HTMLCanvasElement>();
-
-function _drawGoboGrid(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, divisions: number) {
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
-  ctx.fillStyle = '#000';
-  const step = COOKIE_TEX_SIZE / divisions;
-  const bar = step * 0.18;
-  for (let i = 0; i <= divisions; i++) {
-    ctx.fillRect(i * step - bar / 2, 0, bar, COOKIE_TEX_SIZE);
-    ctx.fillRect(0, i * step - bar / 2, COOKIE_TEX_SIZE, bar);
-  }
-}
-
-function _drawGoboSlats(
-  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  bands: number,
-  orientation: 'vertical' | 'horizontal',
-) {
-  // White background = light passes through gaps.
-  // Black bars = slat shadow. Multiply composite turns black into darkened
-  // gradient, white into unchanged — so we see light stripes between dark bars.
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
-  ctx.fillStyle = '#000';
-  const step = COOKIE_TEX_SIZE / bands;
-  const barFrac = 0.35;
-  for (let i = 0; i < bands; i++) {
-    const o = (i + (1 - barFrac) / 2) * step;
-    if (orientation === 'horizontal') {
-      ctx.fillRect(0, o, COOKIE_TEX_SIZE, step * barFrac);
-    } else {
-      ctx.fillRect(o, 0, step * barFrac, COOKIE_TEX_SIZE);
-    }
-  }
-}
-
-function _getGoboTexture(
-  pattern: string,
-  density: number,
-  orientation: 'vertical' | 'horizontal' = 'vertical',
-): OffscreenCanvas | HTMLCanvasElement | null {
-  // Non-density-sensitive patterns fall back to the cookie cache.
-  if (pattern === 'sigil' || pattern === 'caustics' || pattern === 'dapple' || pattern === 'stained-glass') {
-    return _getCookieTexture(pattern);
-  }
-  const key = `${pattern}:${density}:${orientation}`;
-  let tex = goboTexCache.get(key);
-  if (tex) return tex;
-  tex = _allocCookieCanvas();
-  const ctx = tex.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-  if (pattern === 'grid') {
-    _drawGoboGrid(ctx, Math.max(1, Math.round(density)));
-  } else if (pattern === 'slats') {
-    _drawGoboSlats(ctx, Math.max(1, Math.round(density)), orientation);
-  } else {
-    return null;
-  }
-  goboTexCache.set(key, tex);
-  return tex;
-}
-
-/**
- * Multiply projected gobo patterns into the per-light RT, one per gobo that
- * this light clears.
- *
- * For `grid` and `slats` patterns the bars are rendered PROCEDURALLY — each
- * mullion / transom / slat projects to its own floor-line via the same
- * light-through-point math the projection polygon uses, and is drawn as a
- * black stroke. This gives physically-correct fanning (bars diverge from
- * the light's ground position exactly as sun-through-mullions would),
- * no affine-approximation distortion, and no triangle-seam artifacts.
- *
- * For `sigil`/`caustics`/`dapple`/`stained-glass` patterns (which can't be
- * expressed as a set of straight lines) the renderer falls back to
- * two-triangle affine texture mapping across the projected quad.
- */
-function _applyGobosToRT(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  light: Light,
-  transform: RenderTransform,
-  bbX: number,
-  bbY: number,
-  phase: 'occluder' | 'aperture' = 'occluder',
-) {
-  if (!light._gobos?.length) return;
-  const lx = light.x;
-  const ly = light.y;
-  const lz = light.z ?? DEFAULT_LIGHT_Z;
-  const sx = transform.scale;
-  const ox = transform.offsetX - bbX;
-  const oy = transform.offsetY - bbY;
-
-  for (const entry of light._gobos) {
-    const strength = Math.max(0, Math.min(1, entry.strength));
-    if (strength === 0) continue;
-    // Aperture gobos run AFTER the visibility clip so they can re-admit
-    // light through wall apertures; occluder gobos run BEFORE so the
-    // visibility polygon naturally trims bars that would fall off-map.
-    if ((entry.mode === 'aperture') !== (phase === 'aperture')) continue;
-
-    if (entry.mode === 'aperture') {
-      // Re-admit the light's gradient clipped to the sunpool quad so the
-      // pattern bars have something to multiply against. The visibility
-      // polygon already erased everything on the far side of the wall.
-      _readmitApertureLight(gctx, entry, light, lx, ly, lz, sx, ox, oy);
-    }
-
-    if (entry.pattern === 'grid' || entry.pattern === 'slats') {
-      _renderProceduralGoboLines(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
-    } else if (entry.pattern === 'diamond') {
-      _renderProceduralGoboDiamond(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
-    } else if (entry.pattern === 'cross') {
-      _renderProceduralGoboCross(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
-    } else {
-      _renderGoboTexturePattern(gctx, entry, sx, ox, oy, strength);
-    }
-  }
-}
-
-/**
- * Re-admit light into the sunpool footprint for an aperture-mode gobo.
- *
- * The wall the window sits in is a full-height occluder — the visibility
- * polygon has already carved out everything on the far side. To model a
- * window we additively paint the light's radial gradient back into the
- * projection quad the gobo system already computed.
- *
- * `entry.quad` (built in `computeGoboProjectionPolygon`) is a 4-corner
- * trapezoid [segment_p1, segment_p2, far_p2, far_p1], with near edge ON
- * the wall and far edge at the zTop projection — already clamped to the
- * light's radius so it never extends past where the light could reach.
- * That's exactly what we want for the clip region: the lit sunpool is the
- * area from the aperture outward to the light's reach, along the rays
- * that pass through the window. Covers both lz>zTop (standard sunlight
- * cone) and lz inside [zBottom,zTop] (light at window height — clamp in
- * `_getOrComputeLightGeometry` keeps the far edge from inverting).
- *
- * Mirrors the dim-radius handling in `buildPointLightComposite` so the
- * sunpool extends all the way to the light's outer reach when the light
- * has a dim band (torch with dimRadius=60, radius=30 → sunpool visible
- * out to 60 ft, not cut off at 30).
- */
-function _readmitApertureLight(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  entry: NonNullable<Light['_gobos']>[number],
-  light: Light,
-  lx: number,
-  ly: number,
-  lz: number,
-  sx: number,
-  ox: number,
-  oy: number,
-) {
-  if (lz <= entry.zBottom) return; // light at/below aperture bottom — no passage
-  // Build the sunpool quad by projecting the aperture segment through the
-  // light onto the floor at the two z bounds. Physics: a ray from the
-  // light that grazes the aperture's TOP (z=zTop) lands farthest from the
-  // wall; a ray that grazes the aperture's BOTTOM (z=zBottom) lands
-  // CLOSEST to the wall. The wall below the aperture blocks rays that
-  // would otherwise land between the wall and the near edge, and the wall
-  // above the aperture blocks rays that would otherwise land past the far
-  // edge. So the lit sunpool is the band between the two projections.
-  //
-  // `entry.zTop` was clamped to `lightZ - 0.01` upstream when the light
-  // sits inside the aperture range, so `t = lz/(lz - zTop)` stays finite.
-  //
-  // For lz=8, aperture [4, 6]: near-edge distance = d_l, far-edge = 3·d_l.
-  // For lz=20, aperture [4, 6]: near = 0.25·d_l, far = 0.43·d_l (thin
-  // sliver — matches a near-overhead light source).
-  const quad = entry.quad as [number[], number[], number[], number[]];
-  const a1x = quad[0][0]!;
-  const a1y = quad[0][1]!;
-  const a2x = quad[1][0]!;
-  const a2y = quad[1][1]!;
-
-  const hasDim = light.dimRadius != null && light.dimRadius > light.radius;
-  const reach = hasDim ? light.dimRadius! : light.radius;
-  // Safety cap: near aperture-height the true `t` diverges (zTop ≈ lz), so
-  // the raw projection can fly off to thousands of feet. Cap at 8×reach
-  // so the quad stays numerically sane; the gradient has already faded to
-  // zero by that distance, so the visual is unchanged from "infinite."
-  const extendCap = reach * 8;
-
-  const projectThrough = (px: number, py: number, z: number): [number, number] => {
-    const denom = lz - z;
-    if (denom < 1e-6) {
-      // Near-aperture-height guard. Extend straight out along the ray from
-      // light through the aperture endpoint up to the safety cap.
-      const dx = px - lx;
-      const dy = py - ly;
-      const dist = Math.hypot(dx, dy);
-      if (dist < 1e-6) return [px, py];
-      return [px + (dx / dist) * extendCap, py + (dy / dist) * extendCap];
-    }
-    const t = lz / denom;
-    const fx = lx + t * (px - lx);
-    const fy = ly + t * (py - ly);
-    // Cap the projection magnitude to avoid runaway far points when z is
-    // barely below lz (only really matters for zTop near aperture height;
-    // zBottom is always well below lz when we got here).
-    const dx = fx - lx;
-    const dy = fy - ly;
-    const dist = Math.hypot(dx, dy);
-    if (dist > extendCap) {
-      const k = extendCap / dist;
-      return [lx + dx * k, ly + dy * k];
-    }
-    return [fx, fy];
-  };
-  // Near edge via zBottom (close to wall — wall below aperture blocks
-  // anything closer); far edge via zTop (wall above aperture blocks
-  // anything further).
-  const near1 = projectThrough(a1x, a1y, entry.zBottom);
-  const near2 = projectThrough(a2x, a2y, entry.zBottom);
-  const far1 = projectThrough(a1x, a1y, entry.zTop);
-  const far2 = projectThrough(a2x, a2y, entry.zTop);
-
-  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
-  const p1 = toPx(near1[0], near1[1]);
-  const p2 = toPx(near2[0], near2[1]);
-  const p3 = toPx(far2[0], far2[1]);
-  const p4 = toPx(far1[0], far1[1]);
-
-  const { r, g, b } = light.darkness ? { r: 0, g: 0, b: 0 } : parseColor(light.color);
-  const intensity = light.intensity;
-  const falloff: FalloffType = light.falloff;
-  const relCx = lx * sx + ox;
-  const relCy = ly * sx + oy;
-  const rPx = light.radius * sx;
-  const dimRPx = hasDim ? light.dimRadius! * sx : null;
-
-  // Clip to the aperture fan. The far-edge extension above guarantees the
-  // gradient fades out by the radius boundary rather than being chord-cut.
-  gctx.save();
-  gctx.beginPath();
-  gctx.moveTo(p1[0], p1[1]);
-  gctx.lineTo(p2[0], p2[1]);
-  gctx.lineTo(p3[0], p3[1]);
-  gctx.lineTo(p4[0], p4[1]);
-  gctx.closePath();
-  gctx.clip();
-
-  // Further clip to the aperture-visibility polygon — the light's visibility
-  // computed with `'win'` edges open. Bounds the sunpool by any walls beyond
-  // the window so light doesn't leak through into rooms past the aperture.
-  const openVis = (light as Light & { _openVisibility?: Float32Array | null })._openVisibility;
-  if (openVis && openVis.length >= 6) {
-    const ovPx = sx;
-    gctx.beginPath();
-    gctx.moveTo(openVis[0]! * ovPx + ox, openVis[1]! * ovPx + oy);
-    for (let i = 2; i < openVis.length; i += 2) {
-      gctx.lineTo(openVis[i]! * ovPx + ox, openVis[i + 1]! * ovPx + oy);
-    }
-    gctx.closePath();
-    gctx.clip();
-  }
-
-  gctx.globalCompositeOperation = 'source-over';
-  const grad = dimRPx
-    ? buildRadialGradientWithDim(gctx, relCx, relCy, rPx, dimRPx, r, g, b, intensity, light.radius, falloff)
-    : buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, light.radius, falloff);
-  gctx.fillStyle = grad;
-  gctx.fillRect(0, 0, gctx.canvas.width, gctx.canvas.height);
-  gctx.restore();
-}
-
-/**
- * Procedural polygon rendering for `grid` / `slats` gobos. Each bar in the
- * gobo's 2D plane is a real 3D rectangle — width along the gobo segment,
- * height in z — and its floor shadow is the quadrilateral formed by
- * projecting all four corners via the light's perspective. Filled with a
- * black multiply pass so the shadow is a solid dark band, not a thin stroke
- * that vanishes in the gradient falloff. Correctly fanning, no affine
- * artifacts, no triangle-seam discontinuities.
- */
-function _renderProceduralGoboLines(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  entry: NonNullable<Light['_gobos']>[number],
-  lx: number,
-  ly: number,
-  lz: number,
-  sx: number,
-  ox: number,
-  oy: number,
-  strength: number,
-) {
-  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
-  const x1 = nearP1[0]!;
-  const y1 = nearP1[1]!;
-  const x2 = nearP2[0]!;
-  const y2 = nearP2[1]!;
-  const { zBottom, zTop, density, pattern, orientation } = entry;
-  if (lz <= zBottom) return;
-
-  // Project a 3D point onto the z=0 floor from the light position.
-  const proj = (px: number, py: number, pz: number): [number, number] => {
-    const denom = lz - pz;
-    if (Math.abs(denom) < 1e-6) return [px, py];
-    const t = lz / denom;
-    return [lx + t * (px - lx), ly + t * (py - ly)];
-  };
-  // World-feet → RT canvas pixels.
-  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
-
-  // Proportional bar width: how much of each cell the mullion/slat occupies.
-  // Grid = thin dividers (like window muntins), slats = thick bars (iron).
-  const barFrac = pattern === 'slats' ? 0.45 : 0.22;
-
-  gctx.save();
-  gctx.globalCompositeOperation = 'multiply';
-  gctx.globalAlpha = strength;
-  gctx.fillStyle = '#000';
-
-  const drawMullions = pattern === 'grid' || (pattern === 'slats' && orientation !== 'horizontal');
-  const drawTransoms = pattern === 'grid' || (pattern === 'slats' && orientation === 'horizontal');
-
-  // Fill a 4-corner polygon in canvas pixel coordinates.
-  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
-    gctx.beginPath();
-    gctx.moveTo(a[0], a[1]);
-    gctx.lineTo(b[0], b[1]);
-    gctx.lineTo(c[0], c[1]);
-    gctx.lineTo(d[0], d[1]);
-    gctx.closePath();
-    gctx.fill();
-  };
-
-  if (drawMullions) {
-    // Each vertical mullion is a 3D rectangle (bar_width × gobo_height) at
-    // u-position u_center ± hw along the gobo segment. Project the four
-    // corners to the floor and fill the trapezoid.
-    const hwU = barFrac / (2 * density); // half-width in normalized u
-    const count = pattern === 'grid' ? density + 1 : density;
-    for (let i = 0; i < count; i++) {
-      const uCenter = pattern === 'grid' ? i / density : (i + 0.5) / density;
-      const uL = uCenter - hwU;
-      const uR = uCenter + hwU;
-      const xL = x1 + uL * (x2 - x1);
-      const yL = y1 + uL * (y2 - y1);
-      const xR = x1 + uR * (x2 - x1);
-      const yR = y1 + uR * (y2 - y1);
-      const a = toPx(...proj(xL, yL, zBottom));
-      const b = toPx(...proj(xR, yR, zBottom));
-      const c = toPx(...proj(xR, yR, zTop));
-      const d = toPx(...proj(xL, yL, zTop));
-      fillQuad(a, b, c, d);
-    }
-  }
-
-  if (drawTransoms) {
-    // Each horizontal transom is a 3D rectangle (gobo_width × bar_height) at
-    // z-center ± half-bar-height. Project the four corners and fill.
-    const zSpan = zTop - zBottom;
-    const hwZ = (barFrac * zSpan) / (2 * density);
-    const count = pattern === 'grid' ? density + 1 : density;
-    for (let i = 0; i < count; i++) {
-      const zFrac = pattern === 'grid' ? i / density : (i + 0.5) / density;
-      const zCenter = zBottom + zFrac * zSpan;
-      const zL = Math.max(zBottom, zCenter - hwZ);
-      const zU = Math.min(zTop, zCenter + hwZ);
-      if (lz <= zL) continue;
-      const a = toPx(...proj(x1, y1, zL));
-      const b = toPx(...proj(x2, y2, zL));
-      const c = toPx(...proj(x2, y2, zU));
-      const d = toPx(...proj(x1, y1, zU));
-      fillQuad(a, b, c, d);
-    }
-  }
-  gctx.restore();
-}
-
-/**
- * Procedural diamond/lattice rendering — draws a leaded-glass pattern as a
- * set of diagonal bars (two families of parallel lines crossing at ±45° in
- * the gobo's u/z plane). Each bar is a 3D rectangle with fixed thickness,
- * projected the same way grid mullions are — no affine stretching, correct
- * perspective divergence.
- *
- * `density` = number of diamonds along the gobo's width. The two diagonal
- * families each have `2*density+1` bars to tile cleanly across the opening.
- */
-function _renderProceduralGoboDiamond(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  entry: NonNullable<Light['_gobos']>[number],
-  lx: number,
-  ly: number,
-  lz: number,
-  sx: number,
-  ox: number,
-  oy: number,
-  strength: number,
-) {
-  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
-  const x1 = nearP1[0]!;
-  const y1 = nearP1[1]!;
-  const x2 = nearP2[0]!;
-  const y2 = nearP2[1]!;
-  const { zBottom, zTop } = entry;
-  const density = Math.max(1, Math.round(entry.density));
-  if (lz <= zBottom) return;
-
-  const proj = (px: number, py: number, pz: number): [number, number] => {
-    const denom = lz - pz;
-    if (Math.abs(denom) < 1e-6) return [px, py];
-    const t = lz / denom;
-    return [lx + t * (px - lx), ly + t * (py - ly)];
-  };
-  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
-
-  const zSpan = zTop - zBottom;
-  // Diamond aspect: tie the u-axis and z-axis step to a single cell size so
-  // diamonds are square in the gobo plane (not squashed when zSpan ≠ width).
-  const gobU = Math.hypot(x2 - x1, y2 - y1);
-  const cellSize = gobU / density; // diamond width along u
-  const numZ = Math.max(1, Math.round(zSpan / cellSize));
-  const barFracU = 0.1; // bar thickness as fraction of cellSize
-  const hwU = (barFracU * cellSize) / gobU / 2; // half-width in normalized u
-
-  gctx.save();
-  gctx.globalCompositeOperation = 'multiply';
-  gctx.globalAlpha = strength;
-  gctx.fillStyle = '#000';
-
-  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
-    gctx.beginPath();
-    gctx.moveTo(a[0], a[1]);
-    gctx.lineTo(b[0], b[1]);
-    gctx.lineTo(c[0], c[1]);
-    gctx.lineTo(d[0], d[1]);
-    gctx.closePath();
-    gctx.fill();
-  };
-
-  const segPoint = (uNorm: number): [number, number] => [x1 + uNorm * (x2 - x1), y1 + uNorm * (y2 - y1)];
-  const hwZ = (barFracU * zSpan) / numZ / 2; // half-height in world feet
-
-  // Each diagonal bar crosses the u/z plane at 45°. Parameterize by position
-  // along the bar's normal so the bar has finite thickness. Then sample along
-  // the bar and draw short trapezoidal segments to approximate the projected
-  // curve (it's straight in gobo space but fans in floor space).
-  // We draw two families: u + z/zSpan = k and u - z/zSpan = k for k sweeping
-  // across the opening.
-  const SAMPLES = 8; // sub-segments along each bar (enough for the fanned perspective)
-
-  const drawDiagonalBar = (startU: number, startZFrac: number, endU: number, endZFrac: number) => {
-    // Sub-sample the bar centerline then fatten perpendicular.
-    for (let s = 0; s < SAMPLES; s++) {
-      const t0 = s / SAMPLES;
-      const t1 = (s + 1) / SAMPLES;
-      const u0 = startU + t0 * (endU - startU);
-      const u1 = startU + t1 * (endU - startU);
-      const z0 = zBottom + (startZFrac + t0 * (endZFrac - startZFrac)) * zSpan;
-      const z1 = zBottom + (startZFrac + t1 * (endZFrac - startZFrac)) * zSpan;
-      // Skip segments that fall entirely out of the gobo opening.
-      if (u0 < -hwU || u1 > 1 + hwU) continue;
-      if (z0 < zBottom - hwZ || z1 > zTop + hwZ) continue;
-      if (lz <= Math.min(z0, z1) - hwZ) continue;
-      const [pL0x, pL0y] = segPoint(Math.max(0, u0 - hwU));
-      const [pR0x, pR0y] = segPoint(Math.min(1, u0 + hwU));
-      const [pL1x, pL1y] = segPoint(Math.max(0, u1 - hwU));
-      const [pR1x, pR1y] = segPoint(Math.min(1, u1 + hwU));
-      // Build a 4-corner 3D quad for this slice: corners go around ccw.
-      const a = toPx(...proj(pL0x, pL0y, Math.max(zBottom, z0 - hwZ)));
-      const b = toPx(...proj(pR0x, pR0y, Math.max(zBottom, z0 - hwZ)));
-      const c = toPx(...proj(pR1x, pR1y, Math.min(zTop, z1 + hwZ)));
-      const d = toPx(...proj(pL1x, pL1y, Math.min(zTop, z1 + hwZ)));
-      fillQuad(a, b, c, d);
-    }
-  };
-
-  // Family 1: "/" bars — u increases with z. Sweep starting u from -numZ..density.
-  for (let k = -numZ; k <= density; k++) {
-    const startU = k / density;
-    const endU = (k + numZ) / density;
-    drawDiagonalBar(startU, 0, endU, 1);
-  }
-  // Family 2: "\" bars — u decreases with z.
-  for (let k = 0; k <= density + numZ; k++) {
-    const startU = k / density;
-    const endU = (k - numZ) / density;
-    drawDiagonalBar(startU, 0, endU, 1);
-  }
-
-  gctx.restore();
-}
-
-/**
- * Procedural Latin-cross rendering — one vertical bar centered along the gobo's
- * u-axis plus one horizontal transom about 60% up the opening. Projects the
- * same way as grid mullions. Density is ignored (a cross is a cross), but the
- * cross's proportions scale with the opening dimensions.
- */
-function _renderProceduralGoboCross(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  entry: NonNullable<Light['_gobos']>[number],
-  lx: number,
-  ly: number,
-  lz: number,
-  sx: number,
-  ox: number,
-  oy: number,
-  strength: number,
-) {
-  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
-  const x1 = nearP1[0]!;
-  const y1 = nearP1[1]!;
-  const x2 = nearP2[0]!;
-  const y2 = nearP2[1]!;
-  const { zBottom, zTop } = entry;
-  if (lz <= zBottom) return;
-
-  const proj = (px: number, py: number, pz: number): [number, number] => {
-    const denom = lz - pz;
-    if (Math.abs(denom) < 1e-6) return [px, py];
-    const t = lz / denom;
-    return [lx + t * (px - lx), ly + t * (py - ly)];
-  };
-  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
-
-  const zSpan = zTop - zBottom;
-  // Cross arm thickness relative to opening. Larger = chunkier cross.
-  const barFrac = 0.18;
-  const hwU = barFrac / 2;
-  const hwZ = (barFrac * zSpan) / 2;
-  // Transom at 60% of height (Latin cross proportions: crossbar above center).
-  const zCross = zBottom + 0.6 * zSpan;
-
-  gctx.save();
-  gctx.globalCompositeOperation = 'multiply';
-  gctx.globalAlpha = strength;
-  gctx.fillStyle = '#000';
-
-  const segPoint = (uNorm: number): [number, number] => [x1 + uNorm * (x2 - x1), y1 + uNorm * (y2 - y1)];
-  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
-    gctx.beginPath();
-    gctx.moveTo(a[0], a[1]);
-    gctx.lineTo(b[0], b[1]);
-    gctx.lineTo(c[0], c[1]);
-    gctx.lineTo(d[0], d[1]);
-    gctx.closePath();
-    gctx.fill();
-  };
-
-  // Vertical bar: u-centered, spans full z.
-  {
-    const [xL, yL] = segPoint(0.5 - hwU);
-    const [xR, yR] = segPoint(0.5 + hwU);
-    const a = toPx(...proj(xL, yL, zBottom));
-    const b = toPx(...proj(xR, yR, zBottom));
-    const c = toPx(...proj(xR, yR, zTop));
-    const d = toPx(...proj(xL, yL, zTop));
-    fillQuad(a, b, c, d);
-  }
-  // Horizontal transom: spans full u, centered at zCross.
-  {
-    const [xL, yL] = segPoint(0);
-    const [xR, yR] = segPoint(1);
-    const zL = Math.max(zBottom, zCross - hwZ);
-    const zU = Math.min(zTop, zCross + hwZ);
-    if (lz > zL) {
-      const a = toPx(...proj(xL, yL, zL));
-      const b = toPx(...proj(xR, yR, zL));
-      const c = toPx(...proj(xR, yR, zU));
-      const d = toPx(...proj(xL, yL, zU));
-      fillQuad(a, b, c, d);
-    }
-  }
-  gctx.restore();
-}
-
-/**
- * Two-triangle affine texture mapping for non-grid patterns (sigil,
- * caustics, dapple, stained-glass). Each triangle's 3 corners land exactly
- * on projected quad corners; the texture is stretched linearly inside.
- */
-function _renderGoboTexturePattern(
-  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  entry: NonNullable<Light['_gobos']>[number],
-  sx: number,
-  ox: number,
-  oy: number,
-  strength: number,
-) {
-  const W = COOKIE_TEX_SIZE;
-  const H = COOKIE_TEX_SIZE;
-  const [nearP1, nearP2, farP2, farP1] = entry.quad as [number[], number[], number[], number[]];
-  const tex = _getGoboTexture(entry.pattern, entry.density, entry.orientation);
-  if (!tex) return;
-
-  const nP1x = nearP1[0]! * sx + ox;
-  const nP1y = nearP1[1]! * sx + oy;
-  const nP2x = nearP2[0]! * sx + ox;
-  const nP2y = nearP2[1]! * sx + oy;
-  const fP1x = farP1[0]! * sx + ox;
-  const fP1y = farP1[1]! * sx + oy;
-  const fP2x = farP2[0]! * sx + ox;
-  const fP2y = farP2[1]! * sx + oy;
-
-  gctx.save();
-  gctx.globalCompositeOperation = 'multiply';
-  gctx.globalAlpha = strength;
-
-  const drawTriangle = (
-    tu1: number,
-    tv1: number,
-    wx1: number,
-    wy1: number,
-    tu2: number,
-    tv2: number,
-    wx2: number,
-    wy2: number,
-    tu3: number,
-    tv3: number,
-    wx3: number,
-    wy3: number,
-  ) => {
-    const det = tu1 * (tv2 - tv3) - tv1 * (tu2 - tu3) + (tu2 * tv3 - tu3 * tv2);
-    if (Math.abs(det) < 1e-9) return;
-    const invDet = 1 / det;
-    const m11 = (tv2 - tv3) * invDet,
-      m12 = (tv3 - tv1) * invDet,
-      m13 = (tv1 - tv2) * invDet;
-    const m21 = (tu3 - tu2) * invDet,
-      m22 = (tu1 - tu3) * invDet,
-      m23 = (tu2 - tu1) * invDet;
-    const m31 = (tu2 * tv3 - tu3 * tv2) * invDet,
-      m32 = (tu3 * tv1 - tu1 * tv3) * invDet,
-      m33 = (tu1 * tv2 - tu2 * tv1) * invDet;
-    const a = m11 * wx1 + m12 * wx2 + m13 * wx3;
-    const c = m21 * wx1 + m22 * wx2 + m23 * wx3;
-    const e = m31 * wx1 + m32 * wx2 + m33 * wx3;
-    const b = m11 * wy1 + m12 * wy2 + m13 * wy3;
-    const d = m21 * wy1 + m22 * wy2 + m23 * wy3;
-    const f = m31 * wy1 + m32 * wy2 + m33 * wy3;
-    gctx.save();
-    gctx.beginPath();
-    gctx.moveTo(wx1, wy1);
-    gctx.lineTo(wx2, wy2);
-    gctx.lineTo(wx3, wy3);
-    gctx.closePath();
-    gctx.clip();
-    const pat = gctx.createPattern(tex, 'no-repeat');
-    if (!pat) {
-      gctx.restore();
-      return;
-    }
-    pat.setTransform({ a, b, c, d, e, f });
-    gctx.fillStyle = pat;
-    const minX = Math.min(wx1, wx2, wx3);
-    const minY = Math.min(wy1, wy2, wy3);
-    const maxX = Math.max(wx1, wx2, wx3);
-    const maxY = Math.max(wy1, wy2, wy3);
-    gctx.fillRect(minX, minY, maxX - minX, maxY - minY);
-    gctx.restore();
-  };
-  drawTriangle(0, 0, nP1x, nP1y, W, 0, nP2x, nP2y, 0, H, fP1x, fP1y);
-  drawTriangle(W, 0, nP2x, nP2y, W, H, fP2x, fP2y, 0, H, fP1x, fP1y);
-
-  if (strength < 1) {
-    gctx.globalCompositeOperation = 'lighter';
-    gctx.globalAlpha = 1 - strength;
-    gctx.fillStyle = '#ffffff';
-    gctx.beginPath();
-    gctx.moveTo(nP1x, nP1y);
-    gctx.lineTo(nP2x, nP2y);
-    gctx.lineTo(fP2x, fP2y);
-    gctx.lineTo(fP1x, fP1y);
-    gctx.closePath();
-    gctx.fill();
-  }
-  gctx.restore();
 }
 
 /**
@@ -1854,7 +1173,7 @@ function clipToVisibility(
  * Build gradient stops for a radial gradient from (cx, cy) out to radius rPx,
  * using gradient center offset within the bounding box at (relCx, relCy).
  */
-function buildRadialGradient(
+export function buildRadialGradient(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   relCx: number,
   relCy: number,
@@ -1882,7 +1201,7 @@ function buildRadialGradient(
  * paints when `dimRadius > radius`. Inner region falls off normally out to
  * `rPx`, then holds at `dimIntensity` until the dim edge, then fades to 0.
  */
-function buildRadialGradientWithDim(
+export function buildRadialGradientWithDim(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   relCx: number,
   relCy: number,
@@ -1986,7 +1305,7 @@ function buildPointLightComposite(
   // destination-in pass means the visibility clip trims the pattern to the
   // lit area just like it trims the gradient.
   if (!light.darkness && light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
   }
 
   if (softVisibilities && softVisibilities.length > 0) {
@@ -2005,7 +1324,7 @@ function buildPointLightComposite(
   // light everywhere else, but the sunpool re-admission paints the gradient
   // back into the aperture's floor projection, followed by the pattern bars.
   if (!light.darkness && light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
   }
 
   if (light._propShadows?.length) {
@@ -2172,7 +1491,7 @@ function renderDirectionalLight(
 
   // Occluder gobos — see the point-light path for the ordering rationale.
   if (light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
   }
 
   // Mask: intersection of visibility polygon AND cone
@@ -2199,7 +1518,7 @@ function renderDirectionalLight(
   // Aperture gobos (windows) — runs after visibility clip so the sunpool
   // re-admission can paint outside the walls.
   if (light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
   }
 
   // Apply z-height prop shadows
@@ -2963,6 +2282,8 @@ function _getOrComputeLightGeometry(
           orientation: zone.orientation ?? 'vertical',
           mode: zone.mode,
           strength: zone.strength,
+          ...(zone.tintColor ? { tintColor: zone.tintColor } : {}),
+          ...(zone.colors?.length ? { colors: zone.colors } : {}),
         });
       }
     }

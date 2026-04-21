@@ -1,0 +1,5 @@
+name: Cathedral Glass
+description: Mosaic stained glass — leaded panes in jewel-tone reds, blues, golds, and greens cast a kaleidoscope sunpool on the floor.
+pattern: mosaic
+density: 3
+colors: #c81e3a, #1e5fa0, #f0b020, #3c8c4a, #8a2fa0, #d04818

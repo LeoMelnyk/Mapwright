@@ -190,6 +190,12 @@ export interface Light {
     mode: GoboMode;
     /** Strength in 0..1 multiplied onto the pattern (1 = full mask). */
     strength: number;
+    /** Optional stained-glass/mosaic tint — hex color multiplied into the
+     *  aperture re-admit gradient so the sunpool picks up the window's hue. */
+    tintColor?: string;
+    /** Optional palette of hex colors for patterns that colorize per pane
+     *  (`mosaic`). Cycled through the cells of the pattern. */
+    colors?: string[];
   }[];
 }
 
@@ -222,7 +228,18 @@ export interface LightCatalog {
 // ── Gobos ──────────────────────────────────────────────────────────────────
 
 /** Procedural gobo pattern built into the renderer. */
-export type GoboPattern = 'grid' | 'slats' | 'sigil' | 'caustics' | 'dapple' | 'stained-glass' | 'diamond' | 'cross';
+export type GoboPattern =
+  | 'plain'
+  | 'grid'
+  | 'slats'
+  | 'slot'
+  | 'mosaic'
+  | 'sigil'
+  | 'caustics'
+  | 'dapple'
+  | 'stained-glass'
+  | 'diamond'
+  | 'cross';
 
 /** A parsed .gobo asset. Procedural only; image-backed gobos are TODO. */
 export interface GoboDefinition {
@@ -234,6 +251,13 @@ export interface GoboDefinition {
   density: number;
   /** For `slats` pattern: orientation of the slats. Default vertical. */
   orientation?: 'vertical' | 'horizontal';
+  /**
+   * Optional palette of hex colors for patterns that support colored regions
+   * (e.g. `mosaic` — stained-glass / church-window panes). Cycled per pane so
+   * a palette of 4 colors across a density=3 (9-pane) grid gives 9 panes with
+   * colors [0,1,2,3,0,1,2,3,0]. Ignored by patterns that don't use it.
+   */
+  colors?: string[];
 }
 
 /** Gobo catalog loaded from manifest/bundle. */
@@ -323,6 +347,15 @@ export interface Window {
   direction: 'north' | 'west' | 'nw-se' | 'ne-sw';
   /** Gobo catalog id (e.g. "window-mullions", "arrow-slit"). */
   goboId: string;
+  /**
+   * Optional hex color (e.g. "#ff6633") that tints light passing through the
+   * window — stained glass / mosaic effect. Absent or null means untinted.
+   */
+  tintColor?: string;
+  /** Window sill height in feet. Defaults to WINDOW_Z_BOTTOM (4 ft) when absent. */
+  floorHeight?: number;
+  /** Window head (top) height in feet. Defaults to WINDOW_Z_TOP (6 ft) when absent. */
+  ceilingHeight?: number;
 }
 
 // ── Levels ─────────────────────────────────────────────────────────────────
