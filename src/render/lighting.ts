@@ -26,6 +26,7 @@ import {
   buildPropShadowIndex,
   computePropShadowPolygon,
   extractGoboZones,
+  extractWindowGoboZones,
   buildGoboIndex,
   computeGoboProjectionPolygon,
   DEFAULT_LIGHT_Z,
@@ -68,6 +69,7 @@ export {
   buildPropShadowIndex,
   computePropShadowPolygon,
   extractGoboZones,
+  extractWindowGoboZones,
   buildGoboIndex,
   computeGoboProjectionPolygon,
   DEFAULT_LIGHT_Z,
@@ -1029,6 +1031,7 @@ function _applyGobosToRT(
   transform: RenderTransform,
   bbX: number,
   bbY: number,
+  phase: 'occluder' | 'aperture' = 'occluder',
 ) {
   if (!light._gobos?.length) return;
   const lx = light.x;
@@ -1041,13 +1044,175 @@ function _applyGobosToRT(
   for (const entry of light._gobos) {
     const strength = Math.max(0, Math.min(1, entry.strength));
     if (strength === 0) continue;
+    // Aperture gobos run AFTER the visibility clip so they can re-admit
+    // light through wall apertures; occluder gobos run BEFORE so the
+    // visibility polygon naturally trims bars that would fall off-map.
+    if ((entry.mode === 'aperture') !== (phase === 'aperture')) continue;
+
+    if (entry.mode === 'aperture') {
+      // Re-admit the light's gradient clipped to the sunpool quad so the
+      // pattern bars have something to multiply against. The visibility
+      // polygon already erased everything on the far side of the wall.
+      _readmitApertureLight(gctx, entry, light, lx, ly, lz, sx, ox, oy);
+    }
 
     if (entry.pattern === 'grid' || entry.pattern === 'slats') {
       _renderProceduralGoboLines(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
+    } else if (entry.pattern === 'diamond') {
+      _renderProceduralGoboDiamond(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
+    } else if (entry.pattern === 'cross') {
+      _renderProceduralGoboCross(gctx, entry, lx, ly, lz, sx, ox, oy, strength);
     } else {
       _renderGoboTexturePattern(gctx, entry, sx, ox, oy, strength);
     }
   }
+}
+
+/**
+ * Re-admit light into the sunpool footprint for an aperture-mode gobo.
+ *
+ * The wall the window sits in is a full-height occluder — the visibility
+ * polygon has already carved out everything on the far side. To model a
+ * window we additively paint the light's radial gradient back into the
+ * projection quad the gobo system already computed.
+ *
+ * `entry.quad` (built in `computeGoboProjectionPolygon`) is a 4-corner
+ * trapezoid [segment_p1, segment_p2, far_p2, far_p1], with near edge ON
+ * the wall and far edge at the zTop projection — already clamped to the
+ * light's radius so it never extends past where the light could reach.
+ * That's exactly what we want for the clip region: the lit sunpool is the
+ * area from the aperture outward to the light's reach, along the rays
+ * that pass through the window. Covers both lz>zTop (standard sunlight
+ * cone) and lz inside [zBottom,zTop] (light at window height — clamp in
+ * `_getOrComputeLightGeometry` keeps the far edge from inverting).
+ *
+ * Mirrors the dim-radius handling in `buildPointLightComposite` so the
+ * sunpool extends all the way to the light's outer reach when the light
+ * has a dim band (torch with dimRadius=60, radius=30 → sunpool visible
+ * out to 60 ft, not cut off at 30).
+ */
+function _readmitApertureLight(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  entry: NonNullable<Light['_gobos']>[number],
+  light: Light,
+  lx: number,
+  ly: number,
+  lz: number,
+  sx: number,
+  ox: number,
+  oy: number,
+) {
+  if (lz <= entry.zBottom) return; // light at/below aperture bottom — no passage
+  // Build the sunpool quad by projecting the aperture segment through the
+  // light onto the floor at the two z bounds. Physics: a ray from the
+  // light that grazes the aperture's TOP (z=zTop) lands farthest from the
+  // wall; a ray that grazes the aperture's BOTTOM (z=zBottom) lands
+  // CLOSEST to the wall. The wall below the aperture blocks rays that
+  // would otherwise land between the wall and the near edge, and the wall
+  // above the aperture blocks rays that would otherwise land past the far
+  // edge. So the lit sunpool is the band between the two projections.
+  //
+  // `entry.zTop` was clamped to `lightZ - 0.01` upstream when the light
+  // sits inside the aperture range, so `t = lz/(lz - zTop)` stays finite.
+  //
+  // For lz=8, aperture [4, 6]: near-edge distance = d_l, far-edge = 3·d_l.
+  // For lz=20, aperture [4, 6]: near = 0.25·d_l, far = 0.43·d_l (thin
+  // sliver — matches a near-overhead light source).
+  const quad = entry.quad as [number[], number[], number[], number[]];
+  const a1x = quad[0][0]!;
+  const a1y = quad[0][1]!;
+  const a2x = quad[1][0]!;
+  const a2y = quad[1][1]!;
+
+  const hasDim = light.dimRadius != null && light.dimRadius > light.radius;
+  const reach = hasDim ? light.dimRadius! : light.radius;
+  // Safety cap: near aperture-height the true `t` diverges (zTop ≈ lz), so
+  // the raw projection can fly off to thousands of feet. Cap at 8×reach
+  // so the quad stays numerically sane; the gradient has already faded to
+  // zero by that distance, so the visual is unchanged from "infinite."
+  const extendCap = reach * 8;
+
+  const projectThrough = (px: number, py: number, z: number): [number, number] => {
+    const denom = lz - z;
+    if (denom < 1e-6) {
+      // Near-aperture-height guard. Extend straight out along the ray from
+      // light through the aperture endpoint up to the safety cap.
+      const dx = px - lx;
+      const dy = py - ly;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 1e-6) return [px, py];
+      return [px + (dx / dist) * extendCap, py + (dy / dist) * extendCap];
+    }
+    const t = lz / denom;
+    const fx = lx + t * (px - lx);
+    const fy = ly + t * (py - ly);
+    // Cap the projection magnitude to avoid runaway far points when z is
+    // barely below lz (only really matters for zTop near aperture height;
+    // zBottom is always well below lz when we got here).
+    const dx = fx - lx;
+    const dy = fy - ly;
+    const dist = Math.hypot(dx, dy);
+    if (dist > extendCap) {
+      const k = extendCap / dist;
+      return [lx + dx * k, ly + dy * k];
+    }
+    return [fx, fy];
+  };
+  // Near edge via zBottom (close to wall — wall below aperture blocks
+  // anything closer); far edge via zTop (wall above aperture blocks
+  // anything further).
+  const near1 = projectThrough(a1x, a1y, entry.zBottom);
+  const near2 = projectThrough(a2x, a2y, entry.zBottom);
+  const far1 = projectThrough(a1x, a1y, entry.zTop);
+  const far2 = projectThrough(a2x, a2y, entry.zTop);
+
+  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
+  const p1 = toPx(near1[0], near1[1]);
+  const p2 = toPx(near2[0], near2[1]);
+  const p3 = toPx(far2[0], far2[1]);
+  const p4 = toPx(far1[0], far1[1]);
+
+  const { r, g, b } = light.darkness ? { r: 0, g: 0, b: 0 } : parseColor(light.color);
+  const intensity = light.intensity;
+  const falloff: FalloffType = light.falloff;
+  const relCx = lx * sx + ox;
+  const relCy = ly * sx + oy;
+  const rPx = light.radius * sx;
+  const dimRPx = hasDim ? light.dimRadius! * sx : null;
+
+  // Clip to the aperture fan. The far-edge extension above guarantees the
+  // gradient fades out by the radius boundary rather than being chord-cut.
+  gctx.save();
+  gctx.beginPath();
+  gctx.moveTo(p1[0], p1[1]);
+  gctx.lineTo(p2[0], p2[1]);
+  gctx.lineTo(p3[0], p3[1]);
+  gctx.lineTo(p4[0], p4[1]);
+  gctx.closePath();
+  gctx.clip();
+
+  // Further clip to the aperture-visibility polygon — the light's visibility
+  // computed with `'win'` edges open. Bounds the sunpool by any walls beyond
+  // the window so light doesn't leak through into rooms past the aperture.
+  const openVis = (light as Light & { _openVisibility?: Float32Array | null })._openVisibility;
+  if (openVis && openVis.length >= 6) {
+    const ovPx = sx;
+    gctx.beginPath();
+    gctx.moveTo(openVis[0]! * ovPx + ox, openVis[1]! * ovPx + oy);
+    for (let i = 2; i < openVis.length; i += 2) {
+      gctx.lineTo(openVis[i]! * ovPx + ox, openVis[i + 1]! * ovPx + oy);
+    }
+    gctx.closePath();
+    gctx.clip();
+  }
+
+  gctx.globalCompositeOperation = 'source-over';
+  const grad = dimRPx
+    ? buildRadialGradientWithDim(gctx, relCx, relCy, rPx, dimRPx, r, g, b, intensity, light.radius, falloff)
+    : buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, light.radius, falloff);
+  gctx.fillStyle = grad;
+  gctx.fillRect(0, 0, gctx.canvas.width, gctx.canvas.height);
+  gctx.restore();
 }
 
 /**
@@ -1149,6 +1314,205 @@ function _renderProceduralGoboLines(
       const b = toPx(...proj(x2, y2, zL));
       const c = toPx(...proj(x2, y2, zU));
       const d = toPx(...proj(x1, y1, zU));
+      fillQuad(a, b, c, d);
+    }
+  }
+  gctx.restore();
+}
+
+/**
+ * Procedural diamond/lattice rendering — draws a leaded-glass pattern as a
+ * set of diagonal bars (two families of parallel lines crossing at ±45° in
+ * the gobo's u/z plane). Each bar is a 3D rectangle with fixed thickness,
+ * projected the same way grid mullions are — no affine stretching, correct
+ * perspective divergence.
+ *
+ * `density` = number of diamonds along the gobo's width. The two diagonal
+ * families each have `2*density+1` bars to tile cleanly across the opening.
+ */
+function _renderProceduralGoboDiamond(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  entry: NonNullable<Light['_gobos']>[number],
+  lx: number,
+  ly: number,
+  lz: number,
+  sx: number,
+  ox: number,
+  oy: number,
+  strength: number,
+) {
+  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
+  const x1 = nearP1[0]!;
+  const y1 = nearP1[1]!;
+  const x2 = nearP2[0]!;
+  const y2 = nearP2[1]!;
+  const { zBottom, zTop } = entry;
+  const density = Math.max(1, Math.round(entry.density));
+  if (lz <= zBottom) return;
+
+  const proj = (px: number, py: number, pz: number): [number, number] => {
+    const denom = lz - pz;
+    if (Math.abs(denom) < 1e-6) return [px, py];
+    const t = lz / denom;
+    return [lx + t * (px - lx), ly + t * (py - ly)];
+  };
+  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
+
+  const zSpan = zTop - zBottom;
+  // Diamond aspect: tie the u-axis and z-axis step to a single cell size so
+  // diamonds are square in the gobo plane (not squashed when zSpan ≠ width).
+  const gobU = Math.hypot(x2 - x1, y2 - y1);
+  const cellSize = gobU / density; // diamond width along u
+  const numZ = Math.max(1, Math.round(zSpan / cellSize));
+  const barFracU = 0.1; // bar thickness as fraction of cellSize
+  const hwU = (barFracU * cellSize) / gobU / 2; // half-width in normalized u
+
+  gctx.save();
+  gctx.globalCompositeOperation = 'multiply';
+  gctx.globalAlpha = strength;
+  gctx.fillStyle = '#000';
+
+  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
+    gctx.beginPath();
+    gctx.moveTo(a[0], a[1]);
+    gctx.lineTo(b[0], b[1]);
+    gctx.lineTo(c[0], c[1]);
+    gctx.lineTo(d[0], d[1]);
+    gctx.closePath();
+    gctx.fill();
+  };
+
+  const segPoint = (uNorm: number): [number, number] => [x1 + uNorm * (x2 - x1), y1 + uNorm * (y2 - y1)];
+  const hwZ = (barFracU * zSpan) / numZ / 2; // half-height in world feet
+
+  // Each diagonal bar crosses the u/z plane at 45°. Parameterize by position
+  // along the bar's normal so the bar has finite thickness. Then sample along
+  // the bar and draw short trapezoidal segments to approximate the projected
+  // curve (it's straight in gobo space but fans in floor space).
+  // We draw two families: u + z/zSpan = k and u - z/zSpan = k for k sweeping
+  // across the opening.
+  const SAMPLES = 8; // sub-segments along each bar (enough for the fanned perspective)
+
+  const drawDiagonalBar = (startU: number, startZFrac: number, endU: number, endZFrac: number) => {
+    // Sub-sample the bar centerline then fatten perpendicular.
+    for (let s = 0; s < SAMPLES; s++) {
+      const t0 = s / SAMPLES;
+      const t1 = (s + 1) / SAMPLES;
+      const u0 = startU + t0 * (endU - startU);
+      const u1 = startU + t1 * (endU - startU);
+      const z0 = zBottom + (startZFrac + t0 * (endZFrac - startZFrac)) * zSpan;
+      const z1 = zBottom + (startZFrac + t1 * (endZFrac - startZFrac)) * zSpan;
+      // Skip segments that fall entirely out of the gobo opening.
+      if (u0 < -hwU || u1 > 1 + hwU) continue;
+      if (z0 < zBottom - hwZ || z1 > zTop + hwZ) continue;
+      if (lz <= Math.min(z0, z1) - hwZ) continue;
+      const [pL0x, pL0y] = segPoint(Math.max(0, u0 - hwU));
+      const [pR0x, pR0y] = segPoint(Math.min(1, u0 + hwU));
+      const [pL1x, pL1y] = segPoint(Math.max(0, u1 - hwU));
+      const [pR1x, pR1y] = segPoint(Math.min(1, u1 + hwU));
+      // Build a 4-corner 3D quad for this slice: corners go around ccw.
+      const a = toPx(...proj(pL0x, pL0y, Math.max(zBottom, z0 - hwZ)));
+      const b = toPx(...proj(pR0x, pR0y, Math.max(zBottom, z0 - hwZ)));
+      const c = toPx(...proj(pR1x, pR1y, Math.min(zTop, z1 + hwZ)));
+      const d = toPx(...proj(pL1x, pL1y, Math.min(zTop, z1 + hwZ)));
+      fillQuad(a, b, c, d);
+    }
+  };
+
+  // Family 1: "/" bars — u increases with z. Sweep starting u from -numZ..density.
+  for (let k = -numZ; k <= density; k++) {
+    const startU = k / density;
+    const endU = (k + numZ) / density;
+    drawDiagonalBar(startU, 0, endU, 1);
+  }
+  // Family 2: "\" bars — u decreases with z.
+  for (let k = 0; k <= density + numZ; k++) {
+    const startU = k / density;
+    const endU = (k - numZ) / density;
+    drawDiagonalBar(startU, 0, endU, 1);
+  }
+
+  gctx.restore();
+}
+
+/**
+ * Procedural Latin-cross rendering — one vertical bar centered along the gobo's
+ * u-axis plus one horizontal transom about 60% up the opening. Projects the
+ * same way as grid mullions. Density is ignored (a cross is a cross), but the
+ * cross's proportions scale with the opening dimensions.
+ */
+function _renderProceduralGoboCross(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  entry: NonNullable<Light['_gobos']>[number],
+  lx: number,
+  ly: number,
+  lz: number,
+  sx: number,
+  ox: number,
+  oy: number,
+  strength: number,
+) {
+  const [nearP1, nearP2] = entry.quad as [number[], number[], number[], number[]];
+  const x1 = nearP1[0]!;
+  const y1 = nearP1[1]!;
+  const x2 = nearP2[0]!;
+  const y2 = nearP2[1]!;
+  const { zBottom, zTop } = entry;
+  if (lz <= zBottom) return;
+
+  const proj = (px: number, py: number, pz: number): [number, number] => {
+    const denom = lz - pz;
+    if (Math.abs(denom) < 1e-6) return [px, py];
+    const t = lz / denom;
+    return [lx + t * (px - lx), ly + t * (py - ly)];
+  };
+  const toPx = (wx: number, wy: number): [number, number] => [wx * sx + ox, wy * sx + oy];
+
+  const zSpan = zTop - zBottom;
+  // Cross arm thickness relative to opening. Larger = chunkier cross.
+  const barFrac = 0.18;
+  const hwU = barFrac / 2;
+  const hwZ = (barFrac * zSpan) / 2;
+  // Transom at 60% of height (Latin cross proportions: crossbar above center).
+  const zCross = zBottom + 0.6 * zSpan;
+
+  gctx.save();
+  gctx.globalCompositeOperation = 'multiply';
+  gctx.globalAlpha = strength;
+  gctx.fillStyle = '#000';
+
+  const segPoint = (uNorm: number): [number, number] => [x1 + uNorm * (x2 - x1), y1 + uNorm * (y2 - y1)];
+  const fillQuad = (a: [number, number], b: [number, number], c: [number, number], d: [number, number]) => {
+    gctx.beginPath();
+    gctx.moveTo(a[0], a[1]);
+    gctx.lineTo(b[0], b[1]);
+    gctx.lineTo(c[0], c[1]);
+    gctx.lineTo(d[0], d[1]);
+    gctx.closePath();
+    gctx.fill();
+  };
+
+  // Vertical bar: u-centered, spans full z.
+  {
+    const [xL, yL] = segPoint(0.5 - hwU);
+    const [xR, yR] = segPoint(0.5 + hwU);
+    const a = toPx(...proj(xL, yL, zBottom));
+    const b = toPx(...proj(xR, yR, zBottom));
+    const c = toPx(...proj(xR, yR, zTop));
+    const d = toPx(...proj(xL, yL, zTop));
+    fillQuad(a, b, c, d);
+  }
+  // Horizontal transom: spans full u, centered at zCross.
+  {
+    const [xL, yL] = segPoint(0);
+    const [xR, yR] = segPoint(1);
+    const zL = Math.max(zBottom, zCross - hwZ);
+    const zU = Math.min(zTop, zCross + hwZ);
+    if (lz > zL) {
+      const a = toPx(...proj(xL, yL, zL));
+      const b = toPx(...proj(xR, yR, zL));
+      const c = toPx(...proj(xR, yR, zU));
+      const d = toPx(...proj(xL, yL, zU));
       fillQuad(a, b, c, d);
     }
   }
@@ -1514,6 +1878,41 @@ function buildRadialGradient(
 }
 
 /**
+ * Build a bright-plus-dim radial gradient matching what `buildPointLightComposite`
+ * paints when `dimRadius > radius`. Inner region falls off normally out to
+ * `rPx`, then holds at `dimIntensity` until the dim edge, then fades to 0.
+ */
+function buildRadialGradientWithDim(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  relCx: number,
+  relCy: number,
+  rPx: number,
+  dimRPx: number,
+  r: number,
+  g: number,
+  b: number,
+  intensity: number,
+  lightRadius: number,
+  falloff: FalloffType | string,
+) {
+  const dimIntensity = Math.min(1, intensity * 0.5);
+  const brightFrac = rPx / dimRPx;
+  const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, dimRPx);
+  grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, intensity)})`);
+  const numStops = 8;
+  for (let i = 1; i < numStops; i++) {
+    const t = i / numStops;
+    const gradFrac = t * brightFrac;
+    const mult = falloffMultiplier(t * lightRadius, lightRadius, falloff as FalloffType);
+    const alpha = Math.max(dimIntensity, Math.min(1, intensity * mult));
+    grad.addColorStop(gradFrac, `rgba(${r},${g},${b},${alpha.toFixed(4)})`);
+  }
+  grad.addColorStop(brightFrac, `rgba(${r},${g},${b},${dimIntensity})`);
+  grad.addColorStop(1.0, `rgba(${r},${g},${b},0)`);
+  return grad;
+}
+
+/**
  * Render a single point light onto the lightmap using GPU-composited shadow mask.
  * Uses destination-in composite to mask a radial gradient to the visibility polygon —
  * giving anti-aliased shadow edges without a CPU pixel loop.
@@ -1587,7 +1986,7 @@ function buildPointLightComposite(
   // destination-in pass means the visibility clip trims the pattern to the
   // lit area just like it trims the gradient.
   if (!light.darkness && light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY);
+    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
   }
 
   if (softVisibilities && softVisibilities.length > 0) {
@@ -1600,6 +1999,13 @@ function buildPointLightComposite(
     gctx.fillStyle = '#ffffff';
     clipToVisibility(gctx, visibility, transform, bbX, bbY);
     gctx.globalCompositeOperation = 'source-over';
+  }
+
+  // Aperture gobos (windows) run AFTER the visibility clip. The wall blocks
+  // light everywhere else, but the sunpool re-admission paints the gradient
+  // back into the aperture's floor projection, followed by the pattern bars.
+  if (!light.darkness && light._gobos?.length) {
+    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
   }
 
   if (light._propShadows?.length) {
@@ -1697,7 +2103,7 @@ function _bakePointLight(
   softVisibilities: Float32Array[] | null = null,
 ): BakedLight | null {
   const { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH } = _computePointLightBBox(light, transform, vpW, vpH);
-  if (bbW <= 0 || bbH <= 0) return null;
+  if (!Number.isFinite(bbW) || !Number.isFinite(bbH) || bbW <= 0 || bbH <= 0) return null;
   const canvas = _allocateBakedCanvas(bbW, bbH);
   const gctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   // Bake at intensity=1 so per-frame globalAlpha scales the whole composite.
@@ -1764,9 +2170,9 @@ function renderDirectionalLight(
   gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, range, r, g, b, intensity, effRadius, falloff);
   gctx.fillRect(0, 0, bbW, bbH);
 
-  // Gobo projections — see the point-light path for the ordering rationale.
+  // Occluder gobos — see the point-light path for the ordering rationale.
   if (light._gobos?.length) {
-    _applyGobosToRT(gctx, light, transform, bbX, bbY);
+    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
   }
 
   // Mask: intersection of visibility polygon AND cone
@@ -1788,6 +2194,12 @@ function renderDirectionalLight(
     gctx.fillStyle = '#ffffff';
     clipToVisibility(gctx, visibility, transform, bbX, bbY);
     gctx.globalCompositeOperation = 'source-over';
+  }
+
+  // Aperture gobos (windows) — runs after visibility clip so the sunpool
+  // re-admission can paint outside the walls.
+  if (light._gobos?.length) {
+    _applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
   }
 
   // Apply z-height prop shadows
@@ -1833,10 +2245,17 @@ type BakedLight = {
 // the result is mathematically identical to rebuilding the composite every frame.
 const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
+// Variant of the wall list with `'win'` edges removed — used for the
+// aperture-visibility polygon that bounds window sunpools by walls beyond
+// the window. Built only when the map has at least one aperture gobo.
+let cachedOpenWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
 let cachedPropShadowIndex: PropShadowIndex | null = null;
 let cachedGoboZones: GoboZone[] | null = null;
 let cachedGoboIndex: GoboIndex | null = null;
+// Per-light cache of the aperture-visibility polygon. Keyed off the same
+// light-state key that keys visibilityCache, so it invalidates together.
+const openVisibilityCache = new Map<string, Float32Array>();
 let _lightingVersion = 0;
 
 /**
@@ -1917,12 +2336,14 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
   const resolved: LightCacheScope = scope === true ? 'walls' : scope === false ? 'lights' : scope;
 
   visibilityCache.clear();
+  openVisibilityCache.clear();
   softVisibilitiesCache.clear();
   propShadowsCache.clear();
   goboProjectionsCache.clear();
   bakedLightCache.clear();
   if (resolved === 'walls') {
     cachedWallSegments = null;
+    cachedOpenWallSegments = null;
     cachedPropShadowZones = null;
     cachedPropShadowIndex = null;
     cachedGoboZones = null;
@@ -2063,15 +2484,30 @@ export function renderLightmap(
   // (group undefined or '') are always rendered. Matches the light-group
   // toggle in the Lighting panel.
   const disabledGroups = metadata?.disabledLightGroups;
-  const activeLights =
-    disabledGroups && disabledGroups.length > 0
-      ? lights.filter((l) => !l.group || !disabledGroups.includes(l.group))
-      : lights;
+  const activeLights = lights.filter((l) => {
+    if (!Number.isFinite(l.x) || !Number.isFinite(l.y)) return false;
+    if (disabledGroups && disabledGroups.length > 0 && l.group && disabledGroups.includes(l.group)) return false;
+    return true;
+  });
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
   // Only profile when the cache actually rebuilds — ??= skips _t() on warm hits.
   cachedWallSegments ??= _t('lighting:segments', () => extractWallSegments(cells, gridSize, propCatalog, metadata));
   const segments = cachedWallSegments;
+
+  // Windows-open wall segment list (same as `segments` minus `'win'` edges).
+  // Only built when the map has at least one window — otherwise every light's
+  // aperture-visibility polygon would duplicate its regular visibility
+  // polygon. Used by the gobo aperture pipeline to bound sunpools by walls
+  // beyond the window.
+  if (metadata?.windows?.length) {
+    cachedOpenWallSegments ??= _t('lighting:openSegments', () =>
+      extractWallSegments(cells, gridSize, propCatalog, metadata, { treatWindowsAsOpen: true }),
+    );
+  } else {
+    cachedOpenWallSegments = null;
+  }
+  const openSegments = cachedOpenWallSegments;
 
   // Prop shadow zones for z-height projection (cached alongside wall segments).
   // The spatial index is built lazily alongside the zones so per-light lookups
@@ -2089,7 +2525,9 @@ export function renderLightmap(
   // _getOrComputeLightGeometry and cached until invalidation.
   if (!cachedGoboIndex) {
     _t('lighting:goboZones', () => {
-      cachedGoboZones ??= extractGoboZones(propCatalog, metadata, gridSize);
+      const propZones = extractGoboZones(propCatalog, metadata, gridSize);
+      const windowZones = extractWindowGoboZones(cells, metadata, gridSize);
+      cachedGoboZones = windowZones.length ? propZones.concat(windowZones) : propZones;
       cachedGoboIndex = buildGoboIndex(cachedGoboZones).index;
     });
   }
@@ -2134,6 +2572,7 @@ export function renderLightmap(
         ambientLevel,
         ambientColor,
         segments,
+        openSegments,
         propShadowIndex,
         lmTransform,
         cells,
@@ -2173,6 +2612,7 @@ export function renderLightmap(
     _renderAnimatedOverlay(ctx, staticCanvas, lmW, lmH, animatedLights, {
       time,
       segments,
+      openSegments,
       propShadowIndex,
       lmTransform,
       dest: { x: dx, y: dy, w: dw, h: dh },
@@ -2221,6 +2661,7 @@ function _buildStaticLightmap(
     ambientLevel: number;
     ambientColor: string;
     segments: WallSegment[];
+    openSegments: WallSegment[] | null;
     propShadowIndex: PropShadowIndex;
     lmTransform: RenderTransform;
     cells: CellGrid;
@@ -2240,7 +2681,15 @@ function _buildStaticLightmap(
   // Additively blend each static light
   slctx.globalCompositeOperation = 'lighter';
   for (const light of staticLights) {
-    _renderOneLight(slctx, light, params.time, params.segments, params.lmTransform, params.propShadowIndex);
+    _renderOneLight(
+      slctx,
+      light,
+      params.time,
+      params.segments,
+      params.lmTransform,
+      params.propShadowIndex,
+      params.openSegments,
+    );
   }
 
   // Normal map bump uses all lights for direction, but only apply on static pass
@@ -2265,6 +2714,7 @@ function _renderAnimatedOverlay(
   params: {
     time: number;
     segments: WallSegment[];
+    openSegments: WallSegment[] | null;
     propShadowIndex: PropShadowIndex;
     lmTransform: RenderTransform;
     dest: { x: number; y: number; w: number; h: number };
@@ -2322,7 +2772,15 @@ function _renderAnimatedOverlay(
   // Additively blend animated lights
   lctx.globalCompositeOperation = 'lighter';
   for (const light of animatedLights) {
-    _renderOneLight(lctx, light, params.time, params.segments, params.lmTransform, params.propShadowIndex);
+    _renderOneLight(
+      lctx,
+      light,
+      params.time,
+      params.segments,
+      params.lmTransform,
+      params.propShadowIndex,
+      params.openSegments,
+    );
   }
 
   // Composite lightmap onto main canvas with multiply
@@ -2378,9 +2836,11 @@ function _getOrComputeLightGeometry(
   lightZ: number,
   segments: WallSegment[],
   propShadowIndex: PropShadowIndex,
+  openSegments: WallSegment[] | null = null,
 ): {
   cacheKey: string;
   visibility: Float32Array;
+  openVisibility: Float32Array | null;
   softVisibilities: Float32Array[] | null;
   propShadows: Array<{
     shadowPoly: number[][];
@@ -2396,6 +2856,18 @@ function _getOrComputeLightGeometry(
   if (!visibility) {
     visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     visibilityCache.set(cacheKey, visibility);
+  }
+  // Aperture-visibility polygon: the visibility this light would have if
+  // window edges were open. Used to bound aperture sunpools by walls
+  // beyond the window. Only computed when there's at least one aperture
+  // gobo in the map — otherwise it would duplicate `visibility`.
+  let openVisibility: Float32Array | null = null;
+  if (openSegments) {
+    openVisibility = openVisibilityCache.get(cacheKey) ?? null;
+    if (!openVisibility) {
+      openVisibility = computeVisibility(eff.x, eff.y, effectiveRadius, openSegments);
+      openVisibilityCache.set(cacheKey, openVisibility);
+    }
   }
   // Soft-shadow samples: compute N extra visibility polygons at jittered
   // offsets around the light center, cached separately so the hot flicker/
@@ -2458,6 +2930,16 @@ function _getOrComputeLightGeometry(
         const dx = zone.centroidX - eff.x;
         const dy = zone.centroidY - eff.y;
         if (dx * dx + dy * dy > rSq) continue;
+        // When the light sits INSIDE the gobo's z range [zBottom, zTop],
+        // rays through z > lightZ travel upward and never hit the floor —
+        // the projection formula (lightZ / (lightZ - zTop)) would flip
+        // negative and smear the pattern behind the light. Clamp the
+        // effective zTop to just below the light's z so everything
+        // projects forward; a light at exactly aperture-height produces
+        // a near-horizontal ray that hits the outer radius instead of
+        // inverting.
+        const effZTop = Math.min(zone.zTop, lightZ - 0.01);
+        if (effZTop <= zone.zBottom) continue; // light at/below aperture bottom
         const proj = computeGoboProjectionPolygon(
           eff.x,
           eff.y,
@@ -2467,14 +2949,14 @@ function _getOrComputeLightGeometry(
           zone.x2,
           zone.y2,
           zone.zBottom,
-          zone.zTop,
+          effZTop,
           effectiveRadius,
         );
         if (!proj) continue;
         gobos.push({
           quad: proj.quad,
           zBottom: zone.zBottom,
-          zTop: zone.zTop,
+          zTop: effZTop,
           goboId: zone.goboId,
           pattern: zone.pattern,
           density: zone.density,
@@ -2486,7 +2968,7 @@ function _getOrComputeLightGeometry(
     }
     goboProjectionsCache.set(cacheKey, gobos);
   }
-  return { cacheKey, visibility, softVisibilities, propShadows, gobos };
+  return { cacheKey, visibility, openVisibility, softVisibilities, propShadows, gobos };
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
@@ -2497,6 +2979,7 @@ function _renderOneLight(
   segments: WallSegment[],
   transform: RenderTransform,
   propShadowIndex: PropShadowIndex,
+  openSegments: WallSegment[] | null = null,
 ) {
   _currentFrameTime = time;
   const eff = getEffectiveLight(light, time);
@@ -2516,16 +2999,21 @@ function _renderOneLight(
     return;
   }
 
-  const { visibility, softVisibilities, propShadows, gobos } = _getOrComputeLightGeometry(
+  const { visibility, openVisibility, softVisibilities, propShadows, gobos } = _getOrComputeLightGeometry(
     eff,
     effectiveRadius,
     lightZ,
     segments,
     propShadowIndex,
+    openSegments,
   );
   // Attach shadow + gobo data to the effective light so render functions can use it
   eff._propShadows = propShadows;
   eff._gobos = gobos;
+  // Stash the aperture-visibility polygon on the effective light so the
+  // gobo pipeline can clip sunpools to it. Non-enumerable would be nicer,
+  // but the Light type already accepts ad-hoc caches like `_gobos`.
+  (eff as Light & { _openVisibility?: Float32Array | null })._openVisibility = openVisibility;
 
   if (eff.type === 'directional') {
     renderDirectionalLight(lctx, eff, visibility, transform, softVisibilities);
@@ -2557,8 +3045,18 @@ function _renderOneLight(
     if (baked?.scale !== transform.scale) {
       const vpW2 = lctx.canvas.width;
       const vpH2 = lctx.canvas.height;
-      // Bake the light with propShadows + gobos attached at intensity=1.
-      const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows, _gobos: gobos };
+      // Bake the light with propShadows, gobos, and aperture-visibility
+      // attached at intensity=1. `_openVisibility` is needed for aperture
+      // sunpools to be bounded by walls beyond the window — without it,
+      // sunpools leak into rooms the window opens onto that have their
+      // own walls.
+      const bakeLight: Light & { _openVisibility?: Float32Array | null } = {
+        ...light,
+        intensity: 1,
+        _propShadows: propShadows,
+        _gobos: gobos,
+        _openVisibility: openVisibility,
+      };
       baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2, softVisibilities) ?? undefined;
       if (baked) bakedLightCache.set(bakeKey, baked);
     }

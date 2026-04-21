@@ -17,6 +17,14 @@ import { state, mutate, requestRender, getLightCatalog, ApiValidationError } fro
  * @returns {{ success: boolean, id: number }}
  */
 export function placeLight(x: number, y: number, config: PlaceLightConfig = {}): { success: true; id: number } {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    throw new ApiValidationError(
+      'INVALID_LIGHT_COORDINATES',
+      `placeLight requires finite numeric x and y in world feet; got x=${x}, y=${y}.`,
+      { x, y },
+    );
+  }
+
   if (config.preset) {
     const catalog = getLightCatalog();
     const p = catalog?.lights[config.preset];

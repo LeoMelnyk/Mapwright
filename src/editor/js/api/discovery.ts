@@ -76,6 +76,8 @@ const REGISTRY: MethodInfo[] = [
   { name: 'removeWall', category: 'walls-doors', intent: 'Remove a wall from a cell edge' },
   { name: 'setDoor', category: 'walls-doors', intent: 'Place a door on a wall' },
   { name: 'removeDoor', category: 'walls-doors', intent: 'Remove a door (reverts to wall)' },
+  { name: 'setWindow', category: 'walls-doors', intent: 'Place a window on a wall with a chosen gobo' },
+  { name: 'removeWindow', category: 'walls-doors', intent: 'Remove a window (reverts to wall)' },
   { name: 'setDoorBetween', category: 'walls-doors', intent: 'Place a door at the midpoint of two adjacent rooms' },
   { name: 'findWallBetween', category: 'walls-doors', intent: 'Find all shared walls between two rooms' },
   { name: 'partitionRoom', category: 'walls-doors', intent: 'Add an internal wall partition across a room' },
@@ -128,12 +130,24 @@ const REGISTRY: MethodInfo[] = [
   { name: 'setAmbientLight', category: 'lighting', intent: 'Set ambient light level (0–1)' },
   { name: 'setLightingEnabled', category: 'lighting', intent: 'Toggle the lighting system' },
   { name: 'setLightGroup', category: 'lighting', intent: 'Assign a light to a named group (or clear)' },
-  { name: 'setLightGroupEnabled', category: 'lighting', intent: 'Enable/disable every light in a group; supports fade transitions' },
+  {
+    name: 'setLightGroupEnabled',
+    category: 'lighting',
+    intent: 'Enable/disable every light in a group; supports fade transitions',
+  },
   { name: 'listLightGroups', category: 'lighting', intent: 'List groups with counts and enabled flag' },
-  { name: 'setLightAnimation', category: 'lighting', intent: 'Set or clear a light\'s animation config' },
-  { name: 'setLightCookie', category: 'lighting', intent: 'Attach a procedural cookie/gobo (slats, dapple, caustics, sigil, grid, stained-glass) to a light' },
+  { name: 'setLightAnimation', category: 'lighting', intent: "Set or clear a light's animation config" },
+  {
+    name: 'setLightCookie',
+    category: 'lighting',
+    intent: 'Attach a procedural cookie/gobo (slats, dapple, caustics, sigil, grid, stained-glass) to a light',
+  },
   { name: 'listCookies', category: 'lighting', intent: 'List available procedural cookie types' },
-  { name: 'setAmbientAnimation', category: 'lighting', intent: 'Set/clear map-wide ambient animation (e.g. lightning storm)' },
+  {
+    name: 'setAmbientAnimation',
+    category: 'lighting',
+    intent: 'Set/clear map-wide ambient animation (e.g. lightning storm)',
+  },
   { name: 'listLightPresets', category: 'catalog', intent: 'List all light presets' },
 
   // ── props ──────────────────────────────────────────

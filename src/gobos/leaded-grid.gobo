@@ -1,0 +1,4 @@
+name: Leaded Grid
+description: Dense leaded-glass window — many small square panes, fine grid shadow.
+pattern: grid
+density: 10

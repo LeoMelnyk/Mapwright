@@ -8,7 +8,7 @@
 // ── Cell & Edge Types ──────────────────────────────────────────────────────
 
 /** Wall/door edge values stored on each cell face. */
-export type EdgeValue = 'w' | 'd' | 's' | 'iw' | 'id' | null | undefined;
+export type EdgeValue = 'w' | 'd' | 's' | 'iw' | 'id' | 'win' | null | undefined;
 
 /** Cardinal direction names for cell edges. */
 export type CardinalDirection = 'north' | 'south' | 'east' | 'west';
@@ -222,7 +222,7 @@ export interface LightCatalog {
 // ── Gobos ──────────────────────────────────────────────────────────────────
 
 /** Procedural gobo pattern built into the renderer. */
-export type GoboPattern = 'grid' | 'slats' | 'sigil' | 'caustics' | 'dapple' | 'stained-glass';
+export type GoboPattern = 'grid' | 'slats' | 'sigil' | 'caustics' | 'dapple' | 'stained-glass' | 'diamond' | 'cross';
 
 /** A parsed .gobo asset. Procedural only; image-backed gobos are TODO. */
 export interface GoboDefinition {
@@ -303,6 +303,28 @@ export interface Bridge {
   points: [[number, number], [number, number], [number, number]];
 }
 
+// ── Windows ────────────────────────────────────────────────────────────────
+
+/**
+ * A window placed on a cell edge. Stored canonically on the `north` or `west`
+ * edge of the owning cell (for cardinals), or `nw-se` / `ne-sw` on the
+ * owning cell (for diagonals). Every physical edge maps to exactly one
+ * entry, regardless of which side the user clicked when placing.
+ *
+ * The edge itself is marked with `cell[direction] = 'win'` (reciprocally on
+ * the neighbor for cardinals — diagonals have no reciprocal) so the lighting
+ * system treats it as a wall; light is blocked on the floor. The gobo
+ * referenced here is projected through the window's aperture (4–6 ft above
+ * floor by default), producing a patterned sunpool on the far side.
+ */
+export interface Window {
+  row: number;
+  col: number;
+  direction: 'north' | 'west' | 'nw-se' | 'ne-sw';
+  /** Gobo catalog id (e.g. "window-mullions", "arrow-slit"). */
+  goboId: string;
+}
+
 // ── Levels ─────────────────────────────────────────────────────────────────
 
 /** A dungeon level (floor) definition. */
@@ -368,6 +390,12 @@ export interface Metadata {
   bloomIntensity?: number;
   stairs: Stairs[];
   bridges: Bridge[];
+  /**
+   * Windows placed on cell edges. Each entry is keyed by the canonical
+   * (row, col, direction) — direction is always `'north'` or `'west'`.
+   * See {@link Window}.
+   */
+  windows?: Window[];
   nextLightId: number;
   nextBridgeId: number;
   nextStairId: number;
@@ -534,6 +562,10 @@ export interface PropCommand {
   points?: number[][];
   trim?: boolean;
   src?: string;
+  /** Z-range for manual hitbox commands (used by light shadow projection).
+   *  `zTop: null` means "unbounded" (no upper limit). */
+  zBottom?: number;
+  zTop?: number | null;
   [key: string]: unknown;
 }
 
@@ -888,6 +920,9 @@ export interface EditorState {
 
   // Wall tool
   wallType: string;
+
+  // Window tool
+  windowGobo: string;
 
   // Infrastructure
   listeners: {

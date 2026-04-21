@@ -234,6 +234,21 @@ Directions: `"north"`, `"south"`, `"east"`, `"west"`, `"nw-se"`, `"ne-sw"`
 
 Directions: `"north"`, `"south"`, `"east"`, `"west"` only.
 
+### Windows
+
+Windows are edge-level entities that block light on the floor (like a wall) but project a gobo pattern through an aperture 4–6 ft above the floor — a "sunpool" on the far side shaped by the chosen gobo. Adjacent windows render as one continuous wide window; adjacent windows sharing a `goboId` also merge their gobo projection into a single continuous pattern.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `setWindow` | `row, col, direction, [goboId="window-mullions"]` | Place a window on a cardinal edge. Marks the edge as `"win"` and associates the chosen gobo. If a window already exists at that edge, the gobo is swapped in place. |
+| `removeWindow` | `row, col, direction` | Remove a window (reverts the edge to a wall and drops the metadata entry). |
+
+Directions: `"north"`, `"south"`, `"east"`, `"west"` only.
+
+**Available gobo ids** (14 total, all procedurally rendered — no texture assets required): `arrow-slit`, `ceiling-grate`, `cruciform`, `diamond-lattice`, `double-hung`, `horizontal-clerestory`, `horizontal-slats`, `leaded-grid`, `narrow-casement`, `portcullis-window`, `rose-window`, `tall-lancet`, `vertical-bars`, `window-mullions`. Invalid ids are accepted but produce no projection at render time.
+
+**Data model.** Windows live in `metadata.windows: [{ row, col, direction, goboId }]`. `direction` is always stored canonically as `"north"` or `"west"`; south/east edges of the clicked cell are transparently re-expressed as the neighbor's north/west. This means `getCellInfo` at a window cell shows `"north": "win"` on the owning cell and `"south": "win"` on its neighbor, but `metadata.windows` holds exactly one entry per physical window.
+
 ### Labels
 
 | Method | Args | Description |

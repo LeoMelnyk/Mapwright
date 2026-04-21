@@ -35,13 +35,17 @@ export function initKeyboardShortcuts(
   setTool: (name: string) => void,
 ): { onKeyDown: (e: KeyboardEvent) => void; onKeyUp: (e: KeyboardEvent) => void } {
   function onKeyDown(e: KeyboardEvent) {
-    // Don't intercept when typing in inputs
-    if (
-      (e.target as HTMLElement).tagName === 'INPUT' ||
-      (e.target as HTMLElement).tagName === 'SELECT' ||
-      (e.target as HTMLElement).tagName === 'TEXTAREA'
-    )
-      return;
+    const target = e.target as HTMLElement;
+    const tag = target.tagName;
+    const isFormField = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || target.isContentEditable;
+
+    // Escape always blurs the focused form field so downstream tool/shortcut handlers can run.
+    if (e.key === 'Escape' && isFormField) {
+      target.blur();
+    }
+
+    // Don't intercept other shortcuts while typing in inputs
+    if (isFormField && e.key !== 'Escape') return;
 
     if (e.ctrlKey && e.key === 'z') {
       e.preventDefault();
@@ -248,8 +252,7 @@ export function initKeyboardShortcuts(
         pushUndo('Cut props');
         for (const anchor of state.selectedPropAnchors) {
           // Use propId when available to avoid deleting the overlapping prop on top
-          const propId =
-            anchor.propId ?? lookupPropAt(anchor.row, anchor.col)?.propId;
+          const propId = anchor.propId ?? lookupPropAt(anchor.row, anchor.col)?.propId;
           if (propId != null && meta.props) {
             const idx = meta.props.findIndex((p: { id: number | string }) => p.id === propId);
             if (idx >= 0) meta.props.splice(idx, 1);

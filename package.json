@@ -142,7 +142,7 @@
       "node ./node_modules/prettier/bin/prettier.cjs --write"
     ],
     "src/props/*.prop": [
-      "node tools/update-manifest.js",
+      "node --import tsx tools/update-manifest.js",
       "git add src/props/manifest.json src/props/bundle.json"
     ],
     "src/gobos/*.gobo": [

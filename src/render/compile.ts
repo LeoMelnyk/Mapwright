@@ -292,7 +292,8 @@ export function renderDungeonToCanvas(
         });
         const levelFillLights = extractFillLights(levelCells, gridSize, theme);
         const allLevelLights = levelFillLights.length ? [...levelLights, ...levelFillLights] : levelLights;
-        const levelHeight2 = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
+        const levelMapW = Math.ceil((levelBounds.maxX - levelBounds.minX) * GRID_SCALE);
+        const levelMapH = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE);
         // Use the editor's lightmap path so exports match what the user sees.
         // Drop the visibility cache first — successive exports of different
         // maps share the module-level cache and would otherwise reuse stale
@@ -303,15 +304,19 @@ export function renderDungeonToCanvas(
           allLevelLights,
           levelCells,
           gridSize,
-          levelTransform,
-          width,
-          levelHeight2,
+          { scale: GRID_SCALE, offsetX: 0, offsetY: 0 },
+          levelMapW,
+          levelMapH,
           config.metadata.ambientLight,
           textureCatalog,
           propCatalog,
           {
             ambientColor: config.metadata.ambientColor ?? '#ffffff',
             time: performance.now() / 1000,
+            destX: levelTransform.offsetX,
+            destY: levelTransform.offsetY,
+            destW: levelMapW,
+            destH: levelMapH,
           },
           config.metadata,
         );
@@ -383,21 +388,27 @@ export function renderDungeonToCanvas(
     if (singleLevelLightingEnabled) {
       const fillLights = extractFillLights(config.cells, gridSize, theme);
       const allLights = fillLights.length ? [...config.metadata.lights, ...fillLights] : config.metadata.lights;
+      const mapW = Math.ceil((bounds.maxX - bounds.minX) * GRID_SCALE);
+      const mapH = Math.ceil((bounds.maxY - bounds.minY) * GRID_SCALE);
       invalidateVisibilityCache('walls');
       renderLightmap(
         ctx,
         allLights,
         config.cells,
         gridSize,
-        transform,
-        width,
-        height,
+        { scale: GRID_SCALE, offsetX: 0, offsetY: 0 },
+        mapW,
+        mapH,
         config.metadata.ambientLight,
         textureCatalog,
         propCatalog,
         {
           ambientColor: config.metadata.ambientColor ?? '#ffffff',
           time: performance.now() / 1000,
+          destX: transform.offsetX,
+          destY: transform.offsetY,
+          destW: mapW,
+          destH: mapH,
         },
         config.metadata,
       );

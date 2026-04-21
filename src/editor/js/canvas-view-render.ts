@@ -163,7 +163,7 @@ export function render(): void {
       }
     : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion };
   const lightingEnabled = metadata.lightingEnabled;
-  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
+  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door' || state.activeTool === 'window';
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
 
@@ -894,7 +894,11 @@ function drawLinkSourceHighlight(ctx: CanvasRenderingContext2D, gridSize: number
 }
 
 function drawEdgeHighlight(ctx: CanvasRenderingContext2D, gridSize: number, transform: RenderTransform) {
-  if ((state.activeTool !== 'wall' && state.activeTool !== 'door') || !state.hoveredEdge) return;
+  if (
+    (state.activeTool !== 'wall' && state.activeTool !== 'door' && state.activeTool !== 'window') ||
+    !state.hoveredEdge
+  )
+    return;
   const { direction, row, col } = state.hoveredEdge;
 
   ctx.strokeStyle = 'rgba(255, 200, 50, 0.9)';

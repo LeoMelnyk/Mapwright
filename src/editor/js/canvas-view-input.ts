@@ -165,7 +165,7 @@ export function onMouseMove(e: MouseEvent): void {
     return;
   }
 
-  if (state.activeTool === 'wall' || state.activeTool === 'door') {
+  if (state.activeTool === 'wall' || state.activeTool === 'door' || state.activeTool === 'window') {
     // During a wall drag, the tool sets hoveredEdge itself (axis-locked preview)
     if (!cvState.activeTool?.dragging) {
       state.hoveredEdge = nearestEdge(pos.x, pos.y, transform, gridSize);

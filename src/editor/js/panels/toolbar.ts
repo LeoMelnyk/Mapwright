@@ -1,6 +1,7 @@
 import type { CellGrid, Dungeon } from '../../../types.js';
 // Toolbar: tool buttons, door type, file ops, undo/redo
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
+import { getGoboCatalog, loadGoboCatalog } from '../gobo-catalog.js';
 import {
   loadDungeon,
   loadDungeonJSON,
@@ -143,6 +144,20 @@ const toolOptions: Record<string, ToolOption | undefined> = {
       state.statusInstruction = statuses[v as keyof typeof statuses] || null;
     },
   },
+  window: {
+    // Window sub-options use a <select> dropdown (populated from the gobo
+    // catalog), not a button group — but we register here so the
+    // `#window-options` bar follows the same show/hide convention as every
+    // other tool's sub-bar. The `values`/`attr` fields are unused for this
+    // tool since there are no `[data-*]` buttons.
+    key: 'windowGobo',
+    attr: 'data-window-gobo',
+    values: [],
+    onApply: () => {
+      state.statusInstruction =
+        'Click a wall to place window · Click again to remove · Right-click to remove · Pick gobo in the dropdown';
+    },
+  },
   stairs: {
     key: 'stairsMode',
     attr: 'data-stairs-mode',
@@ -232,6 +247,9 @@ export function setSubMode(toolName: string, value?: string): void {
 export function cycleSubMode(delta?: number): boolean {
   const opts = toolOptions[state.activeTool];
   if (!opts) return false;
+  // Tools whose sub-options use a dropdown (no button group) register with
+  // an empty `values` array — there's nothing to cycle through.
+  if (opts.values.length === 0) return false;
   const idx = opts.values.indexOf(state[opts.key] as string);
   const next = opts.values[(idx + (delta ?? 1) + opts.values.length) % opts.values.length];
   setSubMode(state.activeTool, next);
@@ -564,6 +582,9 @@ export function init(): void {
     markDirty();
   });
 
+  // Window gobo dropdown — populated from the gobo catalog (async-loaded).
+  void populateWindowGoboSelect();
+
   // Texture opacity slider
   const opacitySlider = getEl('texture-opacity-slider');
   const opacityValue = getEl('texture-opacity-value');
@@ -734,6 +755,42 @@ function detectDungeonLetter(cells: CellGrid) {
     }
   }
   return best;
+}
+
+/**
+ * Populate the window-tool gobo dropdown. The gobo catalog is bundle-loaded
+ * asynchronously in app-init; we await it here so the dropdown is ready
+ * before the user activates the window tool. Refreshes when the catalog
+ * reloads (e.g. via Reload Assets).
+ */
+async function populateWindowGoboSelect() {
+  const select = document.getElementById('window-gobo-select') as HTMLSelectElement | null;
+  if (!select) return;
+  let catalog = getGoboCatalog();
+  catalog ??= await loadGoboCatalog();
+
+  // Build options sorted by the catalog's own `names` ordering.
+  select.innerHTML = '';
+  for (const id of catalog.names) {
+    const def = catalog.gobos[id];
+    if (!def) continue;
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = def.name || id;
+    if (def.description) opt.title = def.description;
+    select.appendChild(opt);
+  }
+
+  // Sync initial value from state (falls back to first option if the stored
+  // id isn't in the catalog — e.g. gobo deleted between sessions).
+  const current = state.windowGobo;
+  const hasCurrent = catalog.names.includes(current);
+  select.value = hasCurrent ? current : (catalog.names[0] ?? 'window-mullions');
+  if (!hasCurrent) state.windowGobo = select.value;
+
+  select.addEventListener('change', () => {
+    state.windowGobo = select.value;
+  });
 }
 
 // ── Import modal ──────────────────────────────────────────────────────

@@ -11,7 +11,16 @@ import { basename, dirname, join } from 'path';
 import type { GoboDefinition, GoboPattern } from '../types.js';
 import { setGoboDefinitions } from './gobo-registry.js';
 
-const VALID_PATTERNS: GoboPattern[] = ['grid', 'slats', 'sigil', 'caustics', 'dapple', 'stained-glass'];
+const VALID_PATTERNS: GoboPattern[] = [
+  'grid',
+  'slats',
+  'sigil',
+  'caustics',
+  'dapple',
+  'stained-glass',
+  'diamond',
+  'cross',
+];
 
 const __dirname = (() => {
   const d = dirname(fileURLToPath(import.meta.url));

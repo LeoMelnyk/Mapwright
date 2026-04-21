@@ -42,6 +42,7 @@ const state: EditorState = {
   lavaDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
   doorType: 'd', // 'd' (normal) or 's' (secret)
   wallType: 'w', // 'w' (wall) or 'iw' (invisible wall)
+  windowGobo: 'window-mullions', // selected gobo id for newly placed windows
   trimCorner: 'auto', // 'auto', 'nw', 'ne', 'sw', 'se'
   trimRound: false,
   trimInverted: false,

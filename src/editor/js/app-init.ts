@@ -16,7 +16,7 @@ import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import type { Tool } from './tools/tool-base.js';
 import { RangeTool, FogRevealTool, type LightTool } from './tools/index.js';
-import { loadPropCatalog, ensurePropHitboxesForMap, scheduleBackgroundPropHitboxGen } from './prop-catalog.js';
+import { loadPropCatalog, ensurePropHitboxesForMap } from './prop-catalog.js';
 import { invalidateMinimapCache } from './minimap.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
@@ -429,10 +429,9 @@ export async function initApp(
   const propCatalogPromise = loadPropCatalog((loaded, total) => onAssetProgress('props', loaded, total))
     .then((catalog) => {
       state.propCatalog = catalog;
-      // Materialize hitboxes for props on the current map first, then fill in
-      // the rest of the catalog in the background via requestIdleCallback.
+      // Hitboxes are baked into bundle.json; ensurePropHitboxesForMap is a
+      // safety net for props that lack baked data (e.g. per-file fallback path).
       ensurePropHitboxesForMap(state.dungeon);
-      scheduleBackgroundPropHitboxGen();
       // Invalidate the lighting visibility cache so wall segments are recomputed
       // with full prop data (props can cast shadows; segments cached before this
       // point would exclude prop-based walls, causing animated lights to render

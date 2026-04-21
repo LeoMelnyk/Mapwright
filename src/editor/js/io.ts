@@ -27,12 +27,7 @@ import {
   loadTextureCatalog,
   clearTextureCatalogCache,
 } from './texture-catalog.js';
-import {
-  loadPropCatalog,
-  clearPropCatalogCache,
-  ensurePropHitboxesForMap,
-  scheduleBackgroundPropHitboxGen,
-} from './prop-catalog.js';
+import { loadPropCatalog, clearPropCatalogCache, ensurePropHitboxesForMap } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
 import { requestRender, zoomToFit, invalidateMapCache } from './canvas-view.js';
@@ -649,9 +644,9 @@ export async function reloadAssets(): Promise<void> {
   // The fresh catalog's PropDefinitions have no materialized hitboxes yet.
   // Without this, existing props on the map lose click-targeting and selection
   // boxes until the user re-places them. New placements call ensurePropHitbox
-  // themselves; existing ones need a catch-up pass here.
+  // themselves; existing ones need a catch-up pass here. Hitboxes are baked
+  // into bundle.json, so this is a no-op on the fast path.
   ensurePropHitboxesForMap(state.dungeon);
-  scheduleBackgroundPropHitboxGen();
 
   // Re-load texture images for everything currently on the map
   const usedIds = collectTextureIds(state.dungeon.cells);

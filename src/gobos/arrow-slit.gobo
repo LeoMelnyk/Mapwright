@@ -1,0 +1,5 @@
+name: Arrow Slit
+description: Narrow vertical defensive loophole — a thin sliver of light on the floor.
+pattern: slats
+density: 1
+orientation: vertical

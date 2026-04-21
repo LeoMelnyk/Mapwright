@@ -67,6 +67,7 @@ export {
   renderProp,
   parsePropFile,
   generateHitbox,
+  materializePropHitbox,
   invalidatePropsCache,
   invalidatePropsRenderLayer,
   getPropsVersion,

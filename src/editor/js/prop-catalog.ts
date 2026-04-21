@@ -3,8 +3,8 @@
 // Caching is handled by the HTTP layer: /props/bundle.json is served with an
 // ETag, so repeat loads get a 304 with no body transfer.
 
-import type { PropCatalog, PropDefinition, PropCommand, Dungeon } from '../../types.js';
-import { parsePropFile, generateHitbox } from '../../render/index.js';
+import type { PropCatalog, PropDefinition, Dungeon } from '../../types.js';
+import { parsePropFile, materializePropHitbox } from '../../render/index.js';
 import { loadTextureImages, getTextureCatalog } from './texture-catalog.js';
 import { showToast } from './toast.js';
 import { allSettledWithLimit } from './async-batch.js';
@@ -42,86 +42,41 @@ function buildCatalog(props: Record<string, PropDefinition>) {
 }
 
 /**
- * Populate a prop's hitbox fields (autoHitbox, hitbox, hitboxZones, selectionHitbox).
- * Idempotent — skips fields that are already set.
+ * Shape of a per-prop entry in the bundle. Old shape was the raw .prop text;
+ * new shape carries baked hitbox polygons alongside the text so the client
+ * avoids a 900ms startup storm of convex-hull rasterization.
  */
-function materializePropHitbox(def: PropDefinition): void {
-  if (!def.autoHitbox && def.commands.length) {
-    def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
-  }
-  def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
-  if (!def.hitboxZones && def.blocksLight) {
-    def.hitboxZones = buildHitboxZones(def) ?? undefined;
-  }
-  if (!def.selectionHitbox && def.manualSelection?.length) {
-    def.selectionHitbox = manualHitboxToPolygon(def.manualSelection) ?? undefined;
-  }
-}
+type BundlePropEntry =
+  | string
+  | {
+      text: string;
+      autoHitbox?: number[][];
+      hitbox?: number[][];
+      /** `zTop: null` in the bundle means "unbounded" — JSON can't carry Infinity. */
+      hitboxZones?: { polygon: number[][]; zBottom: number; zTop: number | null }[];
+      selectionHitbox?: number[][];
+    };
 
-/** Convert manual hitbox commands (rect/circle/poly) into a single polygon. */
-function manualHitboxToPolygon(cmds: PropCommand[]) {
-  const points = [];
-  for (const cmd of cmds) {
-    switch (cmd.subShape) {
-      case 'rect':
-        points.push(
-          [cmd.x!, cmd.y!],
-          [cmd.x! + cmd.w!, cmd.y!],
-          [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
-          [cmd.x!, cmd.y! + cmd.h!],
-        );
-        break;
-      case 'circle': {
-        const N = 16;
-        for (let i = 0; i < N; i++) {
-          const angle = (i / N) * Math.PI * 2;
-          points.push([cmd.cx! + cmd.r! * Math.cos(angle), cmd.cy! + cmd.r! * Math.sin(angle)]);
-        }
-        break;
-      }
-      case 'poly':
-        if (cmd.points?.length) points.push(...cmd.points);
-        break;
-      case undefined:
-      default:
-        break;
-    }
+/** Parse a bundle entry into a PropDefinition, applying any baked hitbox fields. */
+function parseBundleEntry(entry: BundlePropEntry): PropDefinition {
+  if (typeof entry === 'string') {
+    const def = parsePropFile(entry);
+    materializePropHitbox(def);
+    return def;
   }
-  return points.length >= 3 ? points : null;
-}
-
-/**
- * Build hitbox zones for z-height shadow projection.
- * Groups hitbox commands by z-range. If manual hitbox commands have z ranges,
- * creates one zone per distinct range. Otherwise, creates a single zone using
- * the prop's height header (or Infinity if no height is set).
- */
-function buildHitboxZones(def: PropDefinition) {
-  // Check if any manual hitbox commands have z ranges
-  const hasZRanges = def.manualHitbox?.some((cmd: PropCommand) => cmd.zBottom != null);
-
-  if (hasZRanges) {
-    // Group commands by z range, build a polygon per group
-    const groups = new Map();
-    for (const cmd of def.manualHitbox!) {
-      const key = cmd.zBottom != null ? `${cmd.zBottom}-${cmd.zTop}` : 'default';
-      if (!groups.has(key)) groups.set(key, { cmds: [], zBottom: cmd.zBottom ?? 0, zTop: cmd.zTop ?? Infinity });
-      groups.get(key).cmds.push(cmd);
-    }
-    const zones = [];
-    for (const { cmds, zBottom, zTop } of groups.values()) {
-      const polygon = manualHitboxToPolygon(cmds);
-      if (polygon) zones.push({ polygon, zBottom, zTop });
-    }
-    return zones.length > 0 ? zones : null;
+  const def = parsePropFile(entry.text);
+  if (entry.autoHitbox) def.autoHitbox = entry.autoHitbox;
+  if (entry.hitbox) def.hitbox = entry.hitbox;
+  if (entry.hitboxZones) {
+    def.hitboxZones = entry.hitboxZones.map((z) => ({
+      polygon: z.polygon,
+      zBottom: z.zBottom,
+      zTop: z.zTop ?? Infinity,
+    }));
   }
-
-  // No z ranges on hitbox commands — use the single hitbox with prop height
-  const polygon = def.hitbox;
-  if (!polygon) return null;
-
-  const zTop = def.height != null && isFinite(def.height) ? def.height : Infinity;
-  return [{ polygon, zBottom: 0, zTop }];
+  if (entry.selectionHitbox) def.selectionHitbox = entry.selectionHitbox;
+  materializePropHitbox(def);
+  return def;
 }
 
 /**
@@ -142,7 +97,7 @@ export async function loadPropCatalog(
     // with no body transfer, so no explicit app-level cache is needed.
     const bundleRes = await fetch(BUNDLE_URL).catch(() => null);
     if (bundleRes?.ok) {
-      const bundle = (await bundleRes.json()) as { version?: string; props?: Record<string, string> };
+      const bundle = (await bundleRes.json()) as { version?: string; props?: Record<string, BundlePropEntry> };
       if (bundle.props && typeof bundle.props === 'object') {
         const names = Object.keys(bundle.props);
         if (onProgress) onProgress(0, names.length);
@@ -150,7 +105,7 @@ export async function loadPropCatalog(
         let parsed = 0;
         for (const name of names) {
           try {
-            props[name] = parsePropFile(bundle.props[name]!);
+            props[name] = parseBundleEntry(bundle.props[name]!);
           } catch (e) {
             console.warn('[prop-catalog] Failed to parse prop', name, e);
           }
@@ -179,6 +134,7 @@ export async function loadPropCatalog(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       const def = parsePropFile(text);
+      materializePropHitbox(def);
       loaded++;
       if (onProgress) onProgress(loaded, propNames.length);
       return { name, def };
@@ -222,7 +178,6 @@ export function getPropCatalog(): PropCatalog | null {
  */
 export function clearPropCatalogCache(): void {
   cachedCatalog = null;
-  backgroundHitboxScheduled = false;
 }
 
 function buildEmptyCatalog() {
@@ -271,33 +226,4 @@ export function ensurePropHitboxesForMap(dungeon: Dungeon): void {
     const def = cachedCatalog.props[t];
     if (def) materializePropHitbox(def);
   }
-}
-
-let backgroundHitboxScheduled = false;
-
-/**
- * Schedule background materialization of all remaining prop hitboxes.
- * Uses requestIdleCallback (setTimeout fallback) to chunk the work so it
- * doesn't block the main thread. Safe to call multiple times — runs once.
- */
-export function scheduleBackgroundPropHitboxGen(): void {
-  if (backgroundHitboxScheduled || !cachedCatalog) return;
-  backgroundHitboxScheduled = true;
-
-  const defs = Object.values(cachedCatalog.props);
-  let i = 0;
-
-  const ric: (cb: (deadline: { timeRemaining(): number }) => void) => void =
-    (window as unknown as { requestIdleCallback?: (cb: (d: { timeRemaining(): number }) => void) => void })
-      .requestIdleCallback ?? ((cb) => setTimeout(() => cb({ timeRemaining: () => 8 }), 16));
-
-  function runChunk(deadline: { timeRemaining(): number }) {
-    while (i < defs.length && deadline.timeRemaining() > 1) {
-      materializePropHitbox(defs[i]!);
-      i++;
-    }
-    if (i < defs.length) ric(runChunk);
-  }
-
-  ric(runChunk);
 }

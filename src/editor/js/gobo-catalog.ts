@@ -12,7 +12,16 @@ const CACHE_VER_KEY = 'gobo-catalog-ver';
 
 let catalog: GoboCatalog | null = null;
 
-const VALID_PATTERNS: GoboPattern[] = ['grid', 'slats', 'sigil', 'caustics', 'dapple', 'stained-glass'];
+const VALID_PATTERNS: GoboPattern[] = [
+  'grid',
+  'slats',
+  'sigil',
+  'caustics',
+  'dapple',
+  'stained-glass',
+  'diamond',
+  'cross',
+];
 
 function parseGoboText(id: string, text: string): GoboDefinition {
   const header: Record<string, string> = {};
