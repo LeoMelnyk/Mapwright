@@ -4144,7 +4144,8 @@ dialog.mw-modal-overlay::backdrop {
 }
 
 /* ── Prop Edit Dialog (floating, draggable) ── */
-#prop-edit-dialog {
+#prop-edit-dialog,
+#light-edit-dialog {
   position: fixed;
   top: 120px;
   right: 360px;
@@ -4160,7 +4161,12 @@ dialog.mw-modal-overlay::backdrop {
   user-select: none;
   overflow: hidden;
 }
-#prop-edit-dialog.pe-dragging {
+#light-edit-dialog {
+  top: 160px;
+  right: 400px;
+}
+#prop-edit-dialog.pe-dragging,
+#light-edit-dialog.pe-dragging {
   opacity: 0.9;
 }
 
@@ -4240,8 +4246,21 @@ dialog.mw-modal-overlay::backdrop {
   background: none;
   cursor: pointer;
 }
+.pe-row input[type="range"] {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
 .pe-row input[type="checkbox"] {
   justify-self: start;
+}
+.pe-row .pe-value {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 40px;
+  text-align: right;
+  white-space: nowrap;
 }
 .pe-row .pe-btn {
   padding: 2px 6px;

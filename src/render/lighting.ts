@@ -732,19 +732,22 @@ export function getEffectiveLight(light: Light, time: number): Light {
   if (angleOverride !== null) result.angle = angleOverride;
 
   // Color modulation. `auto` shifts hue toward red as intensity dips below
-  // baseline; `secondary` blends `color ↔ colorSecondary` driven by the
-  // same waveform. Both clamp at the source color when there's nothing to do.
+  // baseline (physical flame-redshift model, so only below-baseline counts).
+  // `secondary` blends `color ↔ colorSecondary` symmetrically around baseline
+  // — the secondary shows during the bright peak as well as the dim trough,
+  // so a pulse/flicker visibly cycles through the two colors.
   if (a.colorMode && a.colorMode !== 'none' && light.color) {
     const cv = a.colorVariation ?? 0.5;
-    const dip = Math.max(0, Math.min(1, 1 - intensityMult)); // 0 at peak, ~1 at trough
     if (a.colorMode === 'auto') {
+      const dip = Math.max(0, Math.min(1, 1 - intensityMult));
       // Negative hue shift = redward (assumes warm starting hue ~30°). For
       // cool magical lights this still reads as "the color got darker and
       // shifted along its own hue ring," which is acceptable.
       result.color = shiftHexHue(light.color, -COLOR_SHIFT_MAX_DEG * dip * cv, -0.05 * dip * cv);
     } else if (a.colorSecondary) {
-      // colorMode is 'secondary' here (narrowed from 'auto' | 'secondary').
-      result.color = mixHex(light.color, a.colorSecondary, dip * cv);
+      // Symmetric deviation from baseline — peaks and troughs both shift.
+      const dev = Math.min(1, Math.abs(1 - intensityMult));
+      result.color = mixHex(light.color, a.colorSecondary, dev * cv);
     }
   }
 

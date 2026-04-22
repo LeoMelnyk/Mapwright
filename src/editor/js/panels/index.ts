@@ -27,3 +27,4 @@ export { initBackgroundImagePanel } from './background-image.js';
 export { initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper } from './keybindings-helper.js';
 export { initDebugPanel } from './debug.js';
 export { initPropEditDialog, openPropEditDialog, closePropEditDialog, isPropEditDialogOpen } from './prop-edit.js';
+export { initLightEditDialog, openLightEditDialog, closeLightEditDialog, isLightEditDialogOpen } from './light-edit.js';

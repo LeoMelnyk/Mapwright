@@ -5,6 +5,7 @@ import state, { mutate, markDirty, invalidateLightmap, notify, undo } from '../s
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 import { getLightCatalog } from '../light-catalog.js';
+import { openLightEditDialog } from '../panels/light-edit.js';
 import { showToast } from '../toast.js';
 
 const LIGHT_HIT_RADIUS = 14; // pixels at screen scale for click detection — sized to the bulb icon
@@ -166,6 +167,13 @@ export class LightTool extends Tool {
     // Unified: hit-test first — select+drag if over a light, place otherwise
     const hit = hitTestLight(pos!);
     if (hit) {
+      // Double-click on a light opens the edit dialog (no drag).
+      if (event.detail === 2) {
+        state.selectedLightId = hit.id;
+        notify();
+        openLightEditDialog(hit.id);
+        return;
+      }
       this._startSelectOrDrag(pos);
     } else if (state.lightPreset) {
       this._placeLight(pos, event);
@@ -320,6 +328,16 @@ export class LightTool extends Tool {
   }
 
   onKeyDown(e: KeyboardEvent) {
+    // Enter on a selected light opens the edit dialog.
+    if (e.key === 'Enter' && state.selectedLightId != null) {
+      const target = e.target as HTMLElement | null;
+      // Don't hijack Enter while the user is typing in an input/textarea.
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      e.preventDefault();
+      openLightEditDialog(state.selectedLightId);
+      return;
+    }
+
     // Delete selected light
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (state.selectedLightId != null) {

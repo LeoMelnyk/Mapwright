@@ -53,6 +53,7 @@ import {
   toggleKeybindingsHelper,
   initDebugPanel,
   initPropEditDialog,
+  initLightEditDialog,
   updateToolButtons,
   setSubMode,
 } from './panels/index.js';
@@ -254,6 +255,9 @@ export async function initApp(
 
   // Prop edit dialog (floating, opens on double-click / Enter)
   initPropEditDialog();
+
+  // Light edit dialog (floating, opens on double-click / Enter on a selected light)
+  initLightEditDialog();
 
   // Keybindings helper (floating panel)
   initKeybindingsHelper();
