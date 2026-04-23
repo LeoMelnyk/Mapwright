@@ -44,6 +44,7 @@ export const cvState: {
   sessionOverlayFn: ((ctx: CanvasRenderingContext2D, ...args: unknown[]) => void) | null;
   sessionClickFn: ((px: number, py: number, transform: unknown, gridSize: number) => boolean) | null;
   dmFogOverlayFn: ((ctx: CanvasRenderingContext2D, ...args: unknown[]) => void) | null;
+  weatherOverlayFn: ((ctx: CanvasRenderingContext2D, ...args: unknown[]) => void) | null;
   isPanning: boolean;
   panStartX: number;
   panStartY: number;
@@ -125,6 +126,9 @@ export const cvState: {
 
   // DM fog overlay callback (always rendered when session active, regardless of active panel)
   dmFogOverlayFn: null,
+
+  // Weather group overlay callback (renders colored tint over cells assigned to weather groups)
+  weatherOverlayFn: null,
 
   // Pan state
   isPanning: false,

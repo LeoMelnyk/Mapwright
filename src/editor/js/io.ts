@@ -16,6 +16,7 @@ import {
   renderDungeonToCanvas,
   invalidatePropsCache,
   invalidateAllCaches,
+  clearWeatherCache,
   normalizeTheme,
   THEMES,
   BRIDGE_TEXTURE_IDS,
@@ -699,6 +700,9 @@ export async function newDungeon(): Promise<void> {
   state.selectedCells = [];
   state.fileHandle = null;
   state.fileName = null;
+  // The weather cache holds a canvas sized for the previous map — drop it so
+  // the first render of the new map allocates at the right dimensions.
+  clearWeatherCache();
   markDirty();
   state.unsavedChanges = false;
   notify();

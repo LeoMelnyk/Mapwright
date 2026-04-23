@@ -57,8 +57,33 @@ export function onMouseDown(e: MouseEvent): void {
     return;
   }
 
-  // Right-click: start tracking — will become pan (drag) or erase (click)
+  // Middle-click: pan. Unlike right-click pan, middle-click is unambiguous —
+  // no tools claim it, so it's the one pan gesture that always works.
+  if (e.button === 1) {
+    cvState.isPanning = true;
+    cvState.panStartX = pos.x;
+    cvState.panStartY = pos.y;
+    cvState.panStartPanX = state.panX;
+    cvState.panStartPanY = state.panY;
+    cvState.canvas!.style.cursor = 'grabbing';
+    e.preventDefault();
+    return;
+  }
+
+  // Right-click: start tracking — will become pan (drag) or erase (click).
+  // Tools that opt in via `claimsRightDrag` receive right-button events as
+  // regular `onMouseDown` calls instead (see Tool.claimsRightDrag).
   if (e.button === 2) {
+    if (cvState.activeTool?.claimsRightDrag) {
+      const transform = getTransform();
+      const gridSize = state.dungeon.metadata.gridSize;
+      const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
+      const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+      cvState.activeTool.onMouseDown(cell.row, cell.col, edge, e, pos);
+      requestRender();
+      e.preventDefault();
+      return;
+    }
     // If tool has an active drag, cancel it immediately
     if (cvState.activeTool?.onCancel()) {
       requestRender();

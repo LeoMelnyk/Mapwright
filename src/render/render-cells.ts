@@ -162,8 +162,10 @@ export function renderCells(
     );
   }
 
-  // Hazard overlay — topmost layer, renders above everything
+  // Hazard overlay — topmost map content layer (below weather + lightmap)
   if (!skipPhases?.hazard) {
     _t('hazard', () => renderHazardOverlay(ctx, cells, gridSize, transform));
   }
+  // Weather is rendered separately above the cells cache in canvas-view so
+  // slider changes don't force a cells-layer rebuild.
 }

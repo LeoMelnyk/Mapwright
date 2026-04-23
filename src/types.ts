@@ -89,6 +89,8 @@ export interface Cell {
   lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
+  /** ID of the weather group this cell belongs to. See {@link WeatherGroup}. */
+  weatherGroupId?: string;
 }
 
 /** The 2D cell grid. null entries are void (no floor). */
@@ -358,6 +360,48 @@ export interface Window {
   ceilingHeight?: number;
 }
 
+// ── Weather ────────────────────────────────────────────────────────────────
+
+/** Weather particle type for a weather group. */
+export type WeatherType = 'rain' | 'snow' | 'ash' | 'embers' | 'sandstorm' | 'fog' | 'leaves';
+
+/**
+ * A weather group bundles a weather configuration (type, intensity, wind,
+ * lightning) and a set of cells that experience it. Each cell may belong to
+ * at most one group (enforced by assignment UI, not the schema).
+ *
+ * Groups live on metadata so the map serializes them alongside lights and
+ * stairs. Cells reference the group by `weatherGroupId`.
+ */
+export interface WeatherGroup {
+  id: string;
+  name: string;
+  /** Index into an auto-assigned color palette; determines the overlay hue. */
+  colorIndex: number;
+  type: WeatherType;
+  /** Particle density, 0–1. */
+  intensity: number;
+  wind: {
+    /** Degrees, 0 = north (up), clockwise. */
+    direction: number;
+    /** Strength of horizontal drift, 0–1. */
+    intensity: number;
+  };
+  lightning: {
+    enabled: boolean;
+    /** Flash brightness, 0–1. */
+    intensity: number;
+    /** Strikes per second, roughly 0 (never) – 1 (constant). */
+    frequency: number;
+    /** Hex color used to tint the flash. Defaults to a pale blue-white if absent. */
+    color?: string;
+  };
+  /** Optional hex color override for particles (e.g. red for blood rain). */
+  particleColor?: string;
+  /** Shared atmospheric haze density, 0–1. Independent of particle type. */
+  hazeDensity: number;
+}
+
 // ── Levels ─────────────────────────────────────────────────────────────────
 
 /** A dungeon level (floor) definition. */
@@ -448,6 +492,11 @@ export interface Metadata {
    */
   ambientAnimation?: LightAnimationConfig | null;
   backgroundMusic?: string;
+  /**
+   * Weather groups on the map. Cells reference these by `weatherGroupId`.
+   * See {@link WeatherGroup}.
+   */
+  weatherGroups?: WeatherGroup[];
   [key: string]: unknown;
 }
 
@@ -944,6 +993,12 @@ export interface EditorState {
   session: { active: boolean; playerCount: number };
   sessionToolsActive: boolean;
   statusInstruction: string | null;
+
+  // Weather
+  /** ID of the currently selected weather group in the Weather panel (drives assign mode). */
+  selectedWeatherGroupId: string | null;
+  /** When true, the editor renders a color overlay per cell showing weather-group membership. */
+  showWeatherOverlay: boolean;
 
   // Debug
   debugShowHitboxes: boolean;

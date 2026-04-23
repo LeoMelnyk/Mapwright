@@ -15,6 +15,7 @@ import {
   captureBeforeState,
   smartInvalidate,
   normalizeTheme as normalizeRenderTheme,
+  markWeatherFullRebuild,
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
@@ -107,6 +108,9 @@ const state: EditorState = {
   session: { active: false, playerCount: 0 },
   sessionToolsActive: false, // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null, // string or null — shown in #status-center when set
+  // Weather
+  selectedWeatherGroupId: null, // null = no group selected; when set, cell-assignment mode is active
+  showWeatherOverlay: false, // force-on while a group is selected; otherwise user-toggled
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
   debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
   _lastPushUndoMs: null,
@@ -362,6 +366,10 @@ export function undo(): void {
   }
 
   markPropSpatialDirty();
+  // Weather has its own cache that's invalidated by explicit version bumps;
+  // undo/redo may restore weatherGroups config or change cell assignments in
+  // ways that don't flow through the weather tool's own bump calls.
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }
@@ -423,6 +431,7 @@ export function redo(): void {
   }
 
   markPropSpatialDirty();
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }
@@ -454,6 +463,7 @@ export function jumpToState(targetIndex: number): void {
   }
   markPropSpatialDirty();
   invalidateLightmap();
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }

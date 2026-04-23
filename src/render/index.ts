@@ -103,6 +103,21 @@ export {
   drawBufferShading,
   invalidateEffectsCache,
 } from './effects.js';
+// Weather — atmospheric effects (particles + haze + lightning) per weather group
+export {
+  renderWeatherEffects,
+  renderWeatherHaze,
+  renderWeatherParticles,
+  updateWeatherCache,
+  blitWeatherCache,
+  invalidateWeatherCache,
+  clearWeatherCache,
+  markWeatherFullRebuild,
+  markWeatherCellDirty,
+  extractWeatherLightningLights,
+  hasActiveWeatherLightning,
+  hasActiveWeatherParticles,
+} from './render-weather.js';
 // Room cell detection — used by player fog overlay for hatching
 export { determineRoomCells } from './floors.js';
 
@@ -114,6 +129,7 @@ import { invalidateGeometryCache, invalidateBlendLayerCache, bumpContentVersion 
 import { invalidateFluidCache } from './fluid.js';
 import { invalidateVisibilityCache } from './lighting.js';
 import { invalidatePropsCache } from './props.js';
+import { clearWeatherCache } from './render-weather.js';
 import { log } from '../util/index.js';
 export function invalidateAllCaches(): void {
   log.devTrace(`invalidateAllCaches() — full cache teardown`);
@@ -122,5 +138,6 @@ export function invalidateAllCaches(): void {
   invalidateBlendLayerCache();
   invalidateVisibilityCache();
   invalidatePropsCache();
+  clearWeatherCache();
   bumpContentVersion();
 }

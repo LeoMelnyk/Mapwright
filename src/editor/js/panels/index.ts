@@ -14,6 +14,7 @@ export { init as initMetadata } from './metadata.js';
 export { init as initLevels, selectLevel } from './levels.js';
 export { initHistoryPanel } from './history.js';
 export { initLightingPanel } from './lighting.js';
+export { initWeatherPanel, WEATHER_PALETTE, renderWeatherGroupOverlay } from './weather.js';
 export { initSessionPanel } from './session.js';
 export { initTexturesPanel, renderTexturesPanel, selectTexture } from './textures.js';
 export {

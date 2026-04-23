@@ -16,12 +16,14 @@ import {
   EraseTool,
   LightTool,
   FillTool,
+  WeatherTool,
 } from './tools/index.js';
 import { sessionState } from './dm-session.js';
 import { setSessionTool } from './canvas-view.js';
 import { getToolCursor, updateToolButtons, getActivePanel, refreshKeybindingsHelper } from './panels/index.js';
 import { initApp } from './app-init.js';
 import { initKeyboardShortcuts } from './keyboard-shortcuts.js';
+import { initRangeSliderWheel } from './range-wheel.js';
 import type { Tool } from './tools/tool-base.js';
 
 // Tool registry
@@ -40,6 +42,7 @@ const tools = {
   prop: new PropTool(),
   erase: new EraseTool(),
   light: new LightTool(),
+  weather: new WeatherTool(),
 };
 
 function setTool(name: string) {
@@ -118,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
   void (async () => {
     // Bootstrap the application
     await initApp(tools, setTool, updateSessionToolsMode);
+
+    // Scroll-wheel support for every range slider (delegated).
+    initRangeSliderWheel();
 
     // Wire keyboard shortcuts
     const { onKeyDown, onKeyUp } = initKeyboardShortcuts(tools, setTool);

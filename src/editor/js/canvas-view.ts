@@ -250,6 +250,14 @@ export function setDmFogOverlay(fn: ((...args: unknown[]) => void) | null): void
 }
 
 /**
+ * Set the weather-group overlay render callback. Rendered above floors, below
+ * walls — shows which cells belong to which weather group (editor only).
+ */
+export function setWeatherOverlay(fn: ((...args: unknown[]) => void) | null): void {
+  cvState.weatherOverlayFn = fn;
+}
+
+/**
  * Set the active session tool (e.g. range detector, fog reveal).
  * @param {Object|null} tool - The session tool instance, or null to deactivate.
  * @returns {void}

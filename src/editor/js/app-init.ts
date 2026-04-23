@@ -31,7 +31,13 @@ import {
   openStairs,
   setRangeHighlightCallback,
 } from './dm-session.js';
-import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay } from './canvas-view.js';
+import {
+  setSessionOverlay,
+  setSessionTool,
+  setSessionRangeTool,
+  setDmFogOverlay,
+  setWeatherOverlay,
+} from './canvas-view.js';
 import {
   initToolbar,
   setToolChangeCallback,
@@ -43,6 +49,8 @@ import {
   initLevels,
   initHistoryPanel,
   initLightingPanel,
+  initWeatherPanel,
+  renderWeatherGroupOverlay,
   initSessionPanel,
   initTexturesPanel,
   renderTexturesPanel,
@@ -245,6 +253,10 @@ export async function initApp(
   const lightingContainer = document.getElementById('lighting-panel-content');
   if (lightingContainer) initLightingPanel(lightingContainer);
 
+  // Init weather panel
+  const weatherContainer = document.getElementById('weather-panel-content');
+  if (weatherContainer) initWeatherPanel(weatherContainer);
+
   // Init session panel
   const sessionContainer = document.getElementById('session-panel-content');
   if (sessionContainer) initSessionPanel(sessionContainer);
@@ -307,6 +319,9 @@ export async function initApp(
 
   // Wire DM fog overlay (tints unrevealed cells for the DM's reference)
   setDmFogOverlay(renderDmFogOverlay as unknown as (...args: unknown[]) => void);
+
+  // Wire weather group overlay (editor-only color wash showing group membership)
+  setWeatherOverlay(renderWeatherGroupOverlay as unknown as (...args: unknown[]) => void);
 
   // ── Range detector (session tool) ────────────────────────────────────────
   const dmRangeTool = new RangeTool(

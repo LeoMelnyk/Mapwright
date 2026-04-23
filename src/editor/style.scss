@@ -2520,6 +2520,224 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   background: rgba(255, 68, 68, 0.15);
 }
 
+// ── Weather panel ──────────────────────────────────────────────────────────
+#right-panel-weather {
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#weather-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weather-section {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.weather-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.weather-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.weather-empty {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 6px 0;
+}
+
+.weather-group-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 22px 4px 6px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  background: var(--btn-bg);
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--btn-hover-bg, rgba(255, 255, 255, 0.05));
+  }
+
+  &.active {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.weather-group-delete {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 14px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+
+.weather-group-row:hover .weather-group-delete {
+  display: block;
+}
+
+.weather-group-delete:hover {
+  background: #a02030;
+  color: #fff;
+  border-color: #a02030;
+}
+
+.weather-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.weather-group-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-group-count {
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.weather-btn {
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--btn-hover-bg, rgba(255, 255, 255, 0.05));
+  }
+}
+
+.weather-btn-primary {
+  width: 100%;
+  margin-top: 6px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+.weather-editor {
+  padding: 6px 8px;
+  margin: 4px 0 8px;
+  border-left: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.weather-field,
+.weather-slider-row,
+.weather-field-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.weather-field-disabled {
+  opacity: 0.5;
+  cursor: help;
+}
+
+.weather-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 68px;
+  flex-shrink: 0;
+}
+
+.weather-field input[type="text"],
+.weather-field select {
+  flex: 1;
+  min-width: 0;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.weather-field input[type="color"] {
+  width: 32px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+
+.weather-slider-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.weather-value {
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 36px;
+  text-align: right;
+}
+
+// Dim the drawing toolbar while in cell-assignment mode so the user knows the
+// main tools are inert until they exit the weather group assignment.
+body.weather-assign-active #drawing-toolbar {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: saturate(0.4);
+}
+
 .light-list-item {
   display: flex;
   align-items: center;

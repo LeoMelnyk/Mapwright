@@ -13,5 +13,6 @@ export { PropTool } from './tool-prop.js';
 export { EraseTool } from './tool-erase.js';
 export { LightTool } from './tool-light.js';
 export { FillTool } from './tool-fill.js';
+export { WeatherTool } from './tool-weather.js';
 export { RangeTool } from './tool-range.js';
 export { FogRevealTool } from './tool-fog-reveal.js';

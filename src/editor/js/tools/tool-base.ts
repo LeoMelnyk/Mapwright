@@ -20,6 +20,14 @@ export class Tool {
   icon: string;
   cursor: string;
   dragging: unknown = false;
+  /**
+   * When true, the canvas routes right-button mouse events (mousedown,
+   * mousemove during hold, mouseup) to this tool as regular `onMouseDown` /
+   * `onMouseMove` / `onMouseUp` calls instead of treating them as pan-drag
+   * plus `onRightClick`. The tool can inspect `event.button === 2` to
+   * distinguish right from left. Default false: right-drag pans the view.
+   */
+  claimsRightDrag: boolean = false;
 
   constructor(name: string, icon: string, cursor: string = 'crosshair') {
     this.name = name;
