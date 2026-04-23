@@ -514,7 +514,6 @@ export function renderWeatherGroupOverlay(
   const cells = state.dungeon.cells;
   const selectedId = state.selectedWeatherGroupId;
   const rows = cells.length;
-  const cols = cells[0]?.length ?? 0;
 
   // Pass 1: translucent fill per cell
   ctx.save();

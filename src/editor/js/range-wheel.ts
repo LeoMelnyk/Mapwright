@@ -24,7 +24,7 @@ export function initRangeSliderWheel(): void {
       if (!Number.isNaN(max)) next = Math.min(max, next);
 
       // Snap to step precision to avoid floating-point drift (e.g. 0.1 + 0.2).
-      const decimals = (target.step.split('.')[1] || '').length;
+      const decimals = (target.step.split('.')[1] ?? '').length;
       if (decimals > 0) next = parseFloat(next.toFixed(decimals));
 
       if (next === current) return;
