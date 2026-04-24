@@ -3,6 +3,7 @@
 // Assigns to window.editorAPI when the editor is ready.
 
 import { _setApi, getThemeCatalog, state } from './_shared.js';
+import { getPropCatalog } from '../prop-catalog.js';
 
 // Category modules
 import * as mapManagement from './map-management.js';
@@ -104,7 +105,12 @@ function waitForReady(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- catalogs load async; null until ready
-      if (document.getElementById('editor-canvas') && state.dungeon && getThemeCatalog() !== null) {
+      if (
+        document.getElementById('editor-canvas') &&
+        state.dungeon &&
+        getThemeCatalog() !== null &&
+        getPropCatalog() !== null
+      ) {
         window.editorAPI = api as EditorAPI;
         console.log('[editor-api] API ready — window.editorAPI available');
         resolve();
