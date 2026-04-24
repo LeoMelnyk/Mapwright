@@ -453,12 +453,12 @@ describe('invalidateLightmap', () => {
     vi.mocked(invalidateVisibilityCache).mockClear();
   });
 
-  it('calls invalidateVisibilityCache with true by default', () => {
+  it('calls invalidateVisibilityCache with "walls" scope by default', () => {
     invalidateLightmap();
-    expect(invalidateVisibilityCache).toHaveBeenCalledWith(true);
+    expect(invalidateVisibilityCache).toHaveBeenCalledWith('walls');
   });
 
-  it('passes structuralChange argument through', () => {
+  it('passes boolean scope argument through (legacy compat)', () => {
     invalidateLightmap(false);
     expect(invalidateVisibilityCache).toHaveBeenCalledWith(false);
   });
@@ -944,8 +944,8 @@ describe('hybrid undo', () => {
     });
 
     expect(state.undoStack.length).toBe(2);
-    expect(state.undoStack[0].json).toBeDefined();  // full snapshot
-    expect(state.undoStack[1].patch).toBeDefined();  // compact patch
+    expect(state.undoStack[0].json).toBeDefined(); // full snapshot
+    expect(state.undoStack[1].patch).toBeDefined(); // compact patch
 
     // Undo the patch — restores cells to before-state
     undo();

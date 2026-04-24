@@ -41,3 +41,11 @@ Attach DM-only metadata to rooms beyond labels: encounter data, notes, triggers,
 Import maps from Dungeondraft, Foundry VTT, or other mapping tools. Would dramatically help adoption but requires reverse-engineering each format.
 
 **Blocked on:** Obtaining sample files and understanding the data models of each source format.
+
+## Per-Player View Preferences
+
+Let individual players toggle client-side visual settings without affecting the DM's broadcast. First use case: disable weather particles on low-end machines (weather haze would still render so the atmosphere is intact, but the per-frame particle pass is skipped). Natural companion settings: reduce lighting quality, cap rAF rate, disable fog edge shading/hatching.
+
+**Why not now:** The player view is currently a pure mirror of the DM broadcast — no local UI, no local settings panel, no persisted preferences. Introducing client-side state needs a small settings panel, a localStorage-backed preferences store, and render-loop predicates that check those prefs alongside the map metadata. Deferred until the player view grows other interactive features.
+
+**When to revisit:** When adding any player-side UI (e.g. player-controlled tokens, ruler tools, or a player-side sidebar) — roll this in as part of that effort so the settings scaffolding is built once.

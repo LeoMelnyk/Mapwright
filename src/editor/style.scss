@@ -1325,6 +1325,79 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   cursor: pointer;
 }
 
+.window-edit-popover {
+  z-index: 10000;
+  background: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  padding: 8px 10px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+
+  .window-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    label {
+      flex: 0 0 52px;
+      font-weight: 500;
+    }
+
+    .window-edit-gobo {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .window-edit-tint {
+      flex: 0 0 28px;
+      height: 22px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .window-edit-clear {
+      background: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 11px;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--bg);
+      }
+    }
+
+    .window-edit-floor,
+    .window-edit-ceiling {
+      flex: 1;
+      min-width: 0;
+      height: 22px;
+      padding: 0 4px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--panel-bg);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .window-edit-unit {
+      flex: 0 0 auto;
+      opacity: 0.7;
+    }
+  }
+}
+
 /* ─── Right Sidebar ──────────────────────────────────────────────────────── */
 
 #right-sidebar {
@@ -1417,6 +1490,21 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   gap: 4px;
   padding: 8px 8px 6px;
   border-bottom: 1px solid var(--border);
+}
+
+/* Secondary toolbar: collapse/expand (left) + size toggle (right) */
+.prop-size-row {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.prop-size-row-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 /* Scrollable prop categories */
@@ -1571,9 +1659,14 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 
 .prop-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--prop-cols, 3), 1fr);
   gap: 4px;
   margin-bottom: 8px;
+  // Skip style/layout/paint for category grids that are scrolled out of view.
+  // Applied at the grid level rather than per-thumb so the browser runs ~35
+  // intersection checks (one per category) instead of ~1400 (one per thumb).
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 
 .prop-thumb {
@@ -1623,10 +1716,24 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   background: var(--accent-dim);
 }
 .prop-thumb canvas {
-  width: 40px;
-  height: 40px;
+  width: var(--prop-thumb-w, 40px);
+  height: var(--prop-thumb-h, 40px);
   border-radius: 3px;
   image-rendering: crisp-edges;
+}
+#prop-explorer[data-size="2"] {
+  --prop-cols: 2;
+  --prop-thumb-w: 80px;
+  --prop-thumb-h: 80px;
+}
+#prop-explorer[data-size="1"] {
+  --prop-cols: 1;
+  --prop-thumb-w: 100%;
+  --prop-thumb-h: auto;
+}
+#prop-explorer[data-size="1"] .prop-thumb canvas,
+#prop-explorer[data-size="1"] .prop-thumb-shimmer {
+  aspect-ratio: 1 / 1;
 }
 .prop-thumb span {
   font-size: 10px;
@@ -1650,8 +1757,8 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .prop-category-title.open .collapse-arrow { transform: rotate(90deg); }
 
 .prop-thumb-shimmer {
-  width: 40px;
-  height: 40px;
+  width: var(--prop-thumb-w, 40px);
+  height: var(--prop-thumb-h, 40px);
   border-radius: 3px;
   background: linear-gradient(90deg, var(--btn-bg) 25%, var(--btn-hover) 50%, var(--btn-bg) 75%);
   background-size: 200% 100%;
@@ -2062,6 +2169,10 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   color: var(--text);
   background: var(--btn-hover);
 }
+.texture-action-btn.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
 
 /* Scrollable grid area */
 .texture-scroll-area {
@@ -2409,6 +2520,224 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   background: rgba(255, 68, 68, 0.15);
 }
 
+// ── Weather panel ──────────────────────────────────────────────────────────
+#right-panel-weather {
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#weather-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weather-section {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.weather-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.weather-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.weather-empty {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  padding: 6px 0;
+}
+
+.weather-group-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 22px 4px 6px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  background: var(--btn-bg);
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--btn-hover-bg, rgba(255, 255, 255, 0.05));
+  }
+
+  &.active {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.weather-group-delete {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 14px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1;
+}
+
+.weather-group-row:hover .weather-group-delete {
+  display: block;
+}
+
+.weather-group-delete:hover {
+  background: #a02030;
+  color: #fff;
+  border-color: #a02030;
+}
+
+.weather-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.weather-group-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-group-count {
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.weather-btn {
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--btn-hover-bg, rgba(255, 255, 255, 0.05));
+  }
+}
+
+.weather-btn-primary {
+  width: 100%;
+  margin-top: 6px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+.weather-editor {
+  padding: 6px 8px;
+  margin: 4px 0 8px;
+  border-left: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.weather-field,
+.weather-slider-row,
+.weather-field-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.weather-field-disabled {
+  opacity: 0.5;
+  cursor: help;
+}
+
+.weather-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  min-width: 68px;
+  flex-shrink: 0;
+}
+
+.weather-field input[type="text"],
+.weather-field select {
+  flex: 1;
+  min-width: 0;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.weather-field input[type="color"] {
+  width: 32px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+
+.weather-slider-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.weather-value {
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 36px;
+  text-align: right;
+}
+
+// Dim the drawing toolbar while in cell-assignment mode so the user knows the
+// main tools are inert until they exit the weather group assignment.
+body.weather-assign-active #drawing-toolbar {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: saturate(0.4);
+}
+
 .light-list-item {
   display: flex;
   align-items: center;
@@ -2738,6 +3067,22 @@ dialog.mw-modal-overlay::backdrop {
 .mw-modal-field input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.mw-modal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mw-modal-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
 }
 
 .mw-modal-row {
@@ -4033,7 +4378,8 @@ dialog.mw-modal-overlay::backdrop {
 }
 
 /* ── Prop Edit Dialog (floating, draggable) ── */
-#prop-edit-dialog {
+#prop-edit-dialog,
+#light-edit-dialog {
   position: fixed;
   top: 120px;
   right: 360px;
@@ -4049,7 +4395,12 @@ dialog.mw-modal-overlay::backdrop {
   user-select: none;
   overflow: hidden;
 }
-#prop-edit-dialog.pe-dragging {
+#light-edit-dialog {
+  top: 160px;
+  right: 400px;
+}
+#prop-edit-dialog.pe-dragging,
+#light-edit-dialog.pe-dragging {
   opacity: 0.9;
 }
 
@@ -4129,8 +4480,21 @@ dialog.mw-modal-overlay::backdrop {
   background: none;
   cursor: pointer;
 }
+.pe-row input[type="range"] {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
 .pe-row input[type="checkbox"] {
   justify-self: start;
+}
+.pe-row .pe-value {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 40px;
+  text-align: right;
+  white-space: nowrap;
 }
 .pe-row .pe-btn {
   padding: 2px 6px;

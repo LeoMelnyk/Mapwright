@@ -1,0 +1,18 @@
+{
+  "displayName": "Canopy Dapple",
+  "category": "Utility",
+  "description": "Sunlight filtered through tree leaves — soft moving spots",
+  "type": "point",
+  "color": "#f8f0d0",
+  "radius": 30,
+  "intensity": 0.9,
+  "falloff": "smooth",
+  "z": 25,
+  "cookie": {
+    "type": "dapple",
+    "scale": 1.5,
+    "rotationSpeed": 4,
+    "scrollSpeedX": 0.05,
+    "strength": 0.8
+  }
+}

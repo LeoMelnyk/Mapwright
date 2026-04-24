@@ -4,7 +4,7 @@ import { pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
 import { renderTimings, getTimingFrame } from '../../render/index.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
-import { cvState, CELL_SIZE, MIN_ZOOM, MAX_ZOOM, PAN_THRESHOLD } from './canvas-view-state.js';
+import { cvState, CELL_SIZE, MIN_ZOOM, MAX_ZOOM, PAN_THRESHOLD, noteInteraction } from './canvas-view-state.js';
 import { requestRender, getTransform } from './canvas-view-render.js';
 import { clampPan } from './canvas-view-viewport.js';
 
@@ -57,8 +57,33 @@ export function onMouseDown(e: MouseEvent): void {
     return;
   }
 
-  // Right-click: start tracking — will become pan (drag) or erase (click)
+  // Middle-click: pan. Unlike right-click pan, middle-click is unambiguous —
+  // no tools claim it, so it's the one pan gesture that always works.
+  if (e.button === 1) {
+    cvState.isPanning = true;
+    cvState.panStartX = pos.x;
+    cvState.panStartY = pos.y;
+    cvState.panStartPanX = state.panX;
+    cvState.panStartPanY = state.panY;
+    cvState.canvas!.style.cursor = 'grabbing';
+    e.preventDefault();
+    return;
+  }
+
+  // Right-click: start tracking — will become pan (drag) or erase (click).
+  // Tools that opt in via `claimsRightDrag` receive right-button events as
+  // regular `onMouseDown` calls instead (see Tool.claimsRightDrag).
   if (e.button === 2) {
+    if (cvState.activeTool?.claimsRightDrag) {
+      const transform = getTransform();
+      const gridSize = state.dungeon.metadata.gridSize;
+      const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
+      const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+      cvState.activeTool.onMouseDown(cell.row, cell.col, edge, e, pos);
+      requestRender();
+      e.preventDefault();
+      return;
+    }
     // If tool has an active drag, cancel it immediately
     if (cvState.activeTool?.onCancel()) {
       requestRender();
@@ -165,7 +190,7 @@ export function onMouseMove(e: MouseEvent): void {
     return;
   }
 
-  if (state.activeTool === 'wall' || state.activeTool === 'door') {
+  if (state.activeTool === 'wall' || state.activeTool === 'door' || state.activeTool === 'window') {
     // During a wall drag, the tool sets hoveredEdge itself (axis-locked preview)
     if (!cvState.activeTool?.dragging) {
       state.hoveredEdge = nearestEdge(pos.x, pos.y, transform, gridSize);
@@ -325,18 +350,44 @@ export function onWheel(e: WheelEvent): void {
     return;
   }
 
-  const delta = e.deltaY > 0 ? 0.9 : 1.1;
-  const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom * delta));
+  // Mark zoom interaction so tickAnimLoop pauses lightmap animation rebuilds
+  // until the user stops scrolling (see INTERACTION_QUIET_MS).
+  noteInteraction();
 
-  // Zoom toward cursor
+  // Coalesce rapid wheel events into a single rAF-synced zoom (Fix 2).
+  // Wheel events can arrive 100+/sec; without coalescing each schedules a
+  // render even though requestAnimationFrame collapses them.
+  if (cvState._pendingWheel) {
+    cvState._pendingWheel.deltaY += e.deltaY;
+    cvState._pendingWheel.posX = pos.x;
+    cvState._pendingWheel.posY = pos.y;
+  } else {
+    cvState._pendingWheel = { deltaY: e.deltaY, posX: pos.x, posY: pos.y };
+  }
+  requestRender();
+}
+
+/**
+ * Apply a coalesced wheel zoom. Called by the render loop before draw.
+ * @returns {boolean} True if zoom actually changed.
+ */
+export function flushPendingWheel(): boolean {
+  const pw = cvState._pendingWheel;
+  if (!pw) return false;
+  cvState._pendingWheel = null;
+
+  const delta = pw.deltaY > 0 ? 0.9 : 1.1;
+  const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom * delta));
+  if (newZoom === state.zoom) return false;
+
   const scale = newZoom / state.zoom;
-  state.panX = pos.x - scale * (pos.x - state.panX);
-  state.panY = pos.y - scale * (pos.y - state.panY);
+  state.panX = pw.posX - scale * (pw.posX - state.panX);
+  state.panY = pw.posY - scale * (pw.posY - state.panY);
   state.zoom = newZoom;
 
   markDirty();
-  requestRender();
   notify();
+  return true;
 }
 
 // Internal helper — cancels background cell measure mode

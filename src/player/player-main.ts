@@ -20,7 +20,7 @@ import {
   ensureTexturesLoaded,
   RangeTool,
 } from '../editor/js/index.js';
-import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
+import { BRIDGE_TEXTURE_IDS, markWeatherFullRebuild } from '../render/index.js';
 import { CARDINAL_OFFSETS } from '../util/index.js';
 import type { Dungeon, PropDefinition, Theme, VisibleBounds } from '../types.js';
 
@@ -389,6 +389,9 @@ function handleMessage(msg: WSMessage): void {
 function onSessionInit(msg: SessionInitMessage): void {
   // Clear all old caches before loading the new map
   playerCanvas.clearAll();
+  // The weather haze cache is module-scoped in render-weather; clear it so
+  // stale haze from a prior session can't bleed into the new map.
+  markWeatherFullRebuild();
 
   playerState.dungeon = msg.dungeon;
   playerState.resolvedTheme = msg.resolvedTheme ?? null;
@@ -526,6 +529,10 @@ function onDungeonUpdate(msg: DungeonUpdateMessage): void {
   if (!playerState.dungeon) return;
   playerState.dungeon.cells = msg.cells;
   playerState.dungeon.metadata = msg.metadata;
+  // The DM may have edited weather groups or cell assignments; the weather
+  // cache has no visibility into either, so force a full rebuild. Cheap — it
+  // just flips a flag; the actual redraw runs on the next updateWeatherCache.
+  markWeatherFullRebuild();
   // Idempotent: materializes hitboxes for any newly-introduced prop types
   // so lighting shadows pick them up on the next render.
   ensurePropHitboxesForMap(playerState.dungeon);

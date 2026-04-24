@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 0
-lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#fff4d0","intensity":0.7,"falloff":"quadratic"}]
+gobos: [{"x1":0.15,"y1":0.05,"x2":1.85,"y2":0.05,"zBottom":4,"zTop":7,"gobo":"window-mullions","mode":"aperture"}]
 placement: wall
 room_types: dock-warehouse, warehouse, temple, cathedral, great-hall, barn, workshop
 typical_count: few

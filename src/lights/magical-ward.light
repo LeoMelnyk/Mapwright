@@ -1,0 +1,13 @@
+{
+  "displayName": "Magical Ward",
+  "category": "Magical",
+  "description": "A pulsing crimson sigil — slow strobe with a tight bloom",
+  "type": "point",
+  "color": "#ff2244",
+  "radius": 8,
+  "dimRadius": 14,
+  "intensity": 0.9,
+  "falloff": "smooth",
+  "z": 0.2,
+  "animation": { "type": "strobe", "speed": 0.4, "amplitude": 0.6, "radiusVariation": 0.15 }
+}

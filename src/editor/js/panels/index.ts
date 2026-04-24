@@ -14,6 +14,7 @@ export { init as initMetadata } from './metadata.js';
 export { init as initLevels, selectLevel } from './levels.js';
 export { initHistoryPanel } from './history.js';
 export { initLightingPanel } from './lighting.js';
+export { initWeatherPanel, WEATHER_PALETTE, renderWeatherGroupOverlay } from './weather.js';
 export { initSessionPanel } from './session.js';
 export { initTexturesPanel, renderTexturesPanel, selectTexture } from './textures.js';
 export {
@@ -27,3 +28,4 @@ export { initBackgroundImagePanel } from './background-image.js';
 export { initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper } from './keybindings-helper.js';
 export { initDebugPanel } from './debug.js';
 export { initPropEditDialog, openPropEditDialog, closePropEditDialog, isPropEditDialogOpen } from './prop-edit.js';
+export { initLightEditDialog, openLightEditDialog, closeLightEditDialog, isLightEditDialogOpen } from './light-edit.js';

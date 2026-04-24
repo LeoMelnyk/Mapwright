@@ -8,6 +8,12 @@ import {
   findCompassRosePositionOnMap,
   renderLightmap,
   renderCoverageHeatmap,
+  updateWeatherCache,
+  blitWeatherCache,
+  renderWeatherParticles,
+  extractWeatherLightningLights,
+  hasActiveWeatherLightning,
+  hasActiveWeatherParticles,
   extractFillLights,
   flushRenderWarnings,
   renderTimings,
@@ -25,6 +31,7 @@ import { toCanvas } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
 import { updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
+import { flushPendingWheel } from './canvas-view-input.js';
 import {
   cvState,
   CELL_SIZE,
@@ -84,6 +91,8 @@ export function getTransform(): RenderTransform {
  */
 export function render(): void {
   cvState.animFrameId = null;
+  // Flush any coalesced wheel deltas accumulated since the previous frame (Fix 2).
+  flushPendingWheel();
   const { canvas, ctx } = cvState;
   if (!canvas || !ctx) return;
   const _currentFrame = bumpTimingFrame();
@@ -160,7 +169,7 @@ export function render(): void {
       }
     : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion };
   const lightingEnabled = metadata.lightingEnabled;
-  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
+  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door' || state.activeTool === 'window';
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
 
@@ -173,9 +182,18 @@ export function render(): void {
   (mapCache as unknown as Record<string, unknown>).pxPerFoot = MAP_PX_PER_FOOT;
   const useCache = mapCache.canCache(numRows, numCols, gridSize) && !_skip.cells;
 
+  // Static weather mode freezes particle motion and silences lightning —
+  // the haze layer still renders (it's already cached and pan/zoom-stable).
+  const weatherAnimated = (getEditorSettings().weatherMotion ?? 'animated') !== 'static';
+
   const animClock = state.animClock;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const hasAnimLights = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
+  const hasAnimLightsFromMeta = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
+  // Weather lightning also needs the per-frame lightmap path (so the
+  // mapCache doesn't bake static lighting and stale the flash), so fold it
+  // into the hasAnimLights decision.
+  const hasAnimLights =
+    hasAnimLightsFromMeta || (weatherAnimated && lightingEnabled && hasActiveWeatherLightning(metadata));
 
   if (useCache) {
     const _cacheStart = performance.now();
@@ -231,15 +249,31 @@ export function render(): void {
       const composite = mapCache.getComposite();
       if (composite) {
         const fillLights = extractFillLights(cells, gridSize, theme);
-        const allLights = fillLights.length
-          ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            [...(metadata.lights || []), ...fillLights]
-          : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            metadata.lights || [];
+        const lightningLights = weatherAnimated
+          ? extractWeatherLightningLights(cells, metadata, animClock, gridSize)
+          : [];
+        const allLights =
+          fillLights.length || lightningLights.length
+            ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              [...(metadata.lights || []), ...fillLights, ...lightningLights]
+            : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              metadata.lights || [];
         const LIGHT_PX_PER_FOOT = (getEditorSettings().lightQuality as number) || 10;
         const sx = transform.scale / MAP_PX_PER_FOOT;
         const mapScreenW = composite.cacheW * sx;
         const mapScreenH = composite.cacheH * sx;
+        // Cache key: hash of every input that affects the bitmap itself, but
+        // NOT the destination rect. When transform.scale/offset change (zoom/pan)
+        // we can reuse the cached bitmap and just composite it at a new rect.
+        // Animation time is bucketed to the anim-loop tick rate so we avoid
+        // rebuilding every rAF during rapid zooms.
+        // animClock is seconds; ANIM_INTERVAL_MS is millis — convert before dividing
+        // so the bucket actually increments once per anim tick (not once per 50s).
+        const animBucket = Math.floor((animClock * 1000) / ANIM_INTERVAL_MS);
+        const lightmapCacheKey =
+          `${getLightingVersion()}|${animBucket}|${metadata.ambientLight}|` +
+          `${metadata.ambientColor ?? '#ffffff'}|${LIGHT_PX_PER_FOOT}|` +
+          `${allLights.length}|${metadata.disabledLightGroups?.join(',') ?? ''}`;
         renderLightmap(
           ctx,
           allLights,
@@ -259,6 +293,7 @@ export function render(): void {
             destY: transform.offsetY,
             destW: mapScreenW,
             destH: mapScreenH,
+            cacheKey: lightmapCacheKey,
           },
           metadata,
         );
@@ -299,11 +334,15 @@ export function render(): void {
     if (lightingEnabled && !_skip.lighting) {
       const _lightStart = performance.now();
       const fillLights = extractFillLights(cells, gridSize, theme);
-      const allLights = fillLights.length
-        ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          [...(metadata.lights || []), ...fillLights]
-        : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          metadata.lights || [];
+      const lightningLights = weatherAnimated
+        ? extractWeatherLightningLights(cells, metadata, animClock, gridSize)
+        : [];
+      const allLights =
+        fillLights.length || lightningLights.length
+          ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            [...(metadata.lights || []), ...fillLights, ...lightningLights]
+          : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            metadata.lights || [];
       renderLightmap(
         ctx,
         allLights,
@@ -323,22 +362,48 @@ export function render(): void {
     }
   }
 
-  // Auto-manage animation loop based on animated lights
-  if (lightingEnabled) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const hasAnimLightsLocal = (metadata.lights || []).some((l) => l.animation?.type);
-    if (hasAnimLightsLocal && !cvState.animLoopId) {
-      cvState.animLoopId = setTimeout(_tickAnimLoopRef, ANIM_INTERVAL_MS);
-    } else if (!hasAnimLightsLocal && cvState.animLoopId) {
-      clearTimeout(cvState.animLoopId);
-      cvState.animLoopId = null;
-    }
-    if (state.lightCoverageMode) {
-      renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
-    }
-  } else if (cvState.animLoopId) {
+  // Weather effects — cached offscreen at world-feet resolution; blit per
+  // frame with the viewport transform. `updateWeatherCache` is a cheap
+  // no-op when nothing is dirty, so this costs a single drawImage in the
+  // common case. Pan + zoom never rebuild; only config edits or cell
+  // assignments (both of which mark the cache dirty) do.
+  const _weatherUpdateStart = performance.now();
+  updateWeatherCache(cells, metadata, gridSize, numRows, numCols, MAP_PX_PER_FOOT);
+  const _weatherBlitStart = performance.now();
+  blitWeatherCache(ctx, transform);
+  const _weatherParticlesStart = performance.now();
+  // Particles render directly to the main canvas every frame (not cached) —
+  // they're animated, so caching would defeat the motion. Cheap no-op when
+  // no weather groups have intensity > 0. Static mode uses `time = 0` — the
+  // canonical snapshot pass used by PNG export — so particles are drawn but
+  // frozen (no motion, no re-seeded positions between frames).
+  renderWeatherParticles(ctx, cells, metadata, gridSize, transform, weatherAnimated ? animClock : 0);
+  // Lightning is injected into the lightmap pass as a transient point light
+  // (see extractWeatherLightningLights above), so no dedicated draw here.
+  const _weatherEnd = performance.now();
+  renderTimings.weatherUpdate = { ms: _weatherBlitStart - _weatherUpdateStart, frame: _currentFrame };
+  renderTimings.weatherBlit = { ms: _weatherParticlesStart - _weatherBlitStart, frame: _currentFrame };
+  renderTimings.weatherParticles = { ms: _weatherEnd - _weatherParticlesStart, frame: _currentFrame };
+  renderTimings.weather = { ms: _weatherEnd - _weatherUpdateStart, frame: _currentFrame };
+
+  // Auto-manage animation loop. The loop drives state.animClock, which
+  // feeds lightning strike timing *and* weather particle motion. Tick when
+  // any of: animated lights exist (requires lighting), weather lightning is
+  // active (requires lighting), weather particles need animating (lighting-
+  // independent). Otherwise idle.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const hasAnimLightsLocal = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
+  const needsAnim =
+    hasAnimLightsLocal ||
+    (weatherAnimated && (hasActiveWeatherLightning(metadata) || hasActiveWeatherParticles(metadata)));
+  if (needsAnim && !cvState.animLoopId) {
+    cvState.animLoopId = setTimeout(_tickAnimLoopRef, ANIM_INTERVAL_MS);
+  } else if (!needsAnim && cvState.animLoopId) {
     clearTimeout(cvState.animLoopId);
     cvState.animLoopId = null;
+  }
+  if (lightingEnabled && state.lightCoverageMode) {
+    renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
   }
 
   // Feature decorations (rendered in dungeon coordinate space — pan/zoom with the map)
@@ -521,6 +586,9 @@ export function render(): void {
     ctx.restore();
   }
 
+  // Weather group overlay — colored tint per weather group (editor only)
+  if (cvState.weatherOverlayFn) cvState.weatherOverlayFn(ctx, transform, gridSize);
+
   // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
   if (cvState.dmFogOverlayFn) cvState.dmFogOverlayFn(ctx, transform, gridSize);
 
@@ -622,6 +690,9 @@ export function render(): void {
         ['grid', 'Grid'],
         ['props', 'Props'],
         ['hazard', 'Hazard'],
+        ['weatherUpdate', 'Weather (upd)'],
+        ['weatherBlit', 'Weather (blit)'],
+        ['weatherParticles', 'Weather (particles)'],
         ['lighting', 'Lighting'],
         ['decorations', 'Decor'],
       ];
@@ -878,7 +949,11 @@ function drawLinkSourceHighlight(ctx: CanvasRenderingContext2D, gridSize: number
 }
 
 function drawEdgeHighlight(ctx: CanvasRenderingContext2D, gridSize: number, transform: RenderTransform) {
-  if ((state.activeTool !== 'wall' && state.activeTool !== 'door') || !state.hoveredEdge) return;
+  if (
+    (state.activeTool !== 'wall' && state.activeTool !== 'door' && state.activeTool !== 'window') ||
+    !state.hoveredEdge
+  )
+    return;
   const { direction, row, col } = state.hoveredEdge;
 
   ctx.strokeStyle = 'rgba(255, 200, 50, 0.9)';

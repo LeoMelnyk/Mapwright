@@ -1,0 +1,5 @@
+name: Horizontal Slats
+description: Horizontal blinds, louvered shutters, ladder rungs.
+pattern: slats
+density: 6
+orientation: horizontal

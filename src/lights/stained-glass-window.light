@@ -1,0 +1,13 @@
+{
+  "displayName": "Stained Glass Window",
+  "category": "Utility",
+  "description": "A directional light passing through a stained-glass cookie — colored shards on the floor",
+  "type": "directional",
+  "color": "#fff5dd",
+  "radius": 25,
+  "intensity": 1.2,
+  "falloff": "linear",
+  "z": 12,
+  "spread": 40,
+  "cookie": { "type": "stained-glass", "scale": 1.2, "strength": 0.9 }
+}

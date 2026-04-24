@@ -1,0 +1,5 @@
+name: Portcullis Window
+description: Heavy vertical iron bars behind the opening — prison or fortress window.
+pattern: slats
+density: 4
+orientation: vertical

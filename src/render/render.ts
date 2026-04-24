@@ -10,6 +10,7 @@ export {
   getDirtyRegion,
   consumeDirtyRegion,
   accumulateDirtyRect,
+  markDirtyFullRebuild,
   getBroadcastDirtyRegion,
   consumeBroadcastDirtyRegion,
 } from './render-state.js';

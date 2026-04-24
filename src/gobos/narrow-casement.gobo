@@ -1,0 +1,4 @@
+name: Narrow Casement
+description: Two-pane casement window with a single central mullion.
+pattern: grid
+density: 2

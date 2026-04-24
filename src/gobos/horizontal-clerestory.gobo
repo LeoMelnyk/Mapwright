@@ -1,0 +1,5 @@
+name: Horizontal Clerestory
+description: High horizontal band of windows divided by a single transom.
+pattern: slats
+density: 2
+orientation: horizontal

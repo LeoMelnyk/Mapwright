@@ -493,11 +493,13 @@ export class MapCache {
 
     const lv = p.lightingVersion;
     if (lv !== this._lastLightingVersion) {
-      // Lighting changes only need composite rebuild (lightmap is baked there)
-      if (!p.hasAnimLights) this._compositeDirtySeq++;
-      log.dev(
-        `MapCache.update: lightingVersion ${this._lastLightingVersion} → ${lv}${p.hasAnimLights ? ' (animLights — no composite bump)' : ' → composite rebuild'}`,
-      );
+      // Always invalidate: lighting changes may also toggle hasAnimLights, and
+      // the composite's baked-vs-unbaked lighting state must match the current
+      // hasAnimLights. The downstream bake at the render step is already
+      // guarded by `!hasAnimLights`, so an invalidation here simply forces the
+      // composite to be rebuilt in the correct state.
+      this._compositeDirtySeq++;
+      log.dev(`MapCache.update: lightingVersion ${this._lastLightingVersion} → ${lv} → composite rebuild`);
       this._lastLightingVersion = lv;
     }
 

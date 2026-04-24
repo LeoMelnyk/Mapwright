@@ -15,6 +15,7 @@ import {
   captureBeforeState,
   smartInvalidate,
   normalizeTheme as normalizeRenderTheme,
+  markWeatherFullRebuild,
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
@@ -42,6 +43,7 @@ const state: EditorState = {
   lavaDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
   doorType: 'd', // 'd' (normal) or 's' (secret)
   wallType: 'w', // 'w' (wall) or 'iw' (invisible wall)
+  windowGobo: 'window-mullions', // selected gobo id for newly placed windows
   trimCorner: 'auto', // 'auto', 'nw', 'ne', 'sw', 'se'
   trimRound: false,
   trimInverted: false,
@@ -106,6 +108,9 @@ const state: EditorState = {
   session: { active: false, playerCount: 0 },
   sessionToolsActive: false, // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null, // string or null — shown in #status-center when set
+  // Weather
+  selectedWeatherGroupId: null, // null = no group selected; when set, cell-assignment mode is active
+  showWeatherOverlay: false, // force-on while a group is selected; otherwise user-toggled
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
   debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
   _lastPushUndoMs: null,
@@ -361,6 +366,10 @@ export function undo(): void {
   }
 
   markPropSpatialDirty();
+  // Weather has its own cache that's invalidated by explicit version bumps;
+  // undo/redo may restore weatherGroups config or change cell assignments in
+  // ways that don't flow through the weather tool's own bump calls.
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }
@@ -422,6 +431,7 @@ export function redo(): void {
   }
 
   markPropSpatialDirty();
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }
@@ -453,6 +463,7 @@ export function jumpToState(targetIndex: number): void {
   }
   markPropSpatialDirty();
   invalidateLightmap();
+  markWeatherFullRebuild();
   markDirty();
   notify();
 }
@@ -468,12 +479,11 @@ export function markDirty(): void {
 
 /**
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
- * @param {boolean|'props'} [structuralChange=true] - Pass false for light-only changes,
- *   'props' to clear prop shadow zones but keep cached wall segments.
- * @returns {void}
+ * Prefer passing one of 'walls' | 'props' | 'lights'; boolean forms remain accepted
+ * for backwards compat and map to 'walls' / 'lights' respectively.
  */
-export function invalidateLightmap(structuralChange: boolean | 'props' = true): void {
-  invalidateVisibilityCache(structuralChange);
+export function invalidateLightmap(scope: 'walls' | 'props' | 'lights' | boolean = 'walls'): void {
+  invalidateVisibilityCache(scope);
 }
 
 /**

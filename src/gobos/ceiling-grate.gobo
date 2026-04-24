@@ -1,0 +1,4 @@
+name: Ceiling Grate
+description: 4x4 overhead grate. Reserved for future ceiling-projection mode — not yet used by any prop.
+pattern: grid
+density: 4

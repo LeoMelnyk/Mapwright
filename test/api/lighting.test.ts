@@ -10,6 +10,9 @@ import {
   setAmbientLight,
   setLightingEnabled,
   listLightPresets,
+  setLightGroup,
+  setLightGroupEnabled,
+  listLightGroups,
 } from '../../src/editor/js/api/lighting.js';
 
 // ── Setup ────────────────────────────────────────────────────────────────────
@@ -93,6 +96,16 @@ describe('placeLight', () => {
     expect(light.type).toBe('directional');
     expect(light.angle).toBe(90);
     expect(light.spread).toBe(30);
+  });
+
+  it('clamps directional spread into [0, 180]', () => {
+    placeLight(10, 10, { type: 'directional', spread: -20 });
+    placeLight(20, 20, { type: 'directional', spread: 400 });
+    placeLight(30, 30, { type: 'directional', spread: NaN });
+    const [a, b, c] = state.dungeon.metadata.lights;
+    expect(a.spread).toBe(0);
+    expect(b.spread).toBe(180);
+    expect(c.spread).toBe(45);
   });
 
   it('pushes to undo stack', () => {
@@ -264,5 +277,88 @@ describe('listLightPresets', () => {
   it('returns preset category', () => {
     const result = listLightPresets();
     expect(result.presets.torch.category).toBe('fire');
+  });
+});
+
+// ── Light groups ────────────────────────────────────────────────────────────
+
+describe('light groups', () => {
+  it('assigns a light to a group via setLightGroup', () => {
+    const { id } = placeLight(10, 10);
+    setLightGroup(id, 'torches');
+    expect(state.dungeon.metadata.lights[0].group).toBe('torches');
+  });
+
+  it('clears a group when passed "" or null', () => {
+    const { id } = placeLight(10, 10);
+    setLightGroup(id, 'torches');
+    setLightGroup(id, '');
+    expect(state.dungeon.metadata.lights[0].group).toBeUndefined();
+    setLightGroup(id, 'torches');
+    setLightGroup(id, null);
+    expect(state.dungeon.metadata.lights[0].group).toBeUndefined();
+  });
+
+  it('throws if the target light does not exist', () => {
+    try {
+      setLightGroup(999, 'torches');
+      throw new Error('should have thrown');
+    } catch (e) {
+      expect((e as { code: string }).code).toBe('LIGHT_NOT_FOUND');
+    }
+  });
+
+  it('setLightGroupEnabled(false) adds the group to disabledLightGroups', () => {
+    placeLight(10, 10);
+    setLightGroup(state.dungeon.metadata.lights[0].id, 'traps');
+    setLightGroupEnabled('traps', false);
+    expect(state.dungeon.metadata.disabledLightGroups).toContain('traps');
+  });
+
+  it('setLightGroupEnabled(true) removes it', () => {
+    state.dungeon.metadata.disabledLightGroups = ['traps', 'aura'];
+    setLightGroupEnabled('traps', true);
+    expect(state.dungeon.metadata.disabledLightGroups).toEqual(['aura']);
+  });
+
+  it('clears the disabled-groups field entirely when the last group re-enables', () => {
+    state.dungeon.metadata.disabledLightGroups = ['traps'];
+    setLightGroupEnabled('traps', true);
+    expect(state.dungeon.metadata.disabledLightGroups).toBeUndefined();
+  });
+
+  it('rejects empty / non-string group names', () => {
+    try {
+      setLightGroupEnabled('', true);
+      throw new Error('should have thrown');
+    } catch (e) {
+      expect((e as { code: string }).code).toBe('INVALID_LIGHT_GROUP');
+    }
+  });
+
+  it('listLightGroups summarizes counts + enabled state', () => {
+    const a = placeLight(1, 1).id;
+    const b = placeLight(2, 2).id;
+    const c = placeLight(3, 3).id;
+    setLightGroup(a, 'torches');
+    setLightGroup(b, 'torches');
+    setLightGroup(c, 'traps');
+    setLightGroupEnabled('traps', false);
+    const { groups } = listLightGroups();
+    const torches = groups.find((g) => g.name === 'torches')!;
+    const traps = groups.find((g) => g.name === 'traps')!;
+    expect(torches.lightCount).toBe(2);
+    expect(torches.enabled).toBe(true);
+    expect(traps.lightCount).toBe(1);
+    expect(traps.enabled).toBe(false);
+  });
+
+  it('ungrouped lights live in the "" bucket and are always enabled', () => {
+    placeLight(1, 1);
+    placeLight(2, 2);
+    const { groups } = listLightGroups();
+    const ungrouped = groups.find((g) => g.name === '')!;
+    expect(ungrouped.lightCount).toBe(2);
+    expect(ungrouped.enabled).toBe(true);
   });
 });

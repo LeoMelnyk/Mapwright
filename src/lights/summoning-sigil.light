@@ -1,0 +1,14 @@
+{
+  "displayName": "Summoning Sigil",
+  "category": "Magical",
+  "description": "A floor-projected magical sigil that slowly rotates and pulses",
+  "type": "point",
+  "color": "#cc44ff",
+  "radius": 14,
+  "dimRadius": 22,
+  "intensity": 1.0,
+  "falloff": "smooth",
+  "z": 0.1,
+  "animation": { "type": "pulse", "speed": 0.6, "amplitude": 0.25 },
+  "cookie": { "type": "sigil", "scale": 1.0, "rotationSpeed": 8, "strength": 0.95 }
+}

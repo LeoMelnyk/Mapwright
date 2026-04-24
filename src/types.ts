@@ -8,7 +8,7 @@
 // ── Cell & Edge Types ──────────────────────────────────────────────────────
 
 /** Wall/door edge values stored on each cell face. */
-export type EdgeValue = 'w' | 'd' | 's' | 'iw' | 'id' | null | undefined;
+export type EdgeValue = 'w' | 'd' | 's' | 'iw' | 'id' | 'win' | null | undefined;
 
 /** Cardinal direction names for cell edges. */
 export type CardinalDirection = 'north' | 'south' | 'east' | 'west';
@@ -18,6 +18,16 @@ export type DiagonalDirection = 'nw-se' | 'ne-sw';
 
 /** All direction names (cardinal + diagonal). */
 export type Direction = CardinalDirection | DiagonalDirection;
+
+/**
+ * Identifies which portion of a (possibly split) cell a per-half field applies to.
+ * - `'full'`                   — unsplit cell (no diagonal, no trim)
+ * - `'ne' | 'sw'`              — cell split by an nw-se diagonal wall
+ * - `'nw' | 'se'`              — cell split by an ne-sw diagonal wall
+ * - `'interior' | 'exterior'`  — trim cell: inside trimClip / outside trimClip
+ *                                (applies to both open and closed trims)
+ */
+export type CellHalfKey = 'full' | 'ne' | 'sw' | 'nw' | 'se' | 'interior' | 'exterior';
 
 /** Fill types for cells. */
 export type FillType = 'water' | 'lava' | 'pit';
@@ -89,6 +99,24 @@ export interface Cell {
   lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
+  /**
+   * ID of the weather group this cell belongs to. Used ONLY when the cell is
+   * not split by a diagonal wall or trim. For split cells, use
+   * {@link weatherHalves}. INVARIANT: `weatherGroupId` and `weatherHalves` are
+   * mutually exclusive — never both set on the same cell.
+   * See {@link WeatherGroup}.
+   */
+  weatherGroupId?: string;
+  /**
+   * Per-half weather assignments for split cells. Only populated when the
+   * cell is split by a diagonal wall (`nw-se` / `ne-sw`) or a trim
+   * (`trimClip`). Missing halves are unassigned. When set,
+   * {@link weatherGroupId} MUST be absent. Valid keys depend on the split:
+   *   - `nw-se` diagonal → `'ne'` and/or `'sw'`
+   *   - `ne-sw` diagonal → `'nw'` and/or `'se'`
+   *   - trim cell        → `'interior'` and/or `'exterior'`
+   */
+  weatherHalves?: Partial<Record<CellHalfKey, string>>;
 }
 
 /** The 2D cell grid. null entries are void (no floor). */
@@ -133,12 +161,69 @@ export interface Light {
   dimRadius?: number;
   presetId?: string;
   propRef?: { row: number; col: number };
+  /**
+   * Optional group name. Lights sharing a group can be toggled together via
+   * setLightGroupEnabled(). `undefined` or `''` puts the light in the
+   * default (always-on) bucket.
+   */
+  group?: string;
+  /**
+   * When true, this light SUBTRACTS illumination instead of adding it.
+   * Used for the D&D Darkness spell, cursed zones, and shadow auras.
+   * The gradient shape and radius behave identically to a normal light,
+   * but the renderer composites with destination-out so the area ends up
+   * darker than the ambient level. Intensity controls how fully opaque
+   * the darkness gets at the center.
+   */
+  darkness?: boolean;
+  /**
+   * Per-light soft-shadow radius (world-feet). When > 0, the visibility
+   * mask is rasterized from several jittered sample points on a disc of
+   * this radius around the light center and averaged together, yielding
+   * penumbra wedges at wall corners. 0 (the default) keeps the classic
+   * single-ray hard shadow. Typical values: 0.5–2 ft.
+   */
+  softShadowRadius?: number;
+  /** Optional procedural cookie (gobo) — see {@link LightCookie}. */
+  cookie?: LightCookie | null;
   _propShadows?: {
     shadowPoly: number[][];
     nearCenter: number[];
     farCenter: number[];
     opacity: number;
     hard: boolean;
+  }[];
+  /**
+   * Per-light projected gobo patterns. Populated per-frame alongside
+   * `_propShadows` — a pattern-multiplied floor footprint cast from each
+   * prop-declared gobo that this light clears. See
+   * {@link computeGoboProjectionPolygon}.
+   */
+  _gobos?: {
+    /** Quadrilateral footprint in world-feet: [nearP1, nearP2, farP2, farP1]. */
+    quad: number[][];
+    /** Gobo segment z-range (feet), copied from the source zone. Used by the
+     *  procedural line-based renderer to project each mullion/bar individually. */
+    zBottom: number;
+    zTop: number;
+    /** Gobo id (for debugging/inspection). */
+    goboId: string;
+    /** Resolved pattern key — see {@link GoboPattern}. */
+    pattern: GoboPattern;
+    /** Effective density (pattern divisions / band count). */
+    density: number;
+    /** Slat orientation (only meaningful for the `slats` pattern). */
+    orientation: 'vertical' | 'horizontal';
+    /** Projection mode — see {@link GoboMode}. */
+    mode: GoboMode;
+    /** Strength in 0..1 multiplied onto the pattern (1 = full mask). */
+    strength: number;
+    /** Optional stained-glass/mosaic tint — hex color multiplied into the
+     *  aperture re-admit gradient so the sunpool picks up the window's hue. */
+    tintColor?: string;
+    /** Optional palette of hex colors for patterns that colorize per pane
+     *  (`mosaic`). Cycled through the cells of the pattern. */
+    colors?: string[];
   }[];
 }
 
@@ -168,6 +253,89 @@ export interface LightCatalog {
   byCategory: Record<string, string[]>;
 }
 
+// ── Gobos ──────────────────────────────────────────────────────────────────
+
+/** Procedural gobo pattern built into the renderer. */
+export type GoboPattern =
+  | 'plain'
+  | 'grid'
+  | 'slats'
+  | 'slot'
+  | 'mosaic'
+  | 'sigil'
+  | 'caustics'
+  | 'dapple'
+  | 'stained-glass'
+  | 'diamond'
+  | 'cross';
+
+/** A parsed .gobo asset. Procedural only; image-backed gobos are TODO. */
+export interface GoboDefinition {
+  id: string;
+  name: string;
+  description: string;
+  pattern: GoboPattern;
+  /** Divisions / bands count for procedural patterns. Meaning depends on pattern. */
+  density: number;
+  /** For `slats` pattern: orientation of the slats. Default vertical. */
+  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Optional palette of hex colors for patterns that support colored regions
+   * (e.g. `mosaic` — stained-glass / church-window panes). Cycled per pane so
+   * a palette of 4 colors across a density=3 (9-pane) grid gives 9 panes with
+   * colors [0,1,2,3,0,1,2,3,0]. Ignored by patterns that don't use it.
+   */
+  colors?: string[];
+}
+
+/** Gobo catalog loaded from manifest/bundle. */
+export interface GoboCatalog {
+  names: string[];
+  gobos: Record<string, GoboDefinition | undefined>;
+}
+
+/**
+ * Projection mode for a gobo.
+ *
+ * `occluder` — default. Gobo is a silhouette in open air; light reaches the
+ * whole scene normally, the gobo just carves dark bars out of the lit region.
+ * Use for prison bars, lattices, anything where the light source and the
+ * shadow-receiving surface are in the same open space.
+ *
+ * `aperture` — gobo is a hole in an otherwise-opaque surface. The light is
+ * clipped to the projection quad on the floor, producing a defined "sunpool"
+ * with the mullion bars cast inside it. Outside the pool, this light
+ * contributes nothing. Use for windows in walls, grates above shafts, any
+ * scenario where the gobo acts like a cookie-cutter over a blocked light.
+ */
+export type GoboMode = 'occluder' | 'aperture';
+
+/**
+ * A gobo footprint declared on a prop. The pattern lives on the prop (upright
+ * patterned occluder — window mullions, prison bars, lattice). Any nearby
+ * light that clears the gobo's `zBottom` projects the pattern onto the floor
+ * on the far side, mirroring the z-height prop shadow system.
+ */
+export interface PropGobo {
+  /** Segment endpoints in prop-local cell coordinates (0..cols, 0..rows). */
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  /** Gobo base height above the floor, in feet. */
+  zBottom: number;
+  /** Gobo top height in feet. */
+  zTop: number;
+  /** Gobo catalog id. */
+  gobo: string;
+  /** Projection mode — see {@link GoboMode}. Defaults to `occluder`. */
+  mode?: GoboMode;
+  /** Optional density override (otherwise taken from the .gobo definition). */
+  density?: number;
+  /** Optional strength in 0..1 — 1 full pattern, 0 no effect. Default 1. */
+  strength?: number;
+}
+
 // ── Stairs & Bridges ───────────────────────────────────────────────────────
 
 /** A stair object defined by 3 corner points. */
@@ -185,6 +353,79 @@ export interface Bridge {
   id: number;
   type: BridgeType;
   points: [[number, number], [number, number], [number, number]];
+}
+
+// ── Windows ────────────────────────────────────────────────────────────────
+
+/**
+ * A window placed on a cell edge. Stored canonically on the `north` or `west`
+ * edge of the owning cell (for cardinals), or `nw-se` / `ne-sw` on the
+ * owning cell (for diagonals). Every physical edge maps to exactly one
+ * entry, regardless of which side the user clicked when placing.
+ *
+ * The edge itself is marked with `cell[direction] = 'win'` (reciprocally on
+ * the neighbor for cardinals — diagonals have no reciprocal) so the lighting
+ * system treats it as a wall; light is blocked on the floor. The gobo
+ * referenced here is projected through the window's aperture (4–6 ft above
+ * floor by default), producing a patterned sunpool on the far side.
+ */
+export interface Window {
+  row: number;
+  col: number;
+  direction: 'north' | 'west' | 'nw-se' | 'ne-sw';
+  /** Gobo catalog id (e.g. "window-mullions", "arrow-slit"). */
+  goboId: string;
+  /**
+   * Optional hex color (e.g. "#ff6633") that tints light passing through the
+   * window — stained glass / mosaic effect. Absent or null means untinted.
+   */
+  tintColor?: string;
+  /** Window sill height in feet. Defaults to WINDOW_Z_BOTTOM (4 ft) when absent. */
+  floorHeight?: number;
+  /** Window head (top) height in feet. Defaults to WINDOW_Z_TOP (6 ft) when absent. */
+  ceilingHeight?: number;
+}
+
+// ── Weather ────────────────────────────────────────────────────────────────
+
+/** Weather particle type for a weather group. */
+export type WeatherType = 'rain' | 'snow' | 'ash' | 'embers' | 'sandstorm' | 'fog' | 'leaves' | 'cloudy';
+
+/**
+ * A weather group bundles a weather configuration (type, intensity, wind,
+ * lightning) and a set of cells that experience it. Each cell may belong to
+ * at most one group (enforced by assignment UI, not the schema).
+ *
+ * Groups live on metadata so the map serializes them alongside lights and
+ * stairs. Cells reference the group by `weatherGroupId`.
+ */
+export interface WeatherGroup {
+  id: string;
+  name: string;
+  /** Index into an auto-assigned color palette; determines the overlay hue. */
+  colorIndex: number;
+  type: WeatherType;
+  /** Particle density, 0–1. */
+  intensity: number;
+  wind: {
+    /** Degrees, 0 = north (up), clockwise. */
+    direction: number;
+    /** Strength of horizontal drift, 0–1. */
+    intensity: number;
+  };
+  lightning: {
+    enabled: boolean;
+    /** Flash brightness, 0–1. */
+    intensity: number;
+    /** Strikes per second, roughly 0 (never) – 1 (constant). */
+    frequency: number;
+    /** Hex color used to tint the flash. Defaults to a pale blue-white if absent. */
+    color?: string;
+  };
+  /** Optional hex color override for particles (e.g. red for blood rain). */
+  particleColor?: string;
+  /** Shared atmospheric haze density, 0–1. Independent of particle type. */
+  hazeDensity: number;
 }
 
 // ── Levels ─────────────────────────────────────────────────────────────────
@@ -236,8 +477,28 @@ export interface Metadata {
   lightingEnabled: boolean;
   ambientLight: number;
   lights: Light[];
+  /**
+   * Disabled light groups. A group whose name appears here is culled from
+   * the renderer output; un-grouped lights (group=undefined or '') are
+   * always rendered. Kept separate from Light.group so the set of groups
+   * on the map can grow without each light carrying redundant state.
+   */
+  disabledLightGroups?: string[];
+  /**
+   * Bloom intensity in [0, 1]. When > 0, the renderer applies a screen-
+   * blended Gaussian-blurred copy of the lightmap on top of the composited
+   * scene — bright torches and magical auras bleed into their surroundings.
+   * 0 (default) disables the pass entirely.
+   */
+  bloomIntensity?: number;
   stairs: Stairs[];
   bridges: Bridge[];
+  /**
+   * Windows placed on cell edges. Each entry is keyed by the canonical
+   * (row, col, direction) — direction is always `'north'` or `'west'`.
+   * See {@link Window}.
+   */
+  windows?: Window[];
   nextLightId: number;
   nextBridgeId: number;
   nextStairId: number;
@@ -250,7 +511,18 @@ export interface Metadata {
   themeOverrides?: Record<string, unknown> | null;
   texturesVersion?: number;
   ambientColor?: string;
+  /**
+   * Optional ambient-light animation. Currently only `strike` is meaningful
+   * (lightning storm flashes). Lives on metadata so the whole map shares one
+   * synchronized rhythm.
+   */
+  ambientAnimation?: LightAnimationConfig | null;
   backgroundMusic?: string;
+  /**
+   * Weather groups on the map. Cells reference these by `weatherGroupId`.
+   * See {@link WeatherGroup}.
+   */
+  weatherGroups?: WeatherGroup[];
   [key: string]: unknown;
 }
 
@@ -287,6 +559,8 @@ export interface Theme {
   door: string;
   doorFill?: string;
   doorStroke?: string;
+  windowFill?: string;
+  windowTint?: string;
   secretDoor: string;
   secretDoorColor?: string;
   label: string;
@@ -341,6 +615,8 @@ export interface PropDefinition {
   lights: PropLight[] | null;
   manualHitbox: PropCommand[] | null;
   manualSelection: PropCommand[] | null;
+  /** Upright patterned occluders — see {@link PropGobo}. */
+  gobos?: PropGobo[] | null;
   hitbox?: number[][];
   hitboxZones?: { polygon: number[][]; zBottom: number; zTop: number }[];
   selectionHitbox?: number[][];
@@ -396,6 +672,10 @@ export interface PropCommand {
   points?: number[][];
   trim?: boolean;
   src?: string;
+  /** Z-range for manual hitbox commands (used by light shadow projection).
+   *  `zTop: null` means "unbounded" (no upper limit). */
+  zBottom?: number;
+  zTop?: number | null;
   [key: string]: unknown;
 }
 
@@ -414,6 +694,13 @@ export interface PropLight {
   dimRadius?: number;
   angle?: number;
   spread?: number;
+  /**
+   * Optional procedural cookie/gobo declaration. Lets a prop (e.g. a stained-
+   * glass window) project a patterned mask through any light it auto-emits.
+   * The placed light inherits this verbatim unless explicit `cookie` set on
+   * the lightEntry overrides it. See {@link LightCookie}.
+   */
+  cookie?: LightCookie | null;
 }
 
 /** Prop catalog structure. */
@@ -544,10 +831,100 @@ export interface PropClipboardData {
 
 /** Light animation config. */
 export interface LightAnimationConfig {
+  /**
+   * Animation kind:
+   *   - `flicker` — chaotic flame (sine sum or 1D noise via `pattern`)
+   *   - `pulse`   — smooth sin-wave breathing
+   *   - `strobe`  — binary on/off
+   *   - `strike`  — long-quiet → brief bright flash (lightning)
+   *   - `sweep`   — rotate `angle` over time (directional lights only)
+   */
   type: string;
-  speed: number;
-  amplitude: number;
+  /** Time-scale multiplier. Defaults to 1.0 if omitted. */
+  speed?: number;
+  /** Intensity swing magnitude. Defaults to 0.3 if omitted. */
+  amplitude?: number;
+  /** Oscillate light radius. Now honored by flicker, pulse, and strobe. */
   radiusVariation?: number;
+  /**
+   * Per-light phase offset (seconds). When unset, a deterministic offset is
+   * derived from the light's id so co-located identical-speed lights desync
+   * naturally. Set to 0 explicitly to force lock-step sync (alarm bells,
+   * ritual circles).
+   */
+  phase?: number;
+  /**
+   * Color modulation as intensity dips:
+   *   - `auto` — physically motivated red-shift toward dimmer warm color
+   *   - `secondary` — blend `color` ↔ `colorSecondary` driven by waveform
+   *   - `none` (default) — leave color alone
+   */
+  colorMode?: 'none' | 'auto' | 'secondary';
+  /** Strength of color modulation, 0–1. */
+  colorVariation?: number;
+  /** Second color pole for `colorMode: 'secondary'`. */
+  colorSecondary?: string;
+  /**
+   * For `flicker`:
+   *   - `sine` (default) — three-incommensurate-sine sum
+   *   - `noise` — 1D simplex-style noise, gusty/wind feel
+   */
+  pattern?: 'sine' | 'noise';
+  /**
+   * Optional guttering envelope applied on top of any flicker pattern.
+   * 0 = no guttering, 1 = strong dropouts (light occasionally dies near zero).
+   */
+  guttering?: number;
+  /** ── strike (lightning) only ── */
+  /** Average strikes per second. Defaults to 0.2 (one every 5s). */
+  frequency?: number;
+  /** Fraction of each window during which the flash is visible (0–1). */
+  duration?: number;
+  /** Probability of any given window producing a strike (0–1). */
+  probability?: number;
+  /** Floor intensity multiplier between strikes. Defaults to 0.05. */
+  baseline?: number;
+  /** ── sweep (lighthouse) only ── */
+  /** Degrees per second. Positive = clockwise. */
+  angularSpeed?: number;
+  /** When set, sweep oscillates within ±arcRange/2 instead of full 360°. */
+  arcRange?: number;
+  /** Center of sweep arc in degrees (only meaningful with arcRange). */
+  arcCenter?: number;
+}
+
+/**
+ * Procedural cookie (gobo) — a grayscale mask multiplied into a light's
+ * gradient. No external assets; cookies are drawn procedurally on first use
+ * and cached. Animatable via scrollX/scrollY/rotationSpeed.
+ */
+export interface LightCookie {
+  /** Cookie pattern id. */
+  type: 'slats' | 'dapple' | 'caustics' | 'sigil' | 'grid' | 'stained-glass';
+  /**
+   * Hard cap on cookie projection size, in feet. Outside this radius the
+   * cookie has no effect — the light continues as plain gradient. Models the
+   * physical reality that a window/grate only projects its pattern onto the
+   * floor area immediately downstream of the prop, while the rest of the
+   * light radius is diffuse ambient glow. When unset, the cookie spans the
+   * full light bounding box (legacy behavior — useful for cookies placed
+   * directly on a light, not via a prop).
+   */
+  focusRadius?: number;
+  /** Mask scale multiplier — pattern density within the focus area. Default 1. */
+  scale?: number;
+  /** Static rotation in degrees. Default 0. */
+  rotation?: number;
+  /** Static scroll in mask space (0–1 wraps). */
+  scrollX?: number;
+  scrollY?: number;
+  /** Animate rotation (degrees per second). */
+  rotationSpeed?: number;
+  /** Animate scroll (units per second). */
+  scrollSpeedX?: number;
+  scrollSpeedY?: number;
+  /** Strength of the cookie effect, 0 = no cookie, 1 = full mask. Default 1. */
+  strength?: number;
 }
 
 /** The full editor state object. */
@@ -645,6 +1022,12 @@ export interface EditorState {
   sessionToolsActive: boolean;
   statusInstruction: string | null;
 
+  // Weather
+  /** ID of the currently selected weather group in the Weather panel (drives assign mode). */
+  selectedWeatherGroupId: string | null;
+  /** When true, the editor renders a color overlay per cell showing weather-group membership. */
+  showWeatherOverlay: boolean;
+
   // Debug
   debugShowHitboxes: boolean;
 
@@ -653,6 +1036,9 @@ export interface EditorState {
 
   // Wall tool
   wallType: string;
+
+  // Window tool
+  windowGobo: string;
 
   // Infrastructure
   listeners: {
@@ -747,12 +1133,19 @@ export interface PlaceLightConfig {
   angle?: number;
   spread?: number;
   dimRadius?: number;
+  /** If true, the light subtracts illumination (D&D Darkness spell). */
+  darkness?: boolean;
   // Preset fields that get merged in but then deleted
   displayName?: string;
   description?: string;
   category?: string;
   id?: string;
   animation?: LightAnimationConfig | null;
+  cookie?: LightCookie | null;
+  group?: string;
+  name?: string;
+  range?: number;
+  softShadowRadius?: number;
 }
 
 /** Options for createTrim API method. */
@@ -794,6 +1187,7 @@ export interface Dd2vttFormat {
   };
   image: string;
   line_of_sight: Array<[{ x: number; y: number }, { x: number; y: number }]>;
+  objects_line_of_sight: Array<[{ x: number; y: number }, { x: number; y: number }]>;
   portals: Dd2vttPortal[];
   lights: Dd2vttLight[];
   environment: {

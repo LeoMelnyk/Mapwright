@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
@@ -140,6 +140,14 @@
     "*.{ts,js,cjs,mjs}": [
       "node ./node_modules/eslint/bin/eslint.js --fix",
       "node ./node_modules/prettier/bin/prettier.cjs --write"
+    ],
+    "src/props/*.prop": [
+      "node --import tsx tools/update-manifest.js",
+      "git add src/props/manifest.json src/props/bundle.json"
+    ],
+    "src/gobos/*.gobo": [
+      "node tools/update-gobo-manifest.js",
+      "git add src/gobos/manifest.json src/gobos/bundle.json"
     ]
   },
   "optionalDependencies": {

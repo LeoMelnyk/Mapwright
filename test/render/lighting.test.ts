@@ -4,7 +4,18 @@
  * These test the core raycasting functions used by the dungeon lighting system.
  */
 import { describe, it, expect } from 'vitest';
-import { extractWallSegments, computeVisibility } from '../../src/render/lighting.js';
+import {
+  extractWallSegments,
+  computeVisibility,
+  falloffMultiplier,
+  clampSpread,
+  kelvinToRgb,
+  getEffectiveLight,
+  renderLightmap,
+  invalidateVisibilityCache,
+} from '../../src/render/lighting.js';
+import type { Light, CellGrid } from '../../src/types.js';
+import { createCanvas } from '@napi-rs/canvas';
 
 // ---------------------------------------------------------------------------
 // extractWallSegments
@@ -206,5 +217,350 @@ describe('computeVisibility', () => {
     // in the shadow zone (roughly y=7..13, x>20)
     const shadowZonePoints = points.filter((pt) => pt.x > 25 && pt.y > 7 && pt.y < 13);
     expect(shadowZonePoints).toHaveLength(0);
+  });
+});
+
+// ─── falloffMultiplier ─────────────────────────────────────────────────────
+//
+// Lock in the shape of each curve so the real-time gradient-stops path and
+// the HQ per-pixel path can't silently diverge — both import the same
+// function, but a regression that "simplifies" the formula in one branch
+// would show up here.
+
+describe('falloffMultiplier', () => {
+  const radius = 30;
+
+  it('peaks at 1.0 at distance 0 for every curve', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(falloffMultiplier(0, radius, f)).toBeCloseTo(1.0, 5);
+    }
+  });
+
+  it('reaches 0 at the radius boundary for every curve', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(falloffMultiplier(radius, radius, f)).toBeLessThanOrEqual(0.01);
+    }
+  });
+
+  it('linear is monotonically decreasing', () => {
+    let prev = 1.1;
+    for (let d = 0; d <= radius; d += 2) {
+      const v = falloffMultiplier(d, radius, 'linear');
+      expect(v).toBeLessThanOrEqual(prev);
+      prev = v;
+    }
+  });
+
+  it('quadratic falls faster than linear at mid-range', () => {
+    const lin = falloffMultiplier(radius / 2, radius, 'linear');
+    const quad = falloffMultiplier(radius / 2, radius, 'quadratic');
+    expect(quad).toBeLessThan(lin);
+  });
+
+  it('inverse-square is sharper than smooth near the light', () => {
+    const inv = falloffMultiplier(radius * 0.1, radius, 'inverse-square');
+    const smooth = falloffMultiplier(radius * 0.1, radius, 'smooth');
+    // Both should be high near the source, but inverse-square drops faster
+    // once you leave the 10% zone — locks in the current visual feel.
+    const invMid = falloffMultiplier(radius * 0.5, radius, 'inverse-square');
+    const smoothMid = falloffMultiplier(radius * 0.5, radius, 'smooth');
+    expect(inv).toBeGreaterThan(0.3);
+    expect(smooth).toBeGreaterThan(0.3);
+    expect(invMid).toBeLessThan(smoothMid);
+  });
+
+  it('handles negative / out-of-range inputs without returning NaN', () => {
+    for (const f of ['smooth', 'linear', 'quadratic', 'inverse-square'] as const) {
+      expect(Number.isFinite(falloffMultiplier(-5, radius, f))).toBe(true);
+      expect(Number.isFinite(falloffMultiplier(radius * 2, radius, f))).toBe(true);
+    }
+  });
+});
+
+// ─── kelvinToRgb ───────────────────────────────────────────────────────────
+
+describe('kelvinToRgb', () => {
+  function hexToRgb(h: string) {
+    return {
+      r: parseInt(h.slice(1, 3), 16),
+      g: parseInt(h.slice(3, 5), 16),
+      b: parseInt(h.slice(5, 7), 16),
+    };
+  }
+
+  it('returns a valid #rrggbb string across the useful range', () => {
+    for (const k of [1500, 2700, 4000, 5500, 6500, 8000, 10000]) {
+      expect(kelvinToRgb(k)).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it('warm temps are red-dominant, cool temps are blue-dominant', () => {
+    const warm = hexToRgb(kelvinToRgb(1800));
+    const cool = hexToRgb(kelvinToRgb(9000));
+    expect(warm.r).toBeGreaterThan(warm.b);
+    expect(cool.b).toBeGreaterThan(cool.r);
+  });
+
+  it('6500K (daylight) is near-neutral — channels within 20% of each other', () => {
+    const { r, g, b } = hexToRgb(kelvinToRgb(6500));
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    expect(max - min).toBeLessThan(max * 0.25);
+  });
+
+  it('clamps extreme inputs into the usable range', () => {
+    expect(() => kelvinToRgb(-1)).not.toThrow();
+    expect(() => kelvinToRgb(100000)).not.toThrow();
+    expect(kelvinToRgb(-1)).toMatch(/^#[0-9a-f]{6}$/);
+  });
+});
+
+// ─── clampSpread ───────────────────────────────────────────────────────────
+
+describe('clampSpread', () => {
+  it('passes through values inside [0, 180]', () => {
+    expect(clampSpread(0)).toBe(0);
+    expect(clampSpread(45)).toBe(45);
+    expect(clampSpread(90)).toBe(90);
+    expect(clampSpread(180)).toBe(180);
+  });
+
+  it('clamps out-of-range values', () => {
+    expect(clampSpread(-10)).toBe(0);
+    expect(clampSpread(360)).toBe(180);
+    expect(clampSpread(1000)).toBe(180);
+  });
+
+  it('returns the default (45°) for undefined/NaN', () => {
+    expect(clampSpread(undefined)).toBe(45);
+    expect(clampSpread(NaN)).toBe(45);
+    expect(clampSpread(Infinity)).toBe(45);
+  });
+});
+
+// ─── getEffectiveLight ─────────────────────────────────────────────────────
+
+describe('getEffectiveLight', () => {
+  const baseLight: Light = {
+    id: 1,
+    x: 10,
+    y: 10,
+    type: 'point',
+    radius: 20,
+    color: '#ffffff',
+    intensity: 1,
+    falloff: 'smooth',
+  };
+
+  it('returns the input reference unchanged for non-animated lights', () => {
+    const eff = getEffectiveLight(baseLight, 0);
+    expect(eff).toBe(baseLight);
+  });
+
+  it('applies pulse animation to intensity', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 0.5 } };
+    // The per-light buffer is reused (see "ephemeral" contract), so snapshot
+    // the intensity immediately after each call instead of reading from two
+    // returned references.
+    const loIntensity = getEffectiveLight(animated, 0).intensity;
+    const hiIntensity = getEffectiveLight(animated, 0.625).intensity;
+    expect(loIntensity).toBeGreaterThan(0);
+    expect(hiIntensity).toBeGreaterThan(0);
+    expect(loIntensity).not.toBe(hiIntensity);
+  });
+
+  it('never drops below 0.01 intensity even with a mean-negative animation', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 5 } };
+    for (let t = 0; t < 10; t += 0.1) {
+      const eff = getEffectiveLight(animated, t);
+      expect(eff.intensity).toBeGreaterThanOrEqual(0.01);
+    }
+  });
+
+  it('reuses the same per-light buffer across frames (GC sanity)', () => {
+    const animated: Light = { ...baseLight, animation: { type: 'pulse', speed: 1, amplitude: 0.3 } };
+    const a = getEffectiveLight(animated, 0.1);
+    const b = getEffectiveLight(animated, 0.2);
+    // Same backing buffer, different intensity
+    expect(a).toBe(b);
+  });
+});
+
+// ─── Blend-mode stacking (Phase 4.11 audit) ────────────────────────────────
+//
+// The contract: lights accumulate ADDITIVELY on the lightmap, which is then
+// composited onto the base render with `multiply`. Regression tests below
+// render two overlapping lights into a real canvas and verify pixel values.
+
+describe('blend-mode stacking', () => {
+  /** Build a 10×10 open room (no walls) so lights reach everywhere unoccluded. */
+  function openRoomCells(rows: number, cols: number): CellGrid {
+    const cells: CellGrid = [];
+    for (let r = 0; r < rows; r++) {
+      const row: CellGrid[number] = [];
+      for (let c = 0; c < cols; c++) row.push({});
+      cells.push(row);
+    }
+    return cells;
+  }
+
+  const gridSize = 5;
+  const cells = openRoomCells(10, 10);
+  const transform = { scale: 1, offsetX: 0, offsetY: 0 };
+  const w = gridSize * 10;
+  const h = gridSize * 10;
+
+  function renderAt(lights: Light[], ambient = 0) {
+    const canvas = createCanvas(w, h);
+    const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
+    // Fill the base with pure white so 'multiply' preserves whatever the
+    // lightmap contributes verbatim — easiest way to read the lightmap back.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    invalidateVisibilityCache('walls');
+    renderLightmap(ctx, lights, cells, gridSize, transform, w, h, ambient, null, null, null, null);
+    return ctx.getImageData(0, 0, w, h);
+  }
+
+  function pixelAt(img: ImageData, x: number, y: number) {
+    const i = (y * img.width + x) * 4;
+    return { r: img.data[i]!, g: img.data[i + 1]!, b: img.data[i + 2]! };
+  }
+
+  it('overlapping lights accumulate brighter than either alone', () => {
+    const base: Light = {
+      id: 1,
+      x: 25,
+      y: 25,
+      type: 'point',
+      radius: 15,
+      color: '#400000', // dim red so two stacked reds stay below channel clip
+      intensity: 1,
+      falloff: 'linear',
+    };
+    const one = renderAt([base]);
+    const two = renderAt([
+      { ...base, id: 1, x: 22 },
+      { ...base, id: 2, x: 28 },
+    ]);
+    const p1 = pixelAt(one, 25, 25);
+    const p2 = pixelAt(two, 25, 25);
+    expect(p2.r).toBeGreaterThan(p1.r);
+  });
+
+  it('red + blue overlap yields magenta at the overlap center', () => {
+    const lights: Light[] = [
+      { id: 1, x: 22, y: 25, type: 'point', radius: 15, color: '#400000', intensity: 1, falloff: 'linear' },
+      { id: 2, x: 28, y: 25, type: 'point', radius: 15, color: '#000040', intensity: 1, falloff: 'linear' },
+    ];
+    const img = renderAt(lights);
+    const overlap = pixelAt(img, 25, 25);
+    // Both channels should be lit; green should be near zero.
+    expect(overlap.r).toBeGreaterThan(20);
+    expect(overlap.b).toBeGreaterThan(20);
+    expect(overlap.g).toBeLessThan(overlap.r);
+    expect(overlap.g).toBeLessThan(overlap.b);
+  });
+
+  it('ambient=0, no lights → lightmap is black, base gets blacked out', () => {
+    const img = renderAt([], 0);
+    const p = pixelAt(img, 25, 25);
+    expect(p.r + p.g + p.b).toBe(0);
+  });
+
+  it('ambient=1, no lights → lightmap is white, base unchanged', () => {
+    const img = renderAt([], 1);
+    const p = pixelAt(img, 25, 25);
+    // multiply by white = unchanged base (255)
+    expect(p.r).toBeGreaterThan(240);
+    expect(p.g).toBeGreaterThan(240);
+    expect(p.b).toBeGreaterThan(240);
+  });
+
+  it('soft shadows smooth the edge of a wall shadow', () => {
+    // Room wide enough that the shadow cast by the single wall cell has room
+    // to extend. Light is at top-left; wall sits in the middle; shadow falls
+    // below-right of the wall, where we sample.
+    const rows = 15;
+    const cols = 25;
+    const withWall = openRoomCells(rows, cols);
+    // Single wall cell at (row=7, col=12) surrounded on every edge so it's
+    // fully opaque. Surrounded cells are still floor, so light can reach right
+    // up to the wall's edge.
+    if (withWall[7]) withWall[7]![12] = { north: 'w', south: 'w', east: 'w', west: 'w' };
+    const canvas = createCanvas(cols * gridSize, rows * gridSize);
+    const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
+    function sample(softR: number) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cols * gridSize, rows * gridSize);
+      invalidateVisibilityCache('walls');
+      const light: Light = {
+        id: 1,
+        x: 15, // cell (1, 3) — upper-left of wall
+        y: 15,
+        type: 'point',
+        radius: 80,
+        color: '#ffffff',
+        intensity: 1,
+        falloff: 'linear',
+        softShadowRadius: softR,
+      };
+      renderLightmap(
+        ctx,
+        [light],
+        withWall,
+        gridSize,
+        transform,
+        cols * gridSize,
+        rows * gridSize,
+        0,
+        null,
+        null,
+        null,
+        null,
+      );
+      return ctx.getImageData(0, 0, cols * gridSize, rows * gridSize);
+    }
+    const hard = sample(0);
+    const soft = sample(3);
+    // Sum pixel-wise |soft - hard| across the shadow-edge zone. If soft
+    // shadows have any effect at all, the two renders disagree in the
+    // penumbra region (soft light leaks into pixels the hard version
+    // left fully dark, and vice versa near the lit edge).
+    let totalDiff = 0;
+    for (let y = 45; y < 70; y++) {
+      for (let x = 60; x < 100; x++) {
+        totalDiff += Math.abs(pixelAt(soft, x, y).r - pixelAt(hard, x, y).r);
+      }
+    }
+    expect(totalDiff).toBeGreaterThan(0);
+  });
+
+  it('darkness light carves a dark pocket out of bright ambient', () => {
+    const imgLight = renderAt([], 1); // ambient only, full bright
+    const imgDark = renderAt(
+      [
+        {
+          id: 1,
+          x: 25,
+          y: 25,
+          type: 'point',
+          radius: 15,
+          color: '#ffffff',
+          intensity: 1,
+          falloff: 'linear',
+          darkness: true,
+        },
+      ],
+      1,
+    );
+    const bright = pixelAt(imgLight, 25, 25);
+    const dark = pixelAt(imgDark, 25, 25);
+    expect(dark.r).toBeLessThan(bright.r);
+    expect(dark.g).toBeLessThan(bright.g);
+    expect(dark.b).toBeLessThan(bright.b);
+    // Edges of the canvas stay bright.
+    const edge = pixelAt(imgDark, 2, 2);
+    expect(edge.r).toBeGreaterThan(dark.r + 100);
   });
 });

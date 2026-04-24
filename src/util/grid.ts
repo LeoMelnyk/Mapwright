@@ -1,6 +1,7 @@
 // Shared grid traversal primitives used by the editor tools and renderer.
 
-import type { Cell, CellGrid, CardinalDirection, Direction, EdgeValue } from '../types.js';
+import type { Cell, CellGrid, CardinalDirection, CellHalfKey, Direction, EdgeValue } from '../types.js';
+import { pointInPolygon } from './polygon.js';
 
 // ── Typed Cell edge accessors ──────────────────────────────────────────────
 // These centralise the dynamic property access needed for direction-based lookups,
@@ -88,6 +89,25 @@ export function cellKey(r: number, c: number): string {
 export function parseCellKey(key: string): [number, number] {
   const parts = key.split(',');
   return [Number(parts[0]), Number(parts[1])];
+}
+
+/**
+ * Format a "row,col,halfKey" string key for half-cell lookups.
+ */
+export function cellHalfKey(r: number, c: number, halfKey: CellHalfKey): string {
+  return `${r},${c},${halfKey}`;
+}
+
+/**
+ * Parse a "row,col,halfKey" string key back into {row, col, halfKey}.
+ */
+export function parseCellHalfKey(key: string): { row: number; col: number; halfKey: CellHalfKey } {
+  const parts = key.split(',');
+  return {
+    row: Number(parts[0]),
+    col: Number(parts[1]),
+    halfKey: (parts[2] ?? 'full') as CellHalfKey,
+  };
 }
 
 /**
@@ -318,7 +338,13 @@ export function lockDiagonalHalf(
 
 /**
  * Diagonal-aware BFS that floods a connected room region.
- * Returns a Set of "row,col" cell keys for the room.
+ * Returns a Set of "row,col" cell keys for the room (default), or a Set of
+ * "row,col,halfKey" keys when `returnHalves: true`.
+ *
+ * When `returnHalves: true` and the start cell is split, pass `startHalfKey`
+ * to control which half the flood begins on. For diagonal-split start cells
+ * this derives a valid `startEntryDir`; for trim-split start cells it picks
+ * the side of the arc with matching reach via `trimCrossing`.
  *
  * @param cells - The dungeon cells grid (2D: cells[row][col]).
  * @param startRow
@@ -334,15 +360,39 @@ export function floodFillRoom(
     startEntryDir?: string | null;
     rowMin?: number;
     rowMax?: number;
+    returnHalves?: boolean;
+    startHalfKey?: CellHalfKey;
   } = {},
 ): Set<string> {
-  const { traverseDoors = false, startEntryDir = null, rowMin = 0, rowMax = cells.length - 1 } = options;
+  const { traverseDoors = false, rowMin = 0, rowMax = cells.length - 1, returnHalves = false, startHalfKey } = options;
+  let { startEntryDir = null } = options;
 
   const filledCells = new Set<string>();
   const startCell = cells[startRow]?.[startCol];
   if (!startCell) return filledCells;
 
-  filledCells.add(cellKey(startRow, startCol));
+  // Derive a startEntryDir consistent with startHalfKey when returnHalves is
+  // on and the caller did not pin one explicitly.
+  if (returnHalves && startHalfKey && startEntryDir === null) {
+    startEntryDir = _entryDirForStartHalf(startCell, startHalfKey);
+  }
+
+  // Fallback trim side — used only when a trim cell is reached with no
+  // usable entryDir (e.g. the start cell itself, or arc post-pass seeds
+  // adjacent to a trim cell from an ambiguous direction). `_deriveHalfKey`
+  // prefers to infer the side from entryDir + trimCrossing; this is the
+  // backstop when inference isn't possible.
+  const trimSide: 'interior' | 'exterior' = startHalfKey === 'exterior' ? 'exterior' : 'interior';
+
+  const emit = (r: number, c: number, cell: Cell, entryDir: string | null): void => {
+    if (!returnHalves) {
+      filledCells.add(cellKey(r, c));
+      return;
+    }
+    filledCells.add(cellHalfKey(r, c, _deriveHalfKey(cell, entryDir, trimSide)));
+  };
+
+  emit(startRow, startCol, startCell, startEntryDir);
 
   // Queue entries: [r, c, entryDir]
   const queue: [number, number, string | null][] = [[startRow, startCol, startEntryDir]];
@@ -408,7 +458,7 @@ export function floodFillRoom(
       // are claimed by adjacency in the post-pass to avoid corner-clip misses.
       if (neighbor.trimWall) continue;
 
-      filledCells.add(cellKey(nr, nc));
+      emit(nr, nc, neighbor, neighborEntryDir);
     }
   }
 
@@ -417,12 +467,23 @@ export function floodFillRoom(
   // arc post-pass (tool-paint.js lines 517-608).
   {
     const arcVisited = new Set<string>();
-    const arcQueue: [number, number][] = [];
+    const arcQueue: [number, number, string | null][] = [];
+
+    const addFilled = (r: number, c: number, cell: Cell, entryDir: string | null): void => {
+      if (!returnHalves) {
+        filledCells.add(cellKey(r, c));
+        return;
+      }
+      filledCells.add(cellHalfKey(r, c, _deriveHalfKey(cell, entryDir, trimSide)));
+    };
 
     // Seed: non-arc filled cells adjacent to arc cells.
     // Skip cells sandwiched between arc cells (gap between circles).
     for (const k of filledCells) {
-      const [fr, fc] = k.split(',').map(Number) as [number, number];
+      // Tolerate both "r,c" and "r,c,halfKey" entries in filledCells.
+      const parts = k.split(',');
+      const fr = Number(parts[0]);
+      const fc = Number(parts[1]);
       const fCell = cells[fr]?.[fc];
       if (fCell?.trimWall) continue;
       const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
@@ -430,33 +491,131 @@ export function floodFillRoom(
       const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
       const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
       if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue;
-      for (const { dr, dc } of CARDINAL_DIRS) {
+      for (const { dir, dr, dc } of CARDINAL_DIRS) {
         const nr = fr + dr,
           nc = fc + dc;
-        if (!cells[nr]?.[nc]?.trimWall) continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;
         arcVisited.add(nKey);
-        filledCells.add(nKey);
-        arcQueue.push([nr, nc]);
+        const neighborEntryDir = OPPOSITE[dir];
+        addFilled(nr, nc, neighbor, neighborEntryDir);
+        arcQueue.push([nr, nc, neighborEntryDir]);
       }
     }
 
-    // Propagate through connected arc cells.
+    // Propagate through connected arc cells. Each arc-to-arc step carries
+    // the direction we moved in so the child's entry direction resolves to
+    // the same trim side as its parent (adjacent trim cells on the same
+    // arc share a side via trimCrossing).
     while (arcQueue.length > 0) {
       const [ar, ac] = arcQueue.shift()!;
-      for (const { dr, dc } of CARDINAL_DIRS) {
+      for (const { dir, dr, dc } of CARDINAL_DIRS) {
         const nr = ar + dr,
           nc = ac + dc;
-        if (!cells[nr]?.[nc]?.trimWall) continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;
         arcVisited.add(nKey);
-        filledCells.add(nKey);
-        arcQueue.push([nr, nc]);
+        const neighborEntryDir = OPPOSITE[dir];
+        addFilled(nr, nc, neighbor, neighborEntryDir);
+        arcQueue.push([nr, nc, neighborEntryDir]);
       }
     }
   }
 
   return filledCells;
+}
+
+/**
+ * Pick a startEntryDir consistent with a given start half-key. For diagonal
+ * halves, any cardinal direction that lands on that half works. For trim
+ * halves, we score each direction by how many exits its `trimCrossing` set
+ * contains and pick the side (widest reach = 'interior', narrowest = 'exterior').
+ */
+function _entryDirForStartHalf(cell: Cell, halfKey: CellHalfKey): string | null {
+  if (cell['nw-se']) {
+    if (halfKey === 'ne') return 'north';
+    if (halfKey === 'sw') return 'south';
+  }
+  if (cell['ne-sw']) {
+    if (halfKey === 'nw') return 'north';
+    if (halfKey === 'se') return 'south';
+  }
+  if (cell.trimClip && (halfKey === 'interior' || halfKey === 'exterior')) {
+    const tc = cell.trimCrossing;
+    if (!tc || typeof tc !== 'object') return null;
+    const scored = (['north', 'south', 'east', 'west'] as const).map((d) => ({
+      dir: d,
+      count: (tc[d[0]!] ?? '').length,
+    }));
+    scored.sort((a, b) => b.count - a.count);
+    return halfKey === 'interior' ? scored[0]!.dir : scored[scored.length - 1]!.dir;
+  }
+  return null;
+}
+
+/**
+ * Derive the half-key of a cell when reached via `entryDir` during a flood.
+ *
+ * For trim cells: the `trimCrossing` matrix assigns each cardinal direction
+ * to one of the two sides of the arc. The interior side is well-connected
+ * to the rest of the room and so its entries have MORE reachable exits;
+ * the exterior sliver is confined to a corner and so its entries have
+ * FEWER. We compare the entry direction's exit count against the maximum
+ * over all four directions: max → interior, less → exterior. This matches
+ * how the BFS itself partitions the arc (`visitedTraversal` locks out
+ * same-cell entries whose exit sets differ from ours).
+ *
+ * Falls back to `trimClip` point-in-polygon on the entry edge midpoint
+ * only when `trimCrossing` is unavailable, then to the caller's `trimSide`
+ * when even that can't be computed.
+ */
+function _deriveHalfKey(cell: Cell, entryDir: string | null, trimSide: 'interior' | 'exterior'): CellHalfKey {
+  if (cell['nw-se']) {
+    if (entryDir === 'north' || entryDir === 'east') return 'ne';
+    return 'sw';
+  }
+  if (cell['ne-sw']) {
+    if (entryDir === 'north' || entryDir === 'west') return 'nw';
+    return 'se';
+  }
+  if (cell.trimClip && cell.trimClip.length >= 3) {
+    if (entryDir) {
+      // Primary discriminator: `trimCorner` names the void corner (e.g. 'nw'
+      // = arc cuts the NW corner, void is NW sliver). The two cardinals that
+      // spell the corner touch the exterior sliver; the opposite two land on
+      // the interior (room) side. `computeTrimCrossing` partitions each edge
+      // into sides A/B with the same structure — both sides end up with 2
+      // exits each, so exit-count comparison ties. The corner letters
+      // resolve the ambiguity unambiguously.
+      const corner = typeof cell.trimCorner === 'string' ? cell.trimCorner.toLowerCase() : '';
+      if (corner.length > 0) {
+        return corner.includes(entryDir[0]!) ? 'exterior' : 'interior';
+      }
+      // No trimCorner: fall back to trimCrossing exit-count heuristic
+      // (still correct for non-tied cases) and then midpoint PIP.
+      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
+        const tc = cell.trimCrossing;
+        const myExits = (tc[entryDir[0]!] ?? '').length;
+        let maxExits = 0;
+        for (const d of ['n', 's', 'e', 'w']) {
+          const count = (tc[d] ?? '').length;
+          if (count > maxExits) maxExits = count;
+        }
+        if (myExits !== maxExits) return 'exterior';
+      }
+      let lx = 0.5,
+        ly = 0.5;
+      if (entryDir === 'north') ly = 0;
+      else if (entryDir === 'south') ly = 1;
+      else if (entryDir === 'west') lx = 0;
+      else if (entryDir === 'east') lx = 1;
+      return pointInPolygon(lx, ly, cell.trimClip) ? 'interior' : 'exterior';
+    }
+    return trimSide;
+  }
+  return 'full';
 }

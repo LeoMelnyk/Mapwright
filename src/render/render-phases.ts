@@ -28,6 +28,7 @@ import {
   drawStairShapeLinkLabel,
   wallSegmentCoords,
   scaleFactor,
+  renderWindowRun,
 } from './borders.js';
 import { drawCellLabel, drawDmLabel } from './features.js';
 import { renderAllProps, getRenderedPropsLayer } from './props.js';
@@ -1015,6 +1016,12 @@ export function renderWallsAndBorders(
           const dirIdx = WALL_DIRS.indexOf(dir);
           const seed = (row * 1000 + col) * 6 + dirIdx;
           wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
+        } else if (bt === 'win') {
+          // Window: NOT added to the wall-segments batch. The window overlay
+          // pass below paints the full window symbol (glass pane + frame +
+          // mullions) directly on the edge. Flanking 'w' cells still draw
+          // their own wall segments up to the window's edge.
+          continue;
         } else if (bt === 'iw') {
           // Invisible wall: skip unless showInvisible (deduplicate same as 'w')
           if (!showInvisible) continue;
@@ -1049,7 +1056,9 @@ export function renderWallsAndBorders(
   }
 
   // Merge diagonal sub-cells into continuous wall segments.
-  // Includes door cells ('d','s') so the wall line is unbroken — doors paint gaps on top.
+  // Includes door cells ('d','s') so the wall line is unbroken — doors paint
+  // gaps on top. Windows ('win') are NOT included — the window overlay pass
+  // draws the full window symbol on top of the bare edge.
   let _diagMergeCount = 0;
   const diagSeen = new Set();
   for (let row = startRow; row <= endRow; row++) {
@@ -1184,6 +1193,57 @@ export function renderWallsAndBorders(
       }
       ctx.stroke();
       ctx.restore();
+    }
+  }
+
+  // ── Window overlay pass ──────────────────────────────────────────────────
+  // Each run of adjacent 'win' edges along the same line renders as a single
+  // wide window symbol, drawn on top of the continuous wall stroke.
+  // Cardinals use canonical north/west (south/east are rendered by the
+  // neighbor cell's north/west entry). Diagonals have no reciprocal, so each
+  // cell owns its own diagonal edge.
+  {
+    const windowSeen = new Set<string>();
+    const winDirs: { dir: 'north' | 'west' | 'nw-se' | 'ne-sw'; dr: number; dc: number }[] = [
+      { dir: 'north', dr: 0, dc: 1 },
+      { dir: 'west', dr: 1, dc: 0 },
+      { dir: 'nw-se', dr: 1, dc: 1 },
+      { dir: 'ne-sw', dr: 1, dc: -1 },
+    ];
+    for (let row = startRow; row <= endRow; row++) {
+      for (let col = startCol; col <= endCol; col++) {
+        const cell = cells[row]?.[col];
+        if (!cell) continue;
+        for (const { dir, dr, dc } of winDirs) {
+          if ((cell as Record<string, unknown>)[dir] !== 'win') continue;
+          const key = `${dir}|${row}|${col}`;
+          if (windowSeen.has(key)) continue;
+          // Walk backward to find the run start (stops at non-win or missing cell).
+          let sr = row;
+          let sc = col;
+          for (;;) {
+            const pr = sr - dr;
+            const pc = sc - dc;
+            const prev = cells[pr]?.[pc];
+            if (!prev || (prev as Record<string, unknown>)[dir] !== 'win') break;
+            sr = pr;
+            sc = pc;
+          }
+          // Walk forward to measure length and mark cells visited.
+          let runLen = 0;
+          let er = sr;
+          let ec = sc;
+          for (;;) {
+            const c = cells[er]?.[ec];
+            if (!c || (c as Record<string, unknown>)[dir] !== 'win') break;
+            windowSeen.add(`${dir}|${er}|${ec}`);
+            runLen++;
+            er += dr;
+            ec += dc;
+          }
+          renderWindowRun(ctx, sr, sc, dir, runLen, theme, gridSize, transform);
+        }
+      }
     }
   }
 }

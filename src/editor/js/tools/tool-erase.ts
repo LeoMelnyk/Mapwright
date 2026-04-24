@@ -61,6 +61,23 @@ export class EraseTool extends Tool {
     state.statusInstruction = null;
   }
 
+  onCancel() {
+    if (!this.dragging) return false;
+    this.dragging = false;
+    this.dragStart = null;
+    this.dragEnd = null;
+    this.mousePos = null;
+    requestRender();
+    return true;
+  }
+
+  onKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && this.dragging) {
+      this.onCancel();
+      e.preventDefault();
+    }
+  }
+
   onMouseDown(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;

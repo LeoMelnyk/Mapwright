@@ -49,14 +49,21 @@ export function buildDd2vtt(
   // Encode PNG as base64 data URI
   const imageBase64 = pngBuffer.toString('base64');
 
-  // Extract walls (line_of_sight) and doors (portals) from the cell grid
-  const { walls, portals } = extractWallsAndPortals(cells, gridSize, offsetX, offsetY, pixelsPerGrid);
+  // Extract walls (line_of_sight), windows (objects_line_of_sight), and doors
+  // (portals) from the cell grid
+  const { walls, objectWalls, portals } = extractWallsAndPortals(
+    cells,
+    gridSize,
+    offsetX,
+    offsetY,
+    pixelsPerGrid,
+  );
 
   // Extract lights
   const lights = extractLights(metadata, displayGridSize, offsetX, offsetY, pixelsPerGrid);
 
   return {
-    format: 0.3,
+    format: 0.4,
     resolution: {
       map_origin: { x: 0, y: 0 },
       map_size: { x: canvasWidth / pixelsPerGrid, y: canvasHeight / pixelsPerGrid },
@@ -64,6 +71,7 @@ export function buildDd2vtt(
     },
     image: imageBase64,
     line_of_sight: walls,
+    objects_line_of_sight: objectWalls,
     portals,
     lights,
     environment: {
@@ -92,12 +100,26 @@ function extractWallsAndPortals(
   offsetX: number,
   offsetY: number,
   pixelsPerGrid: number,
-): { walls: Array<[{ x: number; y: number }, { x: number; y: number }]>; portals: Dd2vttPortal[] } {
+): {
+  walls: Array<[{ x: number; y: number }, { x: number; y: number }]>;
+  objectWalls: Array<[{ x: number; y: number }, { x: number; y: number }]>;
+  portals: Dd2vttPortal[];
+} {
   const walls: Array<[{ x: number; y: number }, { x: number; y: number }]> = [];
+  const objectWalls: Array<[{ x: number; y: number }, { x: number; y: number }]> = [];
   const portals: Dd2vttPortal[] = [];
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
-  const seen = new Set();
+  const seen = new Set<string>();
+
+  // Doors are collected into per-edge-line maps so reciprocal edges (a cell's
+  // south mirrored as its neighbor's north) collapse to one physical door,
+  // and contiguous runs along the same line merge into a single portal.
+  type DoorType = 'd' | 's';
+  // horizontal line at y = line, spans cols [start, start+1]
+  const horizontalDoors = new Map<number, Map<number, DoorType>>();
+  // vertical line at x = line, spans rows [start, start+1]
+  const verticalDoors = new Map<number, Map<number, DoorType>>();
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
@@ -119,43 +141,141 @@ function extractWallsAndPortals(
         // Skip invisible walls/doors — they shouldn't affect VTT line of sight
         if (val === 'iw' || val === 'id') continue;
 
-        // Deduplicate: each wall segment is shared between two cells
-        const key = `${Math.min(edge.x1, edge.x2)},${Math.min(edge.y1, edge.y2)}-${Math.max(edge.x1, edge.x2)},${Math.max(edge.y1, edge.y2)}-${edge.dir}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-
-        // Convert cell-grid coords to pixel coords, then to grid-unit coords
-        const seg = cellToPixelSegment(edge, gridSize, offsetX, offsetY, pixelsPerGrid);
-
-        if (val === 'w') {
-          // Wall → line of sight blocker
-          walls.push([
+        if (val === 'w' || val === 'win') {
+          // Walls go to line_of_sight (hard blockers). Windows go to
+          // objects_line_of_sight — see-through but still block LOS, which
+          // VTTs render as a soft/low wall the user can tune.
+          const key = `${Math.min(edge.x1, edge.x2)},${Math.min(edge.y1, edge.y2)}-${Math.max(edge.x1, edge.x2)},${Math.max(edge.y1, edge.y2)}-${edge.dir}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const seg = cellToPixelSegment(edge, gridSize, offsetX, offsetY, pixelsPerGrid);
+          const segment: [{ x: number; y: number }, { x: number; y: number }] = [
             { x: seg.x1, y: seg.y1 },
             { x: seg.x2, y: seg.y2 },
-          ]);
+          ];
+          if (val === 'win') objectWalls.push(segment);
+          else walls.push(segment);
         } else {
-          // val is 'd' | 's' (door or secret door)
-          // Door → portal (closed by default, secret doors also closed)
-          const rotation = edge.dir === 'north' || edge.dir === 'south' ? 0 : 90;
-          portals.push({
-            position: {
-              x: (seg.x1 + seg.x2) / 2,
-              y: (seg.y1 + seg.y2) / 2,
-            },
-            bounds: [
-              { x: seg.x1, y: seg.y1 },
-              { x: seg.x2, y: seg.y2 },
-            ],
-            rotation,
-            closed: true,
-            freestanding: false,
-          });
+          // Door ('d' or 's'). Stage into the per-line map keyed by canonical
+          // edge position so reciprocal edges dedupe; we merge runs below.
+          const doorType = val as DoorType;
+          if (edge.dir === 'north' || edge.dir === 'south') {
+            const line = edge.dir === 'north' ? row : row + 1;
+            let byStart = horizontalDoors.get(line);
+            if (!byStart) {
+              byStart = new Map();
+              horizontalDoors.set(line, byStart);
+            }
+            if (!byStart.has(col)) byStart.set(col, doorType);
+          } else {
+            const line = edge.dir === 'west' ? col : col + 1;
+            let byStart = verticalDoors.get(line);
+            if (!byStart) {
+              byStart = new Map();
+              verticalDoors.set(line, byStart);
+            }
+            if (!byStart.has(row)) byStart.set(row, doorType);
+          }
         }
       }
     }
   }
 
-  return { walls, portals };
+  mergeDoorRuns(horizontalDoors, 'horizontal', portals, gridSize, offsetX, offsetY, pixelsPerGrid);
+  mergeDoorRuns(verticalDoors, 'vertical', portals, gridSize, offsetX, offsetY, pixelsPerGrid);
+
+  // Arc-trim wall polylines — stored per-cell in `trimWall` as fractional
+  // cell-local coords. Same extraction the lighting engine uses (see
+  // lighting-geometry.ts#extractWallSegments) so VTT LOS matches the
+  // rendered shape of rounded corners and diagonal cuts.
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const cell = cells[row]?.[col];
+      if (!cell?.trimWall || typeof cell.trimWall === 'string') continue;
+      const wall = cell.trimWall;
+      for (let i = 0; i < wall.length - 1; i++) {
+        const seg = cellToPixelSegment(
+          {
+            x1: col + wall[i]![0]!,
+            y1: row + wall[i]![1]!,
+            x2: col + wall[i + 1]![0]!,
+            y2: row + wall[i + 1]![1]!,
+            dir: 'trim',
+          },
+          gridSize,
+          offsetX,
+          offsetY,
+          pixelsPerGrid,
+        );
+        walls.push([
+          { x: seg.x1, y: seg.y1 },
+          { x: seg.x2, y: seg.y2 },
+        ]);
+      }
+    }
+  }
+
+  return { walls, objectWalls, portals };
+}
+
+/**
+ * Merge contiguous same-type door edges along each edge line into single
+ * portals. `byLine` maps line-coordinate → (start → door type).
+ */
+function mergeDoorRuns(
+  byLine: Map<number, Map<number, 'd' | 's'>>,
+  orientation: 'horizontal' | 'vertical',
+  portals: Dd2vttPortal[],
+  gridSize: number,
+  offsetX: number,
+  offsetY: number,
+  pixelsPerGrid: number,
+): void {
+  for (const [line, byStart] of byLine) {
+    const starts = [...byStart.keys()].sort((a, b) => a - b);
+    let runStart: number | null = null;
+    let runEnd: number | null = null;
+    let runType: 'd' | 's' | null = null;
+
+    const flush = () => {
+      if (runStart === null) return;
+      const edge =
+        orientation === 'horizontal'
+          ? { x1: runStart, y1: line, x2: runEnd! + 1, y2: line, dir: 'north' }
+          : { x1: line, y1: runStart, x2: line, y2: runEnd! + 1, dir: 'west' };
+      const seg = cellToPixelSegment(edge, gridSize, offsetX, offsetY, pixelsPerGrid);
+      portals.push({
+        position: { x: (seg.x1 + seg.x2) / 2, y: (seg.y1 + seg.y2) / 2 },
+        bounds: [
+          { x: seg.x1, y: seg.y1 },
+          { x: seg.x2, y: seg.y2 },
+        ],
+        rotation: orientation === 'horizontal' ? 0 : 90,
+        closed: true,
+        freestanding: false,
+      });
+      runStart = null;
+      runEnd = null;
+      runType = null;
+    };
+
+    for (const start of starts) {
+      const type = byStart.get(start)!;
+      if (runStart === null) {
+        runStart = start;
+        runEnd = start;
+        runType = type;
+      } else if (start === runEnd! + 1 && type === runType) {
+        runEnd = start;
+      } else {
+        flush();
+        runStart = start;
+        runEnd = start;
+        runType = type;
+      }
+    }
+    flush();
+  }
 }
 
 /**

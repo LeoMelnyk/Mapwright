@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 6
-lights: [{"preset":"moonlight","x":1.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#aaccee"}]
+gobos: [{"x1":0.15,"y1":0.05,"x2":2.85,"y2":0.05,"zBottom":2,"zTop":5.5,"gobo":"window-mullions","mode":"aperture"}]
 placement: wall
 room_types: ship, captain-cabin, officer-quarters
 typical_count: single

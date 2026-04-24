@@ -141,6 +141,17 @@ export function parsePropFile(text: string): PropDefinition {
     }
   }
 
+  // Prop-bundled gobos: inline JSON array of {x1, y1, x2, y2, zBottom, zTop, gobo, density?, strength?}.
+  // Same single-line JSON constraint as `lights:`.
+  let propGobos = null;
+  if (header.gobos) {
+    try {
+      propGobos = JSON.parse(header.gobos);
+    } catch (e) {
+      warn(`[props] Malformed gobos JSON in prop "${name}": ${(e as Error).message}`);
+    }
+  }
+
   // Parse body (draw commands + hitbox/selection commands)
   const commands = [];
   const manualHitboxCmds = [];
@@ -191,6 +202,7 @@ export function parsePropFile(text: string): PropDefinition {
     commands,
     textures,
     lights: propLights,
+    gobos: propGobos,
     manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
     manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
     placement,

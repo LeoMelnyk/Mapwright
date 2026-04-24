@@ -342,6 +342,8 @@ export function init(): void {
     if (rqSelect) (rqSelect as HTMLInputElement).value = String(editorSettings.renderQuality ?? 20);
     const lqSelect = document.getElementById('setting-light-quality');
     if (lqSelect) (lqSelect as HTMLInputElement).value = String(editorSettings.lightQuality ?? 10);
+    const wmSelect = document.getElementById('setting-weather-motion');
+    if (wmSelect) (wmSelect as HTMLInputElement).value = String(editorSettings.weatherMotion ?? 'animated');
   }
   syncUI();
   subscribe(syncUI, 'metadata');
@@ -557,6 +559,16 @@ export function init(): void {
       setEditorSetting('lightQuality', parseInt((lqSelect as HTMLInputElement).value));
       invalidateLightmapCaches(); // tear down old lightmap canvases so they rebuild at new resolution
       invalidateMapCache();
+      requestRender();
+    });
+  }
+
+  // Weather motion dropdown (editor setting, persists across maps) — 'animated'
+  // draws particles and fires lightning; 'static' keeps only the cached haze.
+  const wmSelect = document.getElementById('setting-weather-motion');
+  if (wmSelect) {
+    wmSelect.addEventListener('change', () => {
+      setEditorSetting('weatherMotion', (wmSelect as HTMLInputElement).value);
       requestRender();
     });
   }

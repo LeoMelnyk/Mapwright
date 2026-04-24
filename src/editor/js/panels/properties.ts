@@ -42,6 +42,28 @@ function saveCollapsedCategories(): void {
 let thumbObserver: IntersectionObserver | null = null;
 let currentCatalog: PropCatalog | null = null;
 
+// ── Thumb size (columns-per-row: 3 = smallest, 1 = full-width) ──────────────
+const THUMB_SIZE_KEY = 'prop-explorer-size';
+type ThumbSize = 3 | 2 | 1;
+function loadThumbSize(): ThumbSize {
+  const raw = Number(localStorage.getItem(THUMB_SIZE_KEY));
+  return raw === 2 || raw === 1 ? raw : 3;
+}
+let thumbSize: ThumbSize = loadThumbSize();
+function saveThumbSize(): void {
+  try {
+    localStorage.setItem(THUMB_SIZE_KEY, String(thumbSize));
+  } catch {
+    /* ignore */
+  }
+}
+// Internal canvas resolution per size — larger sizes need sharper renders.
+function internalCanvasSizeFor(size: ThumbSize): number {
+  if (size === 1) return 180;
+  if (size === 2) return 100;
+  return 60;
+}
+
 // ── Favorites (localStorage-backed) ─────────────────────────────────────────
 
 const FAVORITES_KEY = 'prop-favorites';
@@ -157,6 +179,7 @@ function buildPropExplorer(container: HTMLElement) {
     container.prepend(explorer);
   }
   explorer.innerHTML = '';
+  explorer.dataset.size = String(thumbSize);
 
   // ── Pinned search bar ────────────────────────────────────────────────────
   const searchWrap = document.createElement('div');
@@ -200,9 +223,6 @@ function buildPropExplorer(container: HTMLElement) {
   searchWrap.appendChild(clearBtn);
 
   // ── Collapse / Expand all (VS Code-style panel actions) ──────────────────
-  const actionSep = document.createElement('span');
-  actionSep.className = 'texture-action-sep';
-
   const collapseAllBtn = document.createElement('button');
   collapseAllBtn.className = 'texture-action-btn';
   collapseAllBtn.title = 'Collapse All';
@@ -230,11 +250,62 @@ function buildPropExplorer(container: HTMLElement) {
     saveCollapsedCategories();
   });
 
-  searchWrap.appendChild(actionSep);
-  searchWrap.appendChild(collapseAllBtn);
-  searchWrap.appendChild(expandAllBtn);
+  // ── Secondary toolbar row: collapse/expand (left) + size toggle (right) ──
+  const sizeRow = document.createElement('div');
+  sizeRow.className = 'prop-size-row';
+
+  const sizeRowLeft = document.createElement('div');
+  sizeRowLeft.className = 'prop-size-row-group';
+  sizeRow.appendChild(sizeRowLeft);
+
+  const sizeRowRight = document.createElement('div');
+  sizeRowRight.className = 'prop-size-row-group';
+  sizeRowRight.appendChild(collapseAllBtn);
+  sizeRowRight.appendChild(expandAllBtn);
+  sizeRow.appendChild(sizeRowRight);
+
+  const sizeIcons: Record<ThumbSize, string> = {
+    3: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5"/><rect x="10" y="3" width="5" height="5"/><rect x="17" y="3" width="4" height="5"/><rect x="3" y="10" width="5" height="5"/><rect x="10" y="10" width="5" height="5"/><rect x="17" y="10" width="4" height="5"/><rect x="3" y="17" width="5" height="4"/><rect x="10" y="17" width="5" height="4"/><rect x="17" y="17" width="4" height="4"/></svg>',
+    2: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>',
+    1: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="8"/><rect x="3" y="13" width="18" height="8"/></svg>',
+  };
+
+  const sizeButtons: Partial<Record<ThumbSize, HTMLButtonElement>> = {};
+  const applySize = (next: ThumbSize) => {
+    thumbSize = next;
+    saveThumbSize();
+    explorer.dataset.size = String(next);
+    for (const key of [3, 2, 1] as ThumbSize[]) {
+      const btn = sizeButtons[key];
+      if (btn) btn.classList.toggle('active', key === next);
+    }
+    // Clear rendered flag so all thumbs re-render at the new internal resolution
+    // the next time they scroll into view.
+    explorer.querySelectorAll<HTMLElement>('.prop-thumb').forEach((t) => {
+      delete t.dataset.rendered;
+      const existingCanvas = t.querySelector('canvas');
+      if (existingCanvas) {
+        const shimmer = document.createElement('div');
+        shimmer.className = 'prop-thumb-shimmer';
+        existingCanvas.replaceWith(shimmer);
+      }
+    });
+    renderThumbnails(catalog);
+  };
+
+  for (const size of [3, 2, 1] as ThumbSize[]) {
+    const btn = document.createElement('button');
+    btn.className = 'texture-action-btn prop-size-btn';
+    if (size === thumbSize) btn.classList.add('active');
+    btn.title = `${size} per row`;
+    btn.innerHTML = sizeIcons[size];
+    btn.addEventListener('click', () => applySize(size));
+    sizeRowLeft.appendChild(btn);
+    sizeButtons[size] = btn;
+  }
 
   explorer.appendChild(searchWrap);
+  explorer.appendChild(sizeRow);
 
   // ── Scrollable categories area ───────────────────────────────────────────
   const scrollArea = document.createElement('div');
@@ -370,28 +441,27 @@ function filterProps(query: string) {
   });
 }
 
-const THUMB_CANVAS_SIZE = 60;
-
 function renderThumbCanvas(thumb: HTMLElement, catalog: PropCatalog): void {
   thumb.dataset.rendered = '1';
   const propType = thumb.dataset.prop!;
   const def = catalog.props[propType];
   if (!def) return;
 
+  const canvasSize = internalCanvasSizeFor(thumbSize);
   const [rows, cols] = def.footprint;
   const maxDim = Math.max(rows, cols);
-  const scale = THUMB_CANVAS_SIZE / maxDim;
+  const scale = canvasSize / maxDim;
 
   const canvas = document.createElement('canvas');
-  canvas.width = THUMB_CANVAS_SIZE;
-  canvas.height = THUMB_CANVAS_SIZE;
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
   const ctx = getCtx(canvas);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, THUMB_CANVAS_SIZE, THUMB_CANVAS_SIZE);
+  ctx.fillRect(0, 0, canvasSize, canvasSize);
 
   const transform = { scale, offsetX: 0, offsetY: 0, lineWidth: 1.5 };
-  if (cols < maxDim) transform.offsetX = (THUMB_CANVAS_SIZE - cols * scale) / 2;
-  if (rows < maxDim) transform.offsetY = (THUMB_CANVAS_SIZE - rows * scale) / 2;
+  if (cols < maxDim) transform.offsetX = (canvasSize - cols * scale) / 2;
+  if (rows < maxDim) transform.offsetY = (canvasSize - rows * scale) / 2;
 
   const texCat = getTextureCatalog();
   const getTexImg = texCat

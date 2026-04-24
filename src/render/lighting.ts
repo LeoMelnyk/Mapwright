@@ -23,22 +23,128 @@ import type {
 import {
   extractWallSegments,
   extractPropShadowZones,
+  buildPropShadowIndex,
   computePropShadowPolygon,
+  extractGoboZones,
+  extractWindowGoboZones,
+  buildGoboIndex,
+  computeGoboProjectionPolygon,
   DEFAULT_LIGHT_Z,
+  PropShadowIndex,
+  GoboIndex,
   type WallSegment,
+  type GoboZone,
 } from './lighting-geometry.js';
+import { _t } from './render-state.js';
+import {
+  INVERSE_SQUARE_K,
+  RAY_EPSILON,
+  ANIM_TIME_SCALE,
+  GRADIENT_STOPS,
+  FLICKER_FREQS,
+  FLICKER_WEIGHTS,
+  FLICKER_RADIUS_FREQ,
+  BUMP_SAMPLE_SIZE,
+  BUMP_RT_BASE,
+  BUMP_RT_SPAN,
+  BUMP_LIGHT_HEIGHT_FRAC,
+  DEFAULT_CONE_SPREAD_DEG,
+  CONE_SPREAD_MIN_DEG,
+  CONE_SPREAD_MAX_DEG,
+  SOFT_SHADOW_SAMPLES,
+  SOFT_SHADOW_GOLDEN_ANGLE,
+  COLOR_SHIFT_MAX_DEG,
+  STRIKE_DEFAULT_FREQUENCY,
+  STRIKE_DEFAULT_DURATION,
+  STRIKE_DEFAULT_PROBABILITY,
+  STRIKE_DEFAULT_BASELINE,
+} from './lighting-config.js';
 import { log } from '../util/index.js';
+import { applyGobosToRT } from './gobo.js';
 
-// Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
-// editor) keep working without ripple after the split.
-export { extractWallSegments, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z };
-export type { WallSegment };
+// Re-export geometry helpers so existing importers (render barrel, editor)
+// keep working without ripple after the split.
+export {
+  extractWallSegments,
+  extractPropShadowZones,
+  buildPropShadowIndex,
+  computePropShadowPolygon,
+  extractGoboZones,
+  extractWindowGoboZones,
+  buildGoboIndex,
+  computeGoboProjectionPolygon,
+  DEFAULT_LIGHT_Z,
+  PropShadowIndex,
+  GoboIndex,
+};
+export type { WallSegment, GoboZone };
 
 // ─── Constants ─────
-const INVERSE_SQUARE_K = 25;
-const RAY_EPSILON = 0.00001;
-const ANIM_TIME_SCALE = 0.4;
-const GRADIENT_STOPS = 16;
+// Tunable numbers live in lighting-config.ts. Only re-local wrappers for
+// derived/cached values stay here.
+
+/**
+ * Convert a color temperature in Kelvin to an approximate sRGB hex string.
+ *
+ * Uses the Tanner Helland approximation — fast enough for a UI slider and
+ * visually indistinguishable from higher-fidelity blackbody models for the
+ * 1000–12000 K range we care about (candlelight → icy midnight sky). The
+ * result is clamped per channel and returned as `#rrggbb`.
+ *
+ * Common reference points:
+ *   1500 K — candle
+ *   2000 K — dim incandescent / firelight
+ *   3000 K — warm interior lamp
+ *   4000 K — neutral white
+ *   5500 K — daylight
+ *   6500 K — overcast sky
+ *   8000 K — cool shade
+ *  10000 K — deep blue (cave bioluminescence, moonlit water)
+ */
+export function kelvinToRgb(kelvinIn: number): string {
+  const k = Math.max(1000, Math.min(40000, kelvinIn)) / 100;
+  let r: number, g: number, b: number;
+  if (k <= 66) {
+    r = 255;
+    g = 99.4708025861 * Math.log(k) - 161.1195681661;
+  } else {
+    r = 329.698727446 * Math.pow(k - 60, -0.1332047592);
+    g = 288.1221695283 * Math.pow(k - 60, -0.0755148492);
+  }
+  if (k >= 66) b = 255;
+  else if (k <= 19) b = 0;
+  else b = 138.5177312231 * Math.log(k - 10) - 305.0447927307;
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const hx = (v: number) => clamp(v).toString(16).padStart(2, '0');
+  return `#${hx(r)}${hx(g)}${hx(b)}`;
+}
+
+/**
+ * Unpack a normal-map RGB triple (0–255 bytes) into a unit-ish vector with
+ * components in [-1, 1]. The caller is responsible for normalization if it
+ * matters — most normal maps are already close to unit length.
+ *
+ * Exported so the real-time cell-averaged bump path and the HQ per-pixel
+ * bump path cannot drift on the byte→float encoding.
+ */
+export function unpackNormal(data: Uint8ClampedArray | Uint8Array, idx: number): [number, number, number] {
+  return [(data[idx]! / 255) * 2 - 1, (data[idx + 1]! / 255) * 2 - 1, (data[idx + 2]! / 255) * 2 - 1];
+}
+
+/**
+ * Clamp a directional light's spread (cone half-angle in degrees).
+ *
+ * Values outside [0, 180] produce divergent behaviour between the real-time
+ * canvas `arc()` fill (which wraps to a full circle when the span ≥ 2π) and
+ * the HQ per-pixel dot-product culling (which narrows again once `cos(spread)`
+ * crosses back through 1). Clamping at the render boundary keeps both paths
+ * in agreement regardless of how bad data entered the map.
+ */
+export function clampSpread(spread: number | undefined): number {
+  const s = spread ?? DEFAULT_CONE_SPREAD_DEG;
+  if (!Number.isFinite(s)) return DEFAULT_CONE_SPREAD_DEG;
+  return Math.max(CONE_SPREAD_MIN_DEG, Math.min(CONE_SPREAD_MAX_DEG, s));
+}
 
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
 
@@ -309,39 +415,593 @@ export function falloffMultiplier(dist: number, radius: number, falloff: Falloff
 }
 
 /**
+ * Per-light pooled "effective" buffer. getEffectiveLight rewrites the buffer
+ * in place each frame instead of spreading `{...light}` into a fresh object,
+ * dropping 50 light × 60 fps ≈ 3000 short-lived allocations/sec on maps with
+ * heavy animation. WeakMap keeps us tied to the source light's lifetime, so
+ * removing a light frees its buffer automatically.
+ */
+const effBufCache = new WeakMap<Light, Light>();
+
+// ─── Deterministic helpers used by animation ───────────────────────────────
+
+/** Cheap 32-bit integer hash (Wang). Returns a uniform value in [0, 1). */
+function hash32(n: number): number {
+  let x = n | 0;
+  x = x ^ 61 ^ (x >>> 16);
+  x = x + (x << 3);
+  x = x ^ (x >>> 4);
+  x = Math.imul(x, 0x27d4eb2d);
+  x = x ^ (x >>> 15);
+  return ((x >>> 0) % 0xffffff) / 0xffffff;
+}
+
+/**
+ * Smooth 1D simplex-style noise. Pure JS, no dependency. Period-free for the
+ * timescales we care about (animation runs in seconds, the cubic interpolant
+ * between integer "lattice" points is C1 continuous and visually featureless).
+ * Output range is roughly [-1, 1].
+ */
+function noise1D(x: number, seed: number): number {
+  const xi = Math.floor(x);
+  const xf = x - xi;
+  const a = hash32(xi * 374761393 + seed * 668265263) * 2 - 1;
+  const b = hash32((xi + 1) * 374761393 + seed * 668265263) * 2 - 1;
+  const t = xf * xf * (3 - 2 * xf); // smoothstep
+  return a * (1 - t) + b * t;
+}
+
+/**
+ * Convert hex `#RRGGBB` to HSL, shift hue/saturation/lightness, and emit a
+ * fresh hex string. Used by `colorMode: 'auto'` to red-shift a flickering
+ * flame as its intensity dips.
+ */
+function shiftHexHue(hex: string, hueDeltaDeg: number, lightnessDelta = 0): string {
+  const { r, g, b } = parseColor(hex);
+  const rN = r / 255,
+    gN = g / 255,
+    bN = b / 255;
+  const max = Math.max(rN, gN, bN),
+    min = Math.min(rN, gN, bN);
+  const l0 = (max + min) / 2;
+  let h = 0,
+    s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l0 > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === rN) h = ((gN - bN) / d + (gN < bN ? 6 : 0)) * 60;
+    else if (max === gN) h = ((bN - rN) / d + 2) * 60;
+    else h = ((rN - gN) / d + 4) * 60;
+  }
+  const h2 = (((h + hueDeltaDeg) % 360) + 360) % 360;
+  const l2 = Math.max(0, Math.min(1, l0 + lightnessDelta));
+  // HSL → RGB
+  const c = (1 - Math.abs(2 * l2 - 1)) * s;
+  const hp = h2 / 60;
+  const x = c * (1 - Math.abs((hp % 2) - 1));
+  let r1 = 0,
+    g1 = 0,
+    b1 = 0;
+  if (hp < 1) [r1, g1, b1] = [c, x, 0];
+  else if (hp < 2) [r1, g1, b1] = [x, c, 0];
+  else if (hp < 3) [r1, g1, b1] = [0, c, x];
+  else if (hp < 4) [r1, g1, b1] = [0, x, c];
+  else if (hp < 5) [r1, g1, b1] = [x, 0, c];
+  else [r1, g1, b1] = [c, 0, x];
+  const m = l2 - c / 2;
+  const hx = (v: number) =>
+    Math.max(0, Math.min(255, Math.round((v + m) * 255)))
+      .toString(16)
+      .padStart(2, '0');
+  return `#${hx(r1)}${hx(g1)}${hx(b1)}`;
+}
+
+/** Linearly blend two hex colors. mix=0 → a, mix=1 → b. */
+function mixHex(a: string, b: string, mix: number): string {
+  const ca = parseColor(a),
+    cb = parseColor(b);
+  const m = Math.max(0, Math.min(1, mix));
+  const lerp = (u: number, v: number) => Math.round(u + (v - u) * m);
+  const hx = (v: number) => v.toString(16).padStart(2, '0');
+  return `#${hx(lerp(ca.r, cb.r))}${hx(lerp(ca.g, cb.g))}${hx(lerp(ca.b, cb.b))}`;
+}
+
+/** Strike envelope: sharp attack, exponential decay. Input/output in [0,1]. */
+function strikeEnvelope(t: number): number {
+  if (t < 0 || t > 1) return 0;
+  // Fast attack (first 15%), exponential decay through the rest.
+  if (t < 0.15) return t / 0.15;
+  return Math.exp(-((t - 0.15) / 0.25));
+}
+
+// ─── Group transition state (runtime, not persisted) ───────────────────────
+//
+// `setLightGroupEnabled(group, bool, { transition })` writes here so the
+// renderer can ramp the group's effective intensity over a few hundred ms
+// instead of hard-cutting. Cleared automatically once a transition completes.
+
+interface GroupTransition {
+  toEnabled: boolean;
+  startedAt: number; // monotonic seconds (matches `time` passed to renderLightmap)
+  durationMs: number;
+  envelope: 'simple-fade' | 'ignite' | 'extinguish';
+  /** Snapshotted from-value (0..1) so re-toggles mid-transition stay smooth. */
+  fromValue: number;
+}
+
+const groupTransitions = new Map<string, GroupTransition>();
+
+/**
+ * Begin a fade transition for a light group. The renderer reads back the
+ * current ramp value via `getGroupIntensityScale` each frame, and clears
+ * the entry once the transition has elapsed.
+ */
+export function beginGroupTransition(
+  group: string,
+  toEnabled: boolean,
+  envelope: 'simple-fade' | 'ignite' | 'extinguish' = 'simple-fade',
+  durationMs = 600,
+  now = performance.now() / 1000,
+): void {
+  const prev = groupTransitions.get(group);
+  // Snapshot whatever the current effective value is, so re-toggling mid-fade
+  // doesn't pop. If no prior transition, assume the inverse of the new target.
+  const fromValue = prev ? getGroupIntensityScale(group, now) : toEnabled ? 0 : 1;
+  groupTransitions.set(group, { toEnabled, startedAt: now, durationMs, envelope, fromValue });
+  // Lights in this group must move from the static-baked layer onto the
+  // animated overlay until the ramp finishes. Drop the static cache so the
+  // next frame rebuilds with the new partition.
+  _staticLmValid = false;
+  _lastRenderLightmapKey = null;
+}
+
+/**
+ * Effective intensity scale (0..1) for a group at a given time. Returns 1
+ * for groups with no active transition (no fade in progress).
+ */
+export function getGroupIntensityScale(group: string | undefined, time: number): number {
+  if (!group) return 1;
+  const t = groupTransitions.get(group);
+  if (!t) return 1;
+  const elapsed = (time - t.startedAt) * 1000;
+  const u = Math.max(0, Math.min(1, elapsed / t.durationMs));
+  if (u >= 1) {
+    return t.toEnabled ? 1 : 0;
+  }
+  const target = t.toEnabled ? 1 : 0;
+  // Envelope-shaped lerp. simple-fade is smoothstep; ignite/extinguish
+  // overshoot briefly to give a "warm-up" or "guttering" feel.
+  const ease = u * u * (3 - 2 * u);
+  let v = t.fromValue + (target - t.fromValue) * ease;
+  if (t.envelope === 'ignite' && t.toEnabled) {
+    // Brief flicker midway through the ramp-up.
+    v *= 1 + 0.35 * Math.sin(u * Math.PI * 6) * (1 - u);
+  } else if (t.envelope === 'extinguish' && !t.toEnabled) {
+    // Gutter: spike at ~80% of the way, then collapse.
+    if (u > 0.5 && u < 0.85) v += (0.4 * (u - 0.5)) / 0.35;
+  }
+  return Math.max(0, Math.min(1.5, v));
+}
+
+/** Enumerate all groups currently mid-transition (used by render loop to keep ticking). */
+export function hasActiveGroupTransitions(): boolean {
+  return groupTransitions.size > 0;
+}
+
+/** Drop transition state (e.g. on map load). */
+export function clearGroupTransitions(): void {
+  groupTransitions.clear();
+}
+
+/**
  * Return an effective (possibly animated) copy of a light for the given time.
- * Returns the same object if no animation is set (avoids allocation).
+ * Non-animated lights pass through unchanged (no allocation). Animated lights
+ * get a per-light pooled buffer — callers must treat the returned object as
+ * ephemeral (read-and-forget within the current frame).
  *
- * @param {object} light
- * @param {number} time - Elapsed seconds
- * @returns {Object} Effective light with animated properties applied
+ * Honors:
+ *   - phase offset (per-light desync; `phase: 0` for explicit sync)
+ *   - flicker pattern: `sine` (default) | `noise`
+ *   - guttering envelope on top of any flicker
+ *   - color modulation (`colorMode: auto | secondary`)
+ *   - radius variation on flicker / pulse / strobe
+ *   - strike (lightning) deterministic windowed flashes
+ *   - sweep (lighthouse) angle animation for directional lights
+ *   - group transitions (fade / ignite / extinguish via beginGroupTransition)
  */
 export function getEffectiveLight(light: Light, time: number): Light {
-  if (!light.animation?.type) return light;
-  const { type, speed = 1.0, amplitude = 0.3, radiusVariation = 0 } = light.animation;
-  const t = time * speed * ANIM_TIME_SCALE;
+  const groupScale = getGroupIntensityScale(light.group, time);
+  if (!light.animation?.type) {
+    if (groupScale === 1) return light;
+    // Group transition only — return a buffer with scaled intensity.
+    let result = effBufCache.get(light);
+    if (!result) {
+      result = {} as Light;
+      effBufCache.set(light, result);
+    }
+    Object.assign(result, light);
+    result._propShadows = undefined;
+    result._gobos = undefined;
+    result.intensity = Math.max(0, light.intensity * groupScale);
+    return result;
+  }
+
+  const a = light.animation;
+  const speed = a.speed ?? 1.0;
+  const amplitude = a.amplitude ?? 0.3;
+  const radiusVariation = a.radiusVariation ?? 0;
+  // Per-light phase offset. Defaults to a deterministic id-derived value so
+  // identical-speed lights desync naturally — pass `phase: 0` to force sync.
+  const phase = a.phase ?? hash32(light.id * 2654435761) * 1000;
+  const t = (time + phase) * speed * ANIM_TIME_SCALE;
 
   let intensityMult = 1.0;
   let radiusMult = 1.0;
+  let angleOverride: number | null = null;
 
-  switch (type) {
-    case 'flicker':
-      intensityMult = 1 + amplitude * (0.5 * Math.sin(t * 17.3) + 0.3 * Math.sin(t * 31.7) + 0.2 * Math.sin(t * 7.1));
-      if (radiusVariation > 0) radiusMult = 1 + radiusVariation * Math.sin(t * 11.3);
+  switch (a.type) {
+    case 'flicker': {
+      if (a.pattern === 'noise') {
+        // Three octaves of 1D noise (frequencies tuned for "wind-buffeted").
+        const n =
+          0.55 * noise1D(t * 4.0, light.id) +
+          0.3 * noise1D(t * 9.0 + 17, light.id ^ 0x9e37) +
+          0.15 * noise1D(t * 19.0 + 41, light.id ^ 0x14d3);
+        intensityMult = 1 + amplitude * n;
+      } else {
+        const [f1, f2, f3] = FLICKER_FREQS;
+        const [w1, w2, w3] = FLICKER_WEIGHTS;
+        intensityMult = 1 + amplitude * (w1 * Math.sin(t * f1) + w2 * Math.sin(t * f2) + w3 * Math.sin(t * f3));
+      }
       break;
+    }
     case 'pulse':
       intensityMult = 1 + amplitude * Math.sin(2 * Math.PI * t);
       break;
     case 'strobe':
       intensityMult = t % 1 < 0.5 ? 1 + amplitude : Math.max(0, 1 - amplitude);
       break;
+    case 'strike': {
+      // Deterministic windowed strike: each window of `1/frequency` seconds
+      // either flashes (with envelope) or holds at baseline. Stateless.
+      const freq = a.frequency ?? STRIKE_DEFAULT_FREQUENCY;
+      const dur = a.duration ?? STRIKE_DEFAULT_DURATION;
+      const prob = a.probability ?? STRIKE_DEFAULT_PROBABILITY;
+      const baseline = a.baseline ?? STRIKE_DEFAULT_BASELINE;
+      const win = 1 / Math.max(0.001, freq);
+      const idx = Math.floor(t / win);
+      const localT = (t - idx * win) / win; // 0..1
+      const roll = hash32((light.id * 2654435761) ^ idx);
+      if (roll < prob && localT < dur) {
+        const env = strikeEnvelope(localT / dur);
+        intensityMult = baseline + (1 + amplitude) * env;
+      } else {
+        intensityMult = baseline;
+      }
+      break;
+    }
+    case 'sweep': {
+      // Rotate the directional light's angle (stored in degrees).
+      const angularSpeed = a.angularSpeed ?? 60;
+      const baseDeg = light.angle ?? 0;
+      const tSec = (time + phase) * speed;
+      if (a.arcRange && a.arcRange > 0) {
+        // Triangle wave oscillation within ±arcRange/2 of arcCenter.
+        const center = a.arcCenter ?? baseDeg;
+        const span = a.arcRange / 2;
+        const period = (4 * span) / Math.max(0.001, Math.abs(angularSpeed));
+        const u = (((tSec % period) + period) % period) / period; // 0..1
+        const x = u < 0.5 ? -span + 4 * span * u : 3 * span - 4 * span * u;
+        angleOverride = center + x;
+      } else {
+        angleOverride = baseDeg + angularSpeed * tSec;
+      }
+      break;
+    }
   }
 
-  const result = { ...light };
+  // Radius variation now applies to all sine-driven anim types (flicker, pulse, strobe).
+  if (radiusVariation > 0 && (a.type === 'flicker' || a.type === 'pulse' || a.type === 'strobe')) {
+    radiusMult = 1 + radiusVariation * Math.sin(t * FLICKER_RADIUS_FREQ);
+  }
+
+  // Guttering envelope: occasionally drop a flicker/strike to near-zero to
+  // simulate a dying flame. Multiplier ranges from `(1 - guttering)` to 1.
+  if (a.guttering && a.guttering > 0) {
+    // Slow noise gates a temporary dropout.
+    const g = noise1D(t * 0.7, light.id ^ 0xbeef);
+    const dropMask = Math.max(0, g - (1 - a.guttering)); // 0..guttering
+    intensityMult *= 1 - dropMask;
+  }
+
+  // Reuse a per-light buffer
+  let result = effBufCache.get(light);
+  if (!result) {
+    result = {} as Light;
+    effBufCache.set(light, result);
+  }
+  Object.assign(result, light);
+  result._propShadows = undefined;
+
+  // Apply group transition scale.
+  intensityMult *= groupScale;
+
   result.intensity = Math.max(0.01, light.intensity * Math.max(0, intensityMult));
   if (light.radius && radiusMult !== 1.0) result.radius = Math.max(1, light.radius * Math.max(0.1, radiusMult));
   if (light.range && radiusMult !== 1.0) result.range = Math.max(1, light.range * Math.max(0.1, radiusMult));
+  if (angleOverride !== null) result.angle = angleOverride;
+
+  // Color modulation. `auto` shifts hue toward red as intensity dips below
+  // baseline (physical flame-redshift model, so only below-baseline counts).
+  // `secondary` blends `color ↔ colorSecondary` symmetrically around baseline
+  // — the secondary shows during the bright peak as well as the dim trough,
+  // so a pulse/flicker visibly cycles through the two colors.
+  if (a.colorMode && a.colorMode !== 'none' && light.color) {
+    const cv = a.colorVariation ?? 0.5;
+    if (a.colorMode === 'auto') {
+      const dip = Math.max(0, Math.min(1, 1 - intensityMult));
+      // Negative hue shift = redward (assumes warm starting hue ~30°). For
+      // cool magical lights this still reads as "the color got darker and
+      // shifted along its own hue ring," which is acceptable.
+      result.color = shiftHexHue(light.color, -COLOR_SHIFT_MAX_DEG * dip * cv, -0.05 * dip * cv);
+    } else if (a.colorSecondary) {
+      // Symmetric deviation from baseline — peaks and troughs both shift.
+      const dev = Math.min(1, Math.abs(1 - intensityMult));
+      result.color = mixHex(light.color, a.colorSecondary, dev * cv);
+    }
+  }
+
   return result;
+}
+
+/**
+ * Module-level frame time. Threaded into cookie animation through the per-
+ * light composite path without changing every helper signature. Set at the
+ * top of `_renderOneLight` (and friends) before the gradient is built.
+ */
+let _currentFrameTime = 0;
+
+// ─── Procedural Cookies (gobos) ────────────────────────────────────────────
+//
+// Cookies are grayscale masks multiplied into a light's gradient before the
+// visibility clip — they project patterns ("stained glass", "tree dapple",
+// "prison bars") onto the lit area without needing external assets.
+//
+// Each cookie type renders once at a fixed size onto a reusable OffscreenCanvas
+// and is then transformed (rotation/scroll/scale) per draw. Animated cookies
+// re-transform per frame; the underlying texture is built once per type.
+
+export const COOKIE_TEX_SIZE = 256;
+const cookieTexCache = new Map<string, OffscreenCanvas | HTMLCanvasElement>();
+
+export function _allocCookieCanvas(): OffscreenCanvas | HTMLCanvasElement {
+  if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  const c = document.createElement('canvas');
+  c.width = COOKIE_TEX_SIZE;
+  c.height = COOKIE_TEX_SIZE;
+  return c;
+}
+
+function _drawCookieSlats(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  // Vertical bright slats: 6 bands.
+  ctx.fillStyle = '#fff';
+  const bands = 6;
+  for (let i = 0; i < bands; i++) {
+    const x = (i + 0.25) * (COOKIE_TEX_SIZE / bands);
+    ctx.fillRect(x, 0, COOKIE_TEX_SIZE / bands / 2, COOKIE_TEX_SIZE);
+  }
+}
+
+function _drawCookieDapple(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  // Soft blobs (tree-canopy dapple).
+  ctx.fillStyle = '#222';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  for (let i = 0; i < 80; i++) {
+    const cx = hash32(i * 17 + 1) * COOKIE_TEX_SIZE;
+    const cy = hash32(i * 17 + 2) * COOKIE_TEX_SIZE;
+    const r = 8 + hash32(i * 17 + 3) * 24;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
+}
+
+function _drawCookieCaustics(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  // Wavy caustic-ish veins from sin interference.
+  const img = ctx.createImageData(COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  const d = img.data;
+  for (let y = 0; y < COOKIE_TEX_SIZE; y++) {
+    for (let x = 0; x < COOKIE_TEX_SIZE; x++) {
+      const u = x / COOKIE_TEX_SIZE;
+      const v = y / COOKIE_TEX_SIZE;
+      const a = Math.sin((u * 6 + Math.sin(v * 8) * 0.7) * Math.PI);
+      const b = Math.sin((v * 5 + Math.cos(u * 11) * 0.4) * Math.PI);
+      const w = Math.max(0, Math.abs(a) - 0.6) + Math.max(0, Math.abs(b) - 0.6);
+      const lum = Math.min(255, Math.round(60 + w * 400));
+      const i = (y * COOKIE_TEX_SIZE + x) * 4;
+      d[i] = d[i + 1] = d[i + 2] = lum;
+      d[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function _drawCookieSigil(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 4;
+  const cx = COOKIE_TEX_SIZE / 2;
+  const cy = COOKIE_TEX_SIZE / 2;
+  // Outer ring + inner ring + 7-pointed star.
+  ctx.beginPath();
+  ctx.arc(cx, cy, COOKIE_TEX_SIZE * 0.42, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, COOKIE_TEX_SIZE * 0.28, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 7; i++) {
+    const a = (i / 7) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(a) * COOKIE_TEX_SIZE * 0.4;
+    const y = cy + Math.sin(a) * COOKIE_TEX_SIZE * 0.4;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+}
+
+function _drawCookieGrid(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  ctx.fillStyle = '#000';
+  const step = COOKIE_TEX_SIZE / 8;
+  const bar = step * 0.18;
+  for (let i = 0; i < 9; i++) {
+    ctx.fillRect(i * step - bar / 2, 0, bar, COOKIE_TEX_SIZE);
+    ctx.fillRect(0, i * step - bar / 2, COOKIE_TEX_SIZE, bar);
+  }
+}
+
+function _drawCookieStainedGlass(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  // Voronoi-ish patches with dark leading.
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  const sites: [number, number, number][] = [];
+  for (let i = 0; i < 24; i++) {
+    sites.push([
+      hash32(i * 31 + 1) * COOKIE_TEX_SIZE,
+      hash32(i * 31 + 2) * COOKIE_TEX_SIZE,
+      0.55 + hash32(i * 31 + 3) * 0.45,
+    ]);
+  }
+  const img = ctx.getImageData(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  const d = img.data;
+  for (let y = 0; y < COOKIE_TEX_SIZE; y++) {
+    for (let x = 0; x < COOKIE_TEX_SIZE; x++) {
+      let best = Infinity,
+        second = Infinity,
+        bestIdx = 0;
+      for (let i = 0; i < sites.length; i++) {
+        const dx = x - sites[i]![0];
+        const dy = y - sites[i]![1];
+        const d2 = dx * dx + dy * dy;
+        if (d2 < best) {
+          second = best;
+          best = d2;
+          bestIdx = i;
+        } else if (d2 < second) second = d2;
+      }
+      const edge = Math.sqrt(second) - Math.sqrt(best);
+      const lead = edge < 3 ? 0 : 1;
+      const lum = Math.round(255 * sites[bestIdx]![2] * lead);
+      const i = (y * COOKIE_TEX_SIZE + x) * 4;
+      d[i] = d[i + 1] = d[i + 2] = lum;
+      d[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+export function _getCookieTexture(type: string): OffscreenCanvas | HTMLCanvasElement | null {
+  let tex = cookieTexCache.get(type);
+  if (tex) return tex;
+  tex = _allocCookieCanvas();
+  const ctx = tex.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  switch (type) {
+    case 'slats':
+      _drawCookieSlats(ctx);
+      break;
+    case 'dapple':
+      _drawCookieDapple(ctx);
+      break;
+    case 'caustics':
+      _drawCookieCaustics(ctx);
+      break;
+    case 'sigil':
+      _drawCookieSigil(ctx);
+      break;
+    case 'grid':
+      _drawCookieGrid(ctx);
+      break;
+    case 'stained-glass':
+      _drawCookieStainedGlass(ctx);
+      break;
+    default:
+      return null;
+  }
+  cookieTexCache.set(type, tex);
+  return tex;
+}
+
+/** List the names of every available procedural cookie. Exported for UI/API. */
+export function listCookieTypes(): string[] {
+  return ['slats', 'dapple', 'caustics', 'sigil', 'grid', 'stained-glass'];
+}
+
+/**
+ * Apply a cookie mask onto the per-light RT (which already holds the
+ * gradient). Composited with `multiply` so dark cookie pixels darken the
+ * light, white pixels pass through. Caller is responsible for restoring
+ * composite mode afterwards.
+ */
+function _applyCookieToRT(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  cookie: NonNullable<Light['cookie']>,
+  bbW: number,
+  bbH: number,
+  time: number,
+  lightId: number,
+  pxPerFoot: number,
+) {
+  const tex = _getCookieTexture(cookie.type);
+  if (!tex) return;
+  const scale = cookie.scale ?? 1;
+  const phase = hash32(lightId * 1664525) * 1000;
+  const rot = ((cookie.rotation ?? 0) + (cookie.rotationSpeed ?? 0) * (time + phase)) * (Math.PI / 180);
+  const sx = (cookie.scrollX ?? 0) + (cookie.scrollSpeedX ?? 0) * (time + phase);
+  const sy = (cookie.scrollY ?? 0) + (cookie.scrollSpeedY ?? 0) * (time + phase);
+  const strength = Math.max(0, Math.min(1, cookie.strength ?? 1));
+  if (strength === 0) return;
+
+  gctx.save();
+  gctx.globalCompositeOperation = 'multiply';
+  gctx.globalAlpha = 1;
+  // Center, rotate, scale — then tile the cookie texture so it always covers.
+  gctx.translate(bbW / 2, bbH / 2);
+  gctx.rotate(rot);
+  // Cookie projection size. When `focusRadius` is set (typical for prop-
+  // attached cookies like windows or grates), constrain the cookie to a
+  // circle of that radius in feet — outside it, the cookie texture isn't
+  // drawn so the gradient is preserved. This models the top-down reality
+  // that a prop only projects its pattern onto the floor area immediately
+  // beneath/beside it, not the entire light radius. Without focusRadius,
+  // fall back to the legacy "cover the whole bbox" behavior.
+  const cover =
+    cookie.focusRadius != null ? cookie.focusRadius * 2 * pxPerFoot * scale : Math.max(bbW, bbH) * 1.5 * scale;
+  gctx.scale(cover / COOKIE_TEX_SIZE, cover / COOKIE_TEX_SIZE);
+  // Apply scroll (mod 1 wraps cleanly because the texture itself isn't tiled
+  // here — for non-tile cookies the scroll just slides the visible window).
+  gctx.translate(-COOKIE_TEX_SIZE / 2 + sx * COOKIE_TEX_SIZE, -COOKIE_TEX_SIZE / 2 + sy * COOKIE_TEX_SIZE);
+  if (strength < 1) {
+    // Blend the cookie with white at (1 - strength) so partial-strength
+    // cookies fade toward "no cookie" instead of toward black.
+    gctx.globalAlpha = strength;
+  }
+  gctx.drawImage(tex, 0, 0);
+  // If strength < 1, also paint a white rect to blend toward "no mask".
+  if (strength < 1) {
+    gctx.globalCompositeOperation = 'lighter';
+    gctx.globalAlpha = 1 - strength;
+    gctx.fillStyle = '#ffffff';
+    gctx.fillRect(0, 0, COOKIE_TEX_SIZE, COOKIE_TEX_SIZE);
+  }
+  gctx.restore();
 }
 
 // ─── Per-Light Compositing Canvas (GPU shadow mask) ────────────────────────
@@ -429,6 +1089,68 @@ function _applyPropShadowsToRT(
  *
  * `visibility` is an interleaved Float32Array [x0, y0, x1, y1, ...].
  */
+// Reusable offscreen canvas for the soft-shadow mask. Shared across every
+// light in a frame to avoid per-light allocation.
+let softMaskCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+let softMaskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
+function ensureSoftMaskCanvas(w: number, h: number) {
+  if (!softMaskCanvas || softMaskCanvas.width < w || softMaskCanvas.height < h) {
+    // Split branches so TS narrows canvas → getContext return type in each
+    // case instead of widening to the full RenderingContext union, which
+    // would require an explicit cast the no-unnecessary-type-assertion rule
+    // then strips back out.
+    if (typeof OffscreenCanvas !== 'undefined') {
+      softMaskCanvas = new OffscreenCanvas(Math.max(w, 64), Math.max(h, 64));
+      softMaskCtx = softMaskCanvas.getContext('2d');
+    } else {
+      softMaskCanvas = Object.assign(document.createElement('canvas'), {
+        width: Math.max(w, 64),
+        height: Math.max(h, 64),
+      });
+      softMaskCtx = softMaskCanvas.getContext('2d');
+    }
+  }
+  return softMaskCtx!;
+}
+
+/**
+ * Rasterize N sample visibility polygons into a single averaged grayscale
+ * mask, then destination-in the light's gradient against it. Rationale: the
+ * outer gctx already holds the colored gradient; we don't want to overwrite
+ * it with the mask, we want to restrict it proportionally.
+ */
+function _applySoftVisibilityMask(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  visibilities: Float32Array[],
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+  bbW: number,
+  bbH: number,
+) {
+  const mctx = ensureSoftMaskCanvas(bbW, bbH);
+  mctx.save();
+  mctx.globalCompositeOperation = 'source-over';
+  mctx.clearRect(0, 0, bbW, bbH);
+  // Additively accumulate each sample polygon at alpha = 1/N so a pixel
+  // visible from every sample reaches full alpha.
+  const alpha = 1 / visibilities.length;
+  mctx.globalCompositeOperation = 'lighter';
+  mctx.fillStyle = `rgba(255, 255, 255, ${alpha.toFixed(4)})`;
+  for (const vis of visibilities) {
+    if (vis.length < 6) continue;
+    clipToVisibility(mctx, vis, transform, bbX, bbY);
+  }
+  mctx.restore();
+
+  // Apply mask: destination-in with the averaged grayscale — dimmer pixels
+  // in the mask proportionally dim the colored gradient on gctx.
+  gctx.save();
+  gctx.globalCompositeOperation = 'destination-in';
+  gctx.drawImage(softMaskCanvas!, 0, 0, bbW, bbH, 0, 0, bbW, bbH);
+  gctx.restore();
+}
+
 function clipToVisibility(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   visibility: Float32Array,
@@ -454,7 +1176,7 @@ function clipToVisibility(
  * Build gradient stops for a radial gradient from (cx, cy) out to radius rPx,
  * using gradient center offset within the bounding box at (relCx, relCy).
  */
-function buildRadialGradient(
+export function buildRadialGradient(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   relCx: number,
   relCy: number,
@@ -474,6 +1196,41 @@ function buildRadialGradient(
     const mult = falloffMultiplier(frac * lightRadius, lightRadius, falloff as FalloffType);
     grad.addColorStop(frac, `rgba(${r},${g},${b},${Math.min(1.0, intensity * mult)})`);
   }
+  return grad;
+}
+
+/**
+ * Build a bright-plus-dim radial gradient matching what `buildPointLightComposite`
+ * paints when `dimRadius > radius`. Inner region falls off normally out to
+ * `rPx`, then holds at `dimIntensity` until the dim edge, then fades to 0.
+ */
+export function buildRadialGradientWithDim(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  relCx: number,
+  relCy: number,
+  rPx: number,
+  dimRPx: number,
+  r: number,
+  g: number,
+  b: number,
+  intensity: number,
+  lightRadius: number,
+  falloff: FalloffType | string,
+) {
+  const dimIntensity = Math.min(1, intensity * 0.5);
+  const brightFrac = rPx / dimRPx;
+  const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, dimRPx);
+  grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, intensity)})`);
+  const numStops = 8;
+  for (let i = 1; i < numStops; i++) {
+    const t = i / numStops;
+    const gradFrac = t * brightFrac;
+    const mult = falloffMultiplier(t * lightRadius, lightRadius, falloff as FalloffType);
+    const alpha = Math.max(dimIntensity, Math.min(1, intensity * mult));
+    grad.addColorStop(gradFrac, `rgba(${r},${g},${b},${alpha.toFixed(4)})`);
+  }
+  grad.addColorStop(brightFrac, `rgba(${r},${g},${b},${dimIntensity})`);
+  grad.addColorStop(1.0, `rgba(${r},${g},${b},0)`);
   return grad;
 }
 
@@ -501,8 +1258,13 @@ function buildPointLightComposite(
   cy: number,
   rPx: number,
   dimRPx: number | null,
+  softVisibilities: Float32Array[] | null = null,
 ) {
-  const { r, g, b } = parseColor(light.color);
+  // Darkness lights paint BLACK into the lightmap (any brightness -> zero when
+  // the lightmap is later multiplied onto the base). Same falloff shape as a
+  // normal light, just with the RT's gradient color replaced so the outer
+  // source-over composite simply overwrites ambient + accumulated lights.
+  const { r, g, b } = light.darkness ? { r: 0, g: 0, b: 0 } : parseColor(light.color);
   const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
   const relCx = cx - bbX;
@@ -530,10 +1292,43 @@ function buildPointLightComposite(
     gctx.fillRect(0, 0, bbW, bbH);
   }
 
-  gctx.globalCompositeOperation = 'destination-in';
-  gctx.fillStyle = '#ffffff';
-  clipToVisibility(gctx, visibility, transform, bbX, bbY);
-  gctx.globalCompositeOperation = 'source-over';
+  // Cookie / gobo: multiply a procedural mask over the gradient before the
+  // visibility clip. Skipped for darkness lights (the mask would just darken
+  // already-black pixels with no visible effect). `transform.scale` is the
+  // lightmap's pixels-per-foot, used by `focusRadius` to size the cookie in
+  // world feet rather than viewport pixels.
+  if (light.cookie && !light.darkness) {
+    _applyCookieToRT(gctx, light.cookie, bbW, bbH, _currentFrameTime, light.id, transform.scale);
+  }
+
+  // Gobo projections run BEFORE the visibility clip: `multiply` composite
+  // combines alpha additively (not multiplicatively), so drawing a gobo
+  // pattern over an already-transparent region would make that region
+  // opaque and leak bars into void/out-of-view cells. Applying before the
+  // destination-in pass means the visibility clip trims the pattern to the
+  // lit area just like it trims the gradient.
+  if (!light.darkness && light._gobos?.length) {
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
+  }
+
+  if (softVisibilities && softVisibilities.length > 0) {
+    // Soft shadows: average the sample polygons into a grayscale mask, then
+    // destination-in against it. Walls seen by every sample stay fully lit;
+    // corners seen by some samples fade toward dark, producing a penumbra.
+    _applySoftVisibilityMask(gctx, softVisibilities, transform, bbX, bbY, bbW, bbH);
+  } else {
+    gctx.globalCompositeOperation = 'destination-in';
+    gctx.fillStyle = '#ffffff';
+    clipToVisibility(gctx, visibility, transform, bbX, bbY);
+    gctx.globalCompositeOperation = 'source-over';
+  }
+
+  // Aperture gobos (windows) run AFTER the visibility clip. The wall blocks
+  // light everywhere else, but the sunpool re-admission paints the gradient
+  // back into the aperture's floor projection, followed by the pattern bars.
+  if (!light.darkness && light._gobos?.length) {
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
+  }
 
   if (light._propShadows?.length) {
     _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
@@ -566,6 +1361,7 @@ function renderPointLight(
   light: Light,
   visibility: Float32Array,
   transform: RenderTransform,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   if (visibility.length < 6) return; // < 3 points
 
@@ -585,8 +1381,34 @@ function renderPointLight(
 
   const gctx = ensureLightRTCanvas(bbW, bbH);
   gctx.clearRect(0, 0, bbW, bbH);
-  buildPointLightComposite(gctx, light, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
-  lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+  buildPointLightComposite(
+    gctx,
+    light,
+    visibility,
+    transform,
+    bbX,
+    bbY,
+    bbW,
+    bbH,
+    cx,
+    cy,
+    rPx,
+    dimRPx,
+    softVisibilities,
+  );
+  if (light.darkness) {
+    // The RT gradient is already colored black for darkness lights. Use
+    // source-over so the black pixels OVERWRITE ambient + any accumulated
+    // lights at the center of the radius, fading to transparent (no-op) at
+    // the edge. Final multiply step turns black lightmap pixels into black
+    // scene pixels — true magical darkness, even darkvision-proof.
+    lctx.save();
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+    lctx.restore();
+  } else {
+    lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+  }
 }
 
 /**
@@ -600,14 +1422,29 @@ function _bakePointLight(
   transform: RenderTransform,
   vpW: number,
   vpH: number,
+  softVisibilities: Float32Array[] | null = null,
 ): BakedLight | null {
   const { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH } = _computePointLightBBox(light, transform, vpW, vpH);
-  if (bbW <= 0 || bbH <= 0) return null;
+  if (!Number.isFinite(bbW) || !Number.isFinite(bbH) || bbW <= 0 || bbH <= 0) return null;
   const canvas = _allocateBakedCanvas(bbW, bbH);
   const gctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   // Bake at intensity=1 so per-frame globalAlpha scales the whole composite.
   const bakeLight: Light = { ...light, intensity: 1 };
-  buildPointLightComposite(gctx, bakeLight, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
+  buildPointLightComposite(
+    gctx,
+    bakeLight,
+    visibility,
+    transform,
+    bbX,
+    bbY,
+    bbW,
+    bbH,
+    cx,
+    cy,
+    rPx,
+    dimRPx,
+    softVisibilities,
+  );
   return { canvas, bbX, bbY, bbW, bbH, scale: transform.scale };
 }
 
@@ -619,6 +1456,7 @@ function renderDirectionalLight(
   light: Light,
   visibility: Float32Array,
   transform: RenderTransform,
+  softVisibilities: Float32Array[] | null = null,
 ) {
   if (visibility.length < 6) return; // < 3 points
 
@@ -630,7 +1468,7 @@ function renderDirectionalLight(
   const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
   const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
-  const spreadRad = ((light.spread ?? 45) * Math.PI) / 180;
+  const spreadRad = (clampSpread(light.spread) * Math.PI) / 180;
   const effRadius = (light.range ?? light.radius) || 30;
 
   const vpW = lctx.canvas.width;
@@ -654,6 +1492,11 @@ function renderDirectionalLight(
   gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, range, r, g, b, intensity, effRadius, falloff);
   gctx.fillRect(0, 0, bbW, bbH);
 
+  // Occluder gobos — see the point-light path for the ordering rationale.
+  if (light._gobos?.length) {
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'occluder');
+  }
+
   // Mask: intersection of visibility polygon AND cone
   gctx.globalCompositeOperation = 'destination-in';
   gctx.fillStyle = '#ffffff';
@@ -666,26 +1509,48 @@ function renderDirectionalLight(
   gctx.fill();
 
   // Visibility polygon (further restricts)
-  gctx.globalCompositeOperation = 'destination-in';
-  gctx.fillStyle = '#ffffff';
-  clipToVisibility(gctx, visibility, transform, bbX, bbY);
-  gctx.globalCompositeOperation = 'source-over';
+  if (softVisibilities && softVisibilities.length > 0) {
+    _applySoftVisibilityMask(gctx, softVisibilities, transform, bbX, bbY, bbW, bbH);
+  } else {
+    gctx.globalCompositeOperation = 'destination-in';
+    gctx.fillStyle = '#ffffff';
+    clipToVisibility(gctx, visibility, transform, bbX, bbY);
+    gctx.globalCompositeOperation = 'source-over';
+  }
+
+  // Aperture gobos (windows) — runs after visibility clip so the sunpool
+  // re-admission can paint outside the walls.
+  if (light._gobos?.length) {
+    applyGobosToRT(gctx, light, transform, bbX, bbY, 'aperture');
+  }
 
   // Apply z-height prop shadows
   if (light._propShadows?.length) {
     _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
   }
 
-  lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+  if (light.darkness) {
+    // See renderPointLight — darkness cones paint black into the lightmap.
+    lctx.save();
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+    lctx.restore();
+  } else {
+    lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+  }
 }
 
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
 const visibilityCache = new Map();
+/** Cached jittered-sample visibility polygons per light (soft shadows only). */
+const softVisibilitiesCache = new Map<string, Float32Array[]>();
 const propShadowsCache = new Map<
   string,
   Array<{ shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }>
 >();
+/** Cached per-light gobo projections. Same lifecycle as `propShadowsCache`. */
+const goboProjectionsCache = new Map<string, NonNullable<Light['_gobos']>>();
 type BakedLight = {
   canvas: OffscreenCanvas | HTMLCanvasElement;
   bbX: number;
@@ -702,7 +1567,17 @@ type BakedLight = {
 // the result is mathematically identical to rebuilding the composite every frame.
 const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
+// Variant of the wall list with `'win'` edges removed — used for the
+// aperture-visibility polygon that bounds window sunpools by walls beyond
+// the window. Built only when the map has at least one aperture gobo.
+let cachedOpenWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
+let cachedPropShadowIndex: PropShadowIndex | null = null;
+let cachedGoboZones: GoboZone[] | null = null;
+let cachedGoboIndex: GoboIndex | null = null;
+// Per-light cache of the aperture-visibility polygon. Keyed off the same
+// light-state key that keys visibilityCache, so it invalidates together.
+const openVisibilityCache = new Map<string, Float32Array>();
 let _lightingVersion = 0;
 
 /**
@@ -721,6 +1596,10 @@ let _lmW = 0,
   _lmH = 0;
 let _staticLmCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
 let _staticLmValid = false;
+// Last renderLightmap cacheKey — when the caller passes the same key, skip
+// rebuild and just recomposite the existing _lmCanvas / _staticLmCanvas.
+let _lastRenderLightmapKey: string | null = null;
+let _lastRenderLightmapHadAnimated = false;
 
 function _getLightmapCanvas(w: number, h: number) {
   if (_lmCanvas && _lmW === w && _lmH === h) return _lmCanvas;
@@ -735,6 +1614,7 @@ function _getLightmapCanvas(w: number, h: number) {
   _lmH = h;
   _staticLmCanvas = null; // force rebuild of static cache too
   _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   return _lmCanvas;
 }
 
@@ -748,34 +1628,61 @@ function _getStaticLmCanvas(w: number, h: number) {
     _staticLmCanvas.height = h;
   }
   _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   return _staticLmCanvas;
 }
 
 /**
- * Clear the visibility polygon cache. Call when walls or props change.
- * All wall-changing tools call invalidateLightmap() → this function,
- * so per-frame hash recomputation is unnecessary.
+ * Scope of a lighting-cache invalidation.
  *
- * @param {boolean} [structuralChange=true] - If true, also clears wall segments
- *   and prop shadow zones (use when walls/props are added/removed/moved).
- *   If false, only clears per-light caches (use when only light position/config changes).
- * @returns {void}
+ *   `'walls'`   — wall segments or diagonal-wall geometry changed. Rebuilds
+ *                 cachedWallSegments + cachedPropShadowZones + every per-light
+ *                 cache + the static lightmap.
+ *   `'props'`   — a light-blocking prop moved/rotated/changed scale. Rebuilds
+ *                 cachedPropShadowZones + prop-shadow cache + baked-light cache
+ *                 + static lightmap. Keeps wall segments.
+ *   `'lights'`  — only a light's position/config changed. Rebuilds per-light
+ *                 caches + static lightmap. Keeps wall segments and prop zones.
  */
-export function invalidateVisibilityCache(structuralChange: boolean | 'props' = true): void {
+export type LightCacheScope = 'walls' | 'props' | 'lights';
+
+/**
+ * Clear lighting-cache entries that depend on a given scope of change. Every
+ * wall-, prop-, or light-mutating tool calls this (directly or via
+ * invalidateLightmap()), so per-frame hash recomputation is unnecessary.
+ *
+ * Legacy `true` / `false` aliases map to `'walls'` and `'lights'`.
+ */
+export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'walls'): void {
+  // Legacy boolean aliases kept for backwards compat with older callers.
+  const resolved: LightCacheScope = scope === true ? 'walls' : scope === false ? 'lights' : scope;
+
   visibilityCache.clear();
+  openVisibilityCache.clear();
+  softVisibilitiesCache.clear();
   propShadowsCache.clear();
+  goboProjectionsCache.clear();
   bakedLightCache.clear();
-  if (structuralChange === true) {
+  if (resolved === 'walls') {
     cachedWallSegments = null;
+    cachedOpenWallSegments = null;
     cachedPropShadowZones = null;
-  } else if (structuralChange === 'props') {
+    cachedPropShadowIndex = null;
+    cachedGoboZones = null;
+    cachedGoboIndex = null;
+  } else if (resolved === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
+    cachedPropShadowIndex = null;
+    cachedGoboZones = null;
+    cachedGoboIndex = null;
   }
-  _staticLmValid = false; // static lightmap depends on wall segments + light positions
+  // Static lightmap depends on wall segments, prop shadows, AND any non-animated
+  // light's position/intensity, so every scope currently invalidates it.
+  _staticLmValid = false;
+  _lastRenderLightmapKey = null;
   _lightingVersion++;
-  const scope = structuralChange === true ? 'full' : structuralChange === 'props' ? 'props-only' : 'lights-only';
-  log.devTrace(`invalidateVisibilityCache(${scope}) → lightingVersion ${_lightingVersion}`);
+  log.devTrace(`invalidateVisibilityCache('${resolved}') → lightingVersion ${_lightingVersion}`);
 }
 
 /**
@@ -788,10 +1695,39 @@ export function invalidateLightmapCaches(): void {
   _lmCanvas = null;
   _lmW = 0;
   _lmH = 0;
+  _lastRenderLightmapKey = null;
   log.dev(`invalidateLightmapCaches() — static + dynamic lightmap canvases dropped`);
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────
+//
+// Blend-mode contract (audited in Phase 4.11 of the 0.12 review):
+//
+//   Per-light RT canvas (lightRTCanvas, built inside renderPointLight /
+//     renderDirectionalLight):
+//     1. `source-over`     — radial gradient fill
+//     2. `destination-in`  — cone and/or visibility polygon clip (AND)
+//     3. `source-over`     — reset before prop-shadow application
+//     4. `destination-out` — each prop shadow subtracted (penumbra gradient)
+//
+//   Per-light RT → lightmap canvas:
+//     The outer lightmap context is in `lighter` (additive) mode when the RT
+//     is blitted, so overlapping lights accumulate correctly. Two overlapping
+//     red torches produce saturated red; red+blue overlap produces magenta.
+//     8-bit per-channel clamping is the expected behaviour — matches Godot's
+//     Light2D and Unity URP's 2D light accumulation.
+//
+//   Static lightmap (ambient + every static light):
+//     Filled with `source-over` for the ambient tint, then each light draws
+//     with `lighter`. The normal-map bump pass applies `multiply` at the end
+//     so steep surfaces get darkened slightly.
+//
+//   Lightmap → main canvas:
+//     `multiply`. The lightmap acts as a mask: brighter pixels leave the base
+//     render untouched, darker pixels dim it toward black.
+//
+// Don't "clean up" these composite modes without updating this diagram and
+// the tests that lock the contract in test/render/lighting.test.ts.
 
 /**
  * Render the complete lightmap onto a canvas context using 'multiply' composite.
@@ -829,6 +1765,10 @@ export function renderLightmap(
     destY?: number;
     destW?: number;
     destH?: number;
+    /** When provided and unchanged from the previous call, skip the build
+     *  phase entirely and recomposite the cached bitmap at the new dest rect.
+     *  Use for zoom-only redraws where the lightmap content hasn't changed. */
+    cacheKey?: string | null;
   } | null,
   metadata: Metadata | null = null,
 ): void {
@@ -840,16 +1780,79 @@ export function renderLightmap(
     destY = 0,
     destW = 0,
     destH = 0,
+    cacheKey = null,
   } = options ?? {};
-  const activeLights = lights;
+
+  // ── Cached recomposite fast path (zoom-only frames) ──
+  if (cacheKey !== null && cacheKey === _lastRenderLightmapKey) {
+    const cached = _lastRenderLightmapHadAnimated ? _lmCanvas : _staticLmCanvas;
+    if (cached) {
+      const useDest = destW > 0 && destH > 0;
+      const dx = useDest ? destX : 0;
+      const dy = useDest ? destY : 0;
+      const dw = useDest ? destW : canvasW;
+      const dh = useDest ? destH : canvasH;
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(cached, dx, dy, dw, dh);
+      ctx.restore();
+      const bloomIntensity = metadata?.bloomIntensity ?? 0;
+      if (bloomIntensity > 0) _applyBloom(ctx, cached, dx, dy, dw, dh, bloomIntensity);
+      return;
+    }
+  }
+  // Filter out lights whose group is disabled on this map. Un-grouped lights
+  // (group undefined or '') are always rendered. Matches the light-group
+  // toggle in the Lighting panel.
+  const disabledGroups = metadata?.disabledLightGroups;
+  const activeLights = lights.filter((l) => {
+    if (!Number.isFinite(l.x) || !Number.isFinite(l.y)) return false;
+    if (disabledGroups && disabledGroups.length > 0 && l.group && disabledGroups.includes(l.group)) return false;
+    return true;
+  });
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
-  cachedWallSegments ??= extractWallSegments(cells, gridSize, propCatalog, metadata);
+  // Only profile when the cache actually rebuilds — ??= skips _t() on warm hits.
+  cachedWallSegments ??= _t('lighting:segments', () => extractWallSegments(cells, gridSize, propCatalog, metadata));
   const segments = cachedWallSegments;
 
-  // Prop shadow zones for z-height projection (cached alongside wall segments)
-  cachedPropShadowZones ??= extractPropShadowZones(propCatalog, metadata, gridSize);
-  const propShadowZones = cachedPropShadowZones;
+  // Windows-open wall segment list (same as `segments` minus `'win'` edges).
+  // Only built when the map has at least one window — otherwise every light's
+  // aperture-visibility polygon would duplicate its regular visibility
+  // polygon. Used by the gobo aperture pipeline to bound sunpools by walls
+  // beyond the window.
+  if (metadata?.windows?.length) {
+    cachedOpenWallSegments ??= _t('lighting:openSegments', () =>
+      extractWallSegments(cells, gridSize, propCatalog, metadata, { treatWindowsAsOpen: true }),
+    );
+  } else {
+    cachedOpenWallSegments = null;
+  }
+  const openSegments = cachedOpenWallSegments;
+
+  // Prop shadow zones for z-height projection (cached alongside wall segments).
+  // The spatial index is built lazily alongside the zones so per-light lookups
+  // don't scan every prop on every frame.
+  if (!cachedPropShadowIndex) {
+    _t('lighting:propZones', () => {
+      cachedPropShadowZones ??= extractPropShadowZones(propCatalog, metadata, gridSize);
+      cachedPropShadowIndex = buildPropShadowIndex(cachedPropShadowZones).index;
+    });
+  }
+  const propShadowIndex = cachedPropShadowIndex!;
+
+  // Gobo zones (upright patterned occluders — window mullions, prison bars).
+  // Built alongside prop shadows; projection is computed per-light in
+  // _getOrComputeLightGeometry and cached until invalidation.
+  if (!cachedGoboIndex) {
+    _t('lighting:goboZones', () => {
+      const propZones = extractGoboZones(propCatalog, metadata, gridSize);
+      const windowZones = extractWindowGoboZones(cells, metadata, gridSize);
+      cachedGoboZones = windowZones.length ? propZones.concat(windowZones) : propZones;
+      cachedGoboIndex = buildGoboIndex(cachedGoboZones).index;
+    });
+  }
 
   // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
   // resolution, render at reduced size and upscale. Lightmaps are smooth
@@ -860,42 +1863,45 @@ export function renderLightmap(
   const lmH = Math.ceil((canvasH * lmScale) / cacheScale);
   const lmTransform = { scale: lmScale, offsetX: 0, offsetY: 0 };
 
-  // Split lights into static (no animation) and animated
-  const staticLights = [];
-  const animatedLights = [];
+  // Split lights into static (no animation) and animated. Lights belonging
+  // to a group with an active fade/ignite/extinguish transition are also
+  // routed to the animated path so the per-frame intensity ramp applies.
+  const staticLights: Light[] = [];
+  const animatedLights: Light[] = [];
   for (const light of activeLights) {
-    if (light.animation?.type) {
+    const groupTransitioning = light.group ? groupTransitions.has(light.group) : false;
+    if (light.animation?.type || groupTransitioning) {
       animatedLights.push(light);
     } else {
       staticLights.push(light);
     }
   }
-  const hasAnimated = animatedLights.length > 0;
+  // Map-wide ambient animation (e.g. lightning storm). Force the animated
+  // path so the overlay step can paint the per-frame ambient flash. Active
+  // group transitions also force the animated path so the ramp keeps ticking
+  // even on maps with no per-light animation.
+  const ambientAnim = metadata?.ambientAnimation;
+  const hasAmbientAnim = !!ambientAnim?.type;
+  const hasAnimated = animatedLights.length > 0 || hasAmbientAnim || hasActiveGroupTransitions();
 
   // ── Static lightmap (ambient + all non-animated lights) ──
   // Only rebuilt when visibility cache is invalidated (wall/light changes).
   const staticCanvas = _getStaticLmCanvas(lmW, lmH);
   if (!_staticLmValid) {
-    const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-    slctx.globalCompositeOperation = 'source-over';
-
-    // Fill with ambient
-    const amb = Math.max(0, Math.min(1, ambientLevel));
-    const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-    slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-    slctx.fillRect(0, 0, lmW, lmH);
-
-    // Additively blend each static light
-    slctx.globalCompositeOperation = 'lighter';
-    for (const light of staticLights) {
-      _renderOneLight(slctx, light, time, segments, lmTransform, propShadowZones);
-    }
-
-    // Normal map bump uses all lights for direction, but only apply on static pass
-    if (textureCatalog) {
-      applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog);
-    }
-
+    _t('lighting:staticBuild', () =>
+      _buildStaticLightmap(staticCanvas, lmW, lmH, staticLights, activeLights, {
+        time,
+        ambientLevel,
+        ambientColor,
+        segments,
+        openSegments,
+        propShadowIndex,
+        lmTransform,
+        cells,
+        gridSize,
+        textureCatalog,
+      }),
+    );
     _staticLmValid = true;
   }
 
@@ -908,6 +1914,8 @@ export function renderLightmap(
   const dw = useDest ? destW : canvasW;
   const dh = useDest ? destH : canvasH;
 
+  const bloomIntensity = metadata?.bloomIntensity ?? 0;
+
   if (!hasAnimated) {
     // Fast path: no animated lights — composite static lightmap directly
     ctx.save();
@@ -915,10 +1923,136 @@ export function renderLightmap(
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(staticCanvas, dx, dy, dw, dh);
     ctx.restore();
+    if (bloomIntensity > 0) _applyBloom(ctx, staticCanvas, dx, dy, dw, dh, bloomIntensity);
+    _lastRenderLightmapKey = cacheKey;
+    _lastRenderLightmapHadAnimated = false;
     return;
   }
 
   // ── Animated lights: blit static cache + render animated lights ──
+  const animatedLightmap = _t('lighting:animated', () =>
+    _renderAnimatedOverlay(ctx, staticCanvas, lmW, lmH, animatedLights, {
+      time,
+      segments,
+      openSegments,
+      propShadowIndex,
+      lmTransform,
+      dest: { x: dx, y: dy, w: dw, h: dh },
+      ambientAnim: hasAmbientAnim ? ambientAnim : null,
+      ambientColor,
+    }),
+  );
+  if (bloomIntensity > 0) _applyBloom(ctx, animatedLightmap, dx, dy, dw, dh, bloomIntensity);
+  _lastRenderLightmapKey = cacheKey;
+  _lastRenderLightmapHadAnimated = true;
+
+  // Sweep completed group transitions: anything past its duration moves out of
+  // the runtime store so its lights flip back to the static-baked layer next
+  // frame. Invalidate the static cache once at the boundary so the partition
+  // takes effect.
+  if (groupTransitions.size > 0) {
+    let didComplete = false;
+    for (const [g, tr] of groupTransitions) {
+      const elapsed = (time - tr.startedAt) * 1000;
+      if (elapsed >= tr.durationMs) {
+        groupTransitions.delete(g);
+        didComplete = true;
+      }
+    }
+    if (didComplete) {
+      _staticLmValid = false;
+      _lastRenderLightmapKey = null;
+    }
+  }
+}
+
+/**
+ * Per-frame build of the cached static lightmap layer: ambient fill + every
+ * non-animated light + normal-map bump. Caller flips `_staticLmValid = true`
+ * on return. Split out of renderLightmap so the invalidation-driven rebuild
+ * is easy to follow and to benchmark in isolation.
+ */
+function _buildStaticLightmap(
+  staticCanvas: OffscreenCanvas | HTMLCanvasElement,
+  lmW: number,
+  lmH: number,
+  staticLights: Light[],
+  allLights: Light[],
+  params: {
+    time: number;
+    ambientLevel: number;
+    ambientColor: string;
+    segments: WallSegment[];
+    openSegments: WallSegment[] | null;
+    propShadowIndex: PropShadowIndex;
+    lmTransform: RenderTransform;
+    cells: CellGrid;
+    gridSize: number;
+    textureCatalog: TextureCatalog | null;
+  },
+): void {
+  const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+  slctx.globalCompositeOperation = 'source-over';
+
+  // Fill with ambient
+  const amb = Math.max(0, Math.min(1, params.ambientLevel));
+  const { r: ar, g: ag, b: ab } = parseColor(params.ambientColor);
+  slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
+  slctx.fillRect(0, 0, lmW, lmH);
+
+  // Additively blend each static light
+  slctx.globalCompositeOperation = 'lighter';
+  for (const light of staticLights) {
+    _renderOneLight(
+      slctx,
+      light,
+      params.time,
+      params.segments,
+      params.lmTransform,
+      params.propShadowIndex,
+      params.openSegments,
+    );
+  }
+
+  // Normal map bump uses all lights for direction, but only apply on static pass
+  if (params.textureCatalog) {
+    _t('lighting:normalMap', () =>
+      applyNormalMapBump(slctx, allLights, params.cells, params.gridSize, params.lmTransform, params.textureCatalog),
+    );
+  }
+}
+
+/**
+ * Per-frame animated overlay: copy the baked static layer onto the scratch
+ * canvas, render each animated light on top, then composite the combined
+ * lightmap onto the main context with 'multiply'.
+ */
+function _renderAnimatedOverlay(
+  ctx: CanvasRenderingContext2D,
+  staticCanvas: OffscreenCanvas | HTMLCanvasElement,
+  lmW: number,
+  lmH: number,
+  animatedLights: Light[],
+  params: {
+    time: number;
+    segments: WallSegment[];
+    openSegments: WallSegment[] | null;
+    propShadowIndex: PropShadowIndex;
+    lmTransform: RenderTransform;
+    dest: { x: number; y: number; w: number; h: number };
+    ambientAnim?: {
+      type: string;
+      speed?: number;
+      amplitude?: number;
+      frequency?: number;
+      duration?: number;
+      probability?: number;
+      baseline?: number;
+      phase?: number;
+    } | null;
+    ambientColor?: string;
+  },
+): OffscreenCanvas | HTMLCanvasElement {
   const lightCanvas = _getLightmapCanvas(lmW, lmH);
   const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
 
@@ -926,18 +2060,239 @@ export function renderLightmap(
   lctx.globalCompositeOperation = 'source-over';
   lctx.drawImage(staticCanvas, 0, 0);
 
+  // Map-wide ambient animation: paint a full-canvas additive flash whose
+  // intensity follows a strike envelope. Currently only `strike` is meaningful;
+  // pulse/flicker on ambient would also work but would force-invalidate the
+  // static cache to avoid double-counting, which we don't want.
+  if (params.ambientAnim?.type === 'strike') {
+    const a = params.ambientAnim;
+    const speed = a.speed ?? 1;
+    const amplitude = a.amplitude ?? 1;
+    const phase = a.phase ?? 0;
+    const freq = a.frequency ?? 0.1; // storms strike less often than per-light wards
+    const dur = a.duration ?? 0.18;
+    const prob = a.probability ?? 0.5;
+    const t = (params.time + phase) * speed * ANIM_TIME_SCALE;
+    const win = 1 / Math.max(0.001, freq);
+    const idx = Math.floor(t / win);
+    const localT = (t - idx * win) / win;
+    const roll = hash32((idx * 0x9e3779b1) | 0);
+    if (roll < prob && localT < dur) {
+      const env = strikeEnvelope(localT / dur);
+      const flashAlpha = Math.max(0, Math.min(1, amplitude * env));
+      if (flashAlpha > 0.01) {
+        const c = parseColor(params.ambientColor && params.ambientColor.length > 0 ? params.ambientColor : '#ccddff');
+        lctx.save();
+        lctx.globalCompositeOperation = 'lighter';
+        lctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${flashAlpha.toFixed(3)})`;
+        lctx.fillRect(0, 0, lmW, lmH);
+        lctx.restore();
+      }
+    }
+  }
+
   // Additively blend animated lights
   lctx.globalCompositeOperation = 'lighter';
   for (const light of animatedLights) {
-    _renderOneLight(lctx, light, time, segments, lmTransform, propShadowZones);
+    _renderOneLight(
+      lctx,
+      light,
+      params.time,
+      params.segments,
+      params.lmTransform,
+      params.propShadowIndex,
+      params.openSegments,
+    );
   }
 
   // Composite lightmap onto main canvas with multiply
+  const { x, y, w, h } = params.dest;
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(lightCanvas, dx, dy, dw, dh);
+  ctx.drawImage(lightCanvas, x, y, w, h);
   ctx.restore();
+  return lightCanvas;
+}
+
+/**
+ * Bloom post-pass. Composite a Gaussian-blurred copy of the lightmap onto
+ * the scene with `lighter`, so bright torches bleed a soft halo over their
+ * surroundings. Uses canvas `filter: blur()` — supported in Chromium/Edge
+ * including Electron ≥ 24; no-op on browsers without support (filter is
+ * silently ignored, result is just a soft additive pass without blur).
+ *
+ * Cost is small: one drawImage with filter, one composite. Fits well inside
+ * a 60 fps frame budget.
+ */
+const BLOOM_BLUR_PX = 10;
+function _applyBloom(
+  ctx: CanvasRenderingContext2D,
+  lightmap: OffscreenCanvas | HTMLCanvasElement,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number,
+  intensity: number,
+) {
+  const alpha = Math.max(0, Math.min(1, intensity));
+  if (alpha === 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = alpha;
+  ctx.filter = `blur(${BLOOM_BLUR_PX}px)`;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightmap, dx, dy, dw, dh);
+  ctx.restore();
+}
+
+/**
+ * Cache-keyed per-light geometry: (visibility polygon, prop shadow polygons).
+ * Both depend only on light position/z/radius + world geometry, so animated
+ * flicker/pulse lights that only vary intensity reuse the same entries every
+ * frame. Cache is cleared by invalidateVisibilityCache().
+ */
+function _getOrComputeLightGeometry(
+  eff: Light,
+  effectiveRadius: number,
+  lightZ: number,
+  segments: WallSegment[],
+  propShadowIndex: PropShadowIndex,
+  openSegments: WallSegment[] | null = null,
+): {
+  cacheKey: string;
+  visibility: Float32Array;
+  openVisibility: Float32Array | null;
+  softVisibilities: Float32Array[] | null;
+  propShadows: Array<{
+    shadowPoly: number[][];
+    nearCenter: number[];
+    farCenter: number[];
+    opacity: number;
+    hard: boolean;
+  }>;
+  gobos: NonNullable<Light['_gobos']>;
+} {
+  const cacheKey = `${eff.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
+  let visibility = visibilityCache.get(cacheKey);
+  if (!visibility) {
+    visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
+    visibilityCache.set(cacheKey, visibility);
+  }
+  // Aperture-visibility polygon: the visibility this light would have if
+  // window edges were open. Used to bound aperture sunpools by walls
+  // beyond the window. Only computed when there's at least one aperture
+  // gobo in the map — otherwise it would duplicate `visibility`.
+  let openVisibility: Float32Array | null = null;
+  if (openSegments) {
+    openVisibility = openVisibilityCache.get(cacheKey) ?? null;
+    if (!openVisibility) {
+      openVisibility = computeVisibility(eff.x, eff.y, effectiveRadius, openSegments);
+      openVisibilityCache.set(cacheKey, openVisibility);
+    }
+  }
+  // Soft-shadow samples: compute N extra visibility polygons at jittered
+  // offsets around the light center, cached separately so the hot flicker/
+  // pulse path doesn't recompute them every frame.
+  let softVisibilities: Float32Array[] | null = null;
+  const softR = eff.softShadowRadius ?? 0;
+  if (softR > 0) {
+    const softKey = `${cacheKey}|soft${softR}`;
+    softVisibilities = softVisibilitiesCache.get(softKey) ?? null;
+    if (!softVisibilities) {
+      softVisibilities = [];
+      for (let i = 0; i < SOFT_SHADOW_SAMPLES; i++) {
+        // Golden-angle disc sampling: angle spirals, radius = √(i/N)·softR
+        // → samples spread uniformly across the disc.
+        const angle = i * SOFT_SHADOW_GOLDEN_ANGLE;
+        const r = Math.sqrt((i + 0.5) / SOFT_SHADOW_SAMPLES) * softR;
+        const sx = eff.x + Math.cos(angle) * r;
+        const sy = eff.y + Math.sin(angle) * r;
+        softVisibilities.push(computeVisibility(sx, sy, effectiveRadius, segments));
+      }
+      softVisibilitiesCache.set(softKey, softVisibilities);
+    }
+  }
+  let propShadows = propShadowsCache.get(cacheKey);
+  if (!propShadows) {
+    propShadows = [];
+    if (propShadowIndex.size > 0) {
+      const rSq = effectiveRadius * effectiveRadius;
+      // query() pre-filters to zones whose bucket overlaps the light's bbox;
+      // the centroid distance check catches the remaining buckets near the
+      // corners of the bbox that fall outside the actual circle.
+      for (const zone of propShadowIndex.query(eff.x, eff.y, effectiveRadius)) {
+        const dx = zone.centroidX - eff.x;
+        const dy = zone.centroidY - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+        const shadow = computePropShadowPolygon(
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.worldPolygon,
+          zone.zBottom,
+          zone.zTop,
+          effectiveRadius,
+        );
+        if (shadow) propShadows.push(shadow);
+      }
+    }
+    propShadowsCache.set(cacheKey, propShadows);
+  }
+
+  // Gobo projections (upright patterned occluders → multiply-masked quads on
+  // the floor). Read the module-level index directly — it's rebuilt in
+  // renderLightmap before any per-light work runs.
+  let gobos = goboProjectionsCache.get(cacheKey);
+  if (!gobos) {
+    gobos = [];
+    if (cachedGoboIndex && cachedGoboIndex.size > 0) {
+      const rSq = effectiveRadius * effectiveRadius;
+      for (const zone of cachedGoboIndex.query(eff.x, eff.y, effectiveRadius)) {
+        const dx = zone.centroidX - eff.x;
+        const dy = zone.centroidY - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+        // When the light sits INSIDE the gobo's z range [zBottom, zTop],
+        // rays through z > lightZ travel upward and never hit the floor —
+        // the projection formula (lightZ / (lightZ - zTop)) would flip
+        // negative and smear the pattern behind the light. Clamp the
+        // effective zTop to just below the light's z so everything
+        // projects forward; a light at exactly aperture-height produces
+        // a near-horizontal ray that hits the outer radius instead of
+        // inverting.
+        const effZTop = Math.min(zone.zTop, lightZ - 0.01);
+        if (effZTop <= zone.zBottom) continue; // light at/below aperture bottom
+        const proj = computeGoboProjectionPolygon(
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.x1,
+          zone.y1,
+          zone.x2,
+          zone.y2,
+          zone.zBottom,
+          effZTop,
+          effectiveRadius,
+        );
+        if (!proj) continue;
+        gobos.push({
+          quad: proj.quad,
+          zBottom: zone.zBottom,
+          zTop: effZTop,
+          goboId: zone.goboId,
+          pattern: zone.pattern,
+          density: zone.density,
+          orientation: zone.orientation ?? 'vertical',
+          mode: zone.mode,
+          strength: zone.strength,
+          ...(zone.tintColor ? { tintColor: zone.tintColor } : {}),
+          ...(zone.colors?.length ? { colors: zone.colors } : {}),
+        });
+      }
+    }
+    goboProjectionsCache.set(cacheKey, gobos);
+  }
+  return { cacheKey, visibility, openVisibility, softVisibilities, propShadows, gobos };
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
@@ -947,8 +2302,10 @@ function _renderOneLight(
   time: number,
   segments: WallSegment[],
   transform: RenderTransform,
-  propShadowZones: ReturnType<typeof extractPropShadowZones>,
+  propShadowIndex: PropShadowIndex,
+  openSegments: WallSegment[] | null = null,
 ) {
+  _currentFrameTime = time;
   const eff = getEffectiveLight(light, time);
   const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
   const effectiveRadius = eff.range ?? outerRadius;
@@ -957,8 +2314,6 @@ function _renderOneLight(
   // Cull lights whose bounding circle doesn't touch the lightmap canvas.
   // Avoids running computeVisibility (which does ray casts against every
   // nearby wall endpoint) on lights that can never contribute a pixel.
-  // `transform` is the lightmap transform, so (x,y)*scale+offset lands in
-  // lctx.canvas-space directly.
   const cxPx = eff.x * transform.scale + transform.offsetX;
   const cyPx = eff.y * transform.scale + transform.offsetY;
   const rPx = effectiveRadius * transform.scale;
@@ -968,86 +2323,83 @@ function _renderOneLight(
     return;
   }
 
-  const cacheKey = `${light.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
-  let visibility = visibilityCache.get(cacheKey);
-  if (!visibility) {
-    visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
-    visibilityCache.set(cacheKey, visibility);
-  }
-
-  // Compute z-height prop shadow polygons for this light. Shadow geometry
-  // only depends on light position+z+radius and prop zones (both invalidated
-  // via invalidateVisibilityCache → propShadowsCache.clear), so animated
-  // flicker/pulse lights that only vary intensity reuse the cached polygons.
-  let propShadows = propShadowsCache.get(cacheKey);
-  if (!propShadows) {
-    propShadows = [];
-    if (propShadowZones.length) {
-      const rSq = effectiveRadius * effectiveRadius;
-      for (const { zones } of propShadowZones) {
-        for (const zone of zones) {
-          // Cull props outside the light's radius — use centroid distance check
-          const cx = zone.centroidX;
-          const cy = zone.centroidY;
-          const dx = cx - eff.x;
-          const dy = cy - eff.y;
-          if (dx * dx + dy * dy > rSq) continue;
-
-          const shadow = computePropShadowPolygon(
-            eff.x,
-            eff.y,
-            lightZ,
-            zone.worldPolygon,
-            zone.zBottom,
-            zone.zTop,
-            effectiveRadius,
-          );
-          if (shadow) propShadows.push(shadow);
-        }
-      }
-    }
-    propShadowsCache.set(cacheKey, propShadows);
-  }
-  // Attach shadow data to the effective light so render functions can use it
+  const { visibility, openVisibility, softVisibilities, propShadows, gobos } = _getOrComputeLightGeometry(
+    eff,
+    effectiveRadius,
+    lightZ,
+    segments,
+    propShadowIndex,
+    openSegments,
+  );
+  // Attach shadow + gobo data to the effective light so render functions can use it
   eff._propShadows = propShadows;
+  eff._gobos = gobos;
+  // Stash the aperture-visibility polygon on the effective light so the
+  // gobo pipeline can clip sunpools to it. Non-enumerable would be nicer,
+  // but the Light type already accepts ad-hoc caches like `_gobos`.
+  (eff as Light & { _openVisibility?: Float32Array | null })._openVisibility = openVisibility;
 
   if (eff.type === 'directional') {
-    renderDirectionalLight(lctx, eff, visibility, transform);
+    renderDirectionalLight(lctx, eff, visibility, transform, softVisibilities);
     return;
   }
 
-  // Bake-cache fast path: flicker/pulse/strobe animations that only vary
-  // intensity (no radiusVariation) reuse a composited RT across frames —
-  // per-frame cost collapses to one `drawImage` with `globalAlpha`.
-  // destination-in (visibility) and destination-out (prop shadows) both
-  // commute with globalAlpha scaling, so the result is identical.
+  // Bake-cache fast path: flicker/pulse/strobe/strike animations that only
+  // vary intensity (no radius / color / angle / cookie change) reuse a
+  // composited RT across frames — per-frame cost collapses to one
+  // `drawImage` with `globalAlpha`. destination-in (visibility) and
+  // destination-out (prop shadows) both commute with globalAlpha scaling,
+  // so the result is identical.
   const anim = light.animation;
+  const colorAnimates = !!anim && anim.colorMode && anim.colorMode !== 'none';
+  const cookieAnimates =
+    !!light.cookie &&
+    ((light.cookie.rotationSpeed ?? 0) !== 0 ||
+      (light.cookie.scrollSpeedX ?? 0) !== 0 ||
+      (light.cookie.scrollSpeedY ?? 0) !== 0);
   const intensityOnly =
     !!anim?.type &&
     !(anim.radiusVariation && anim.radiusVariation > 0) &&
-    (anim.type === 'flicker' || anim.type === 'pulse' || anim.type === 'strobe');
+    !colorAnimates &&
+    !cookieAnimates &&
+    (anim.type === 'flicker' || anim.type === 'pulse' || anim.type === 'strobe' || anim.type === 'strike');
   if (intensityOnly) {
     const bakeKey = `${light.id}:${transform.scale.toFixed(3)}`;
     let baked = bakedLightCache.get(bakeKey);
     if (baked?.scale !== transform.scale) {
       const vpW2 = lctx.canvas.width;
       const vpH2 = lctx.canvas.height;
-      // Bake the light with propShadows attached at intensity=1.
-      const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows };
-      baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2) ?? undefined;
+      // Bake the light with propShadows, gobos, and aperture-visibility
+      // attached at intensity=1. `_openVisibility` is needed for aperture
+      // sunpools to be bounded by walls beyond the window — without it,
+      // sunpools leak into rooms the window opens onto that have their
+      // own walls.
+      const bakeLight: Light & { _openVisibility?: Float32Array | null } = {
+        ...light,
+        intensity: 1,
+        _propShadows: propShadows,
+        _gobos: gobos,
+        _openVisibility: openVisibility,
+      };
+      baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2, softVisibilities) ?? undefined;
       if (baked) bakedLightCache.set(bakeKey, baked);
     }
     if (baked) {
       const alpha = Math.max(0, Math.min(1, eff.intensity));
       lctx.save();
       lctx.globalAlpha = alpha;
+      // Darkness lights paint black pixels directly — the baked RT was built
+      // from a black gradient, so source-over composites it over the
+      // accumulated lightmap (and the outer 'lighter' mode the caller set
+      // would incorrectly additively blend black with existing light).
+      if (light.darkness) lctx.globalCompositeOperation = 'source-over';
       lctx.drawImage(baked.canvas, baked.bbX, baked.bbY);
       lctx.restore();
       return;
     }
   }
 
-  renderPointLight(lctx, eff, visibility, transform);
+  renderPointLight(lctx, eff, visibility, transform, softVisibilities);
 }
 
 // ─── Simplified Normal Map Bump Effect ─────────────────────────────────────
@@ -1061,7 +2413,6 @@ function _renderOneLight(
  * modifier that gives textured surfaces visual depth under lighting.
  */
 // Reusable temp canvas for normal map sampling (avoids per-cell allocation)
-const BUMP_SAMPLE_SIZE = 4;
 let bumpTmpCanvas = null;
 let bumpTmpCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
 
@@ -1132,7 +2483,7 @@ function applyNormalMapBump(
       // Light direction as a 3D vector: (lx, ly, 0.7) normalized — slight top-down bias
       const lx3 = lenXY > 0 ? (totalLightX / lenXY) * 0.5 : 0;
       const ly3 = lenXY > 0 ? (totalLightY / lenXY) * 0.5 : 0;
-      const lz3 = 0.7;
+      const lz3 = BUMP_LIGHT_HEIGHT_FRAC;
       const lLen = Math.sqrt(lx3 * lx3 + ly3 * ly3 + lz3 * lz3);
 
       // Sample normal map at 4x4 grid and average the dot product
@@ -1153,10 +2504,7 @@ function applyNormalMapBump(
       let dotSum = 0;
       let sampleCount = 0;
       for (let i = 0; i < data.length; i += 4) {
-        // Normal map: RGB = XYZ mapped from [0,255] to [-1,1]
-        const nx = (data[i]! / 255) * 2 - 1;
-        const ny = (data[i + 1]! / 255) * 2 - 1;
-        const nz = (data[i + 2]! / 255) * 2 - 1;
+        const [nx, ny, nz] = unpackNormal(data, i);
 
         // Dot product with light direction
         const dot = (nx * lx3 + ny * ly3 + nz * lz3) / lLen;
@@ -1167,8 +2515,9 @@ function applyNormalMapBump(
       if (sampleCount === 0) continue;
       const avgDot = dotSum / sampleCount;
 
-      // Map to a subtle brightness range: 0.85 (steep surfaces) to 1.1 (flat/aligned surfaces)
-      const bumpFactor = 0.85 + avgDot * 0.25;
+      // Map avgDot (0 = grazing / steep, 1 = head-on) into a subtle brightness
+      // range via lighting-config.BUMP_RT_BASE + avgDot * BUMP_RT_SPAN.
+      const bumpFactor = BUMP_RT_BASE + avgDot * BUMP_RT_SPAN;
       const bumpByte = Math.round(Math.max(0, Math.min(255, bumpFactor * 255)));
 
       // Draw cell overlay
@@ -1271,13 +2620,13 @@ export function renderCoverageHeatmap(
 
 /**
  * Generate synthetic point lights for fill cells that should emit light (e.g. lava).
- * Called before renderLightmap / renderLightmapHQ whenever lighting is enabled.
+ * Called before renderLightmap whenever lighting is enabled.
  * Color and intensity are read from the resolved theme so themeOverrides apply automatically.
  *
  * @param {Array} cells - 2D cell grid
  * @param {number} gridSize - World feet per grid square
  * @param {object} theme - Resolved theme object (including any themeOverrides)
- * @returns {Array} Light objects ready for renderLightmap / renderLightmapHQ
+ * @returns {Array} Light objects ready for renderLightmap
  */
 let _fillLightsCache: {
   cells: CellGrid;

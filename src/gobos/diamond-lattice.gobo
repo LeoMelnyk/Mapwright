@@ -1,0 +1,4 @@
+name: Diamond Lattice
+description: Leaded diamond-paned window — crisscross bars cast a tight diagonal lattice.
+pattern: diamond
+density: 6

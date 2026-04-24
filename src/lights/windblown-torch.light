@@ -1,0 +1,22 @@
+{
+  "displayName": "Windblown Torch",
+  "category": "Fire & Flame",
+  "description": "An outdoor torch buffeted by wind — gusty noise flicker with occasional guttering",
+  "type": "point",
+  "color": "#ff8833",
+  "radius": 18,
+  "dimRadius": 32,
+  "intensity": 1.0,
+  "falloff": "smooth",
+  "z": 7,
+  "animation": {
+    "type": "flicker",
+    "speed": 1.2,
+    "amplitude": 0.45,
+    "radiusVariation": 0.18,
+    "pattern": "noise",
+    "guttering": 0.4,
+    "colorMode": "auto",
+    "colorVariation": 0.7
+  }
+}

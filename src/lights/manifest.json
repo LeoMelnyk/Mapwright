@@ -10,6 +10,8 @@
   "bonfire",
   "forge",
   "ember",
+  "windblown-torch",
+  "dying-candle",
   "light-cantrip",
   "dancing-lights",
   "continual-flame",
@@ -33,5 +35,15 @@
   "dim",
   "bright",
   "spotlight",
-  "ambient-glow"
+  "ambient-glow",
+  "magical-ward",
+  "malfunctioning-portal",
+  "arcing-crystal",
+  "summoning-sigil",
+  "lighthouse-beam",
+  "nervous-lantern",
+  "stained-glass-window",
+  "prison-bars-light",
+  "canopy-dapple",
+  "water-caustics"
 ]

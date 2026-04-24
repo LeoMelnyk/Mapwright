@@ -1340,8 +1340,151 @@ function diagonalWallSegmentCoords(
   return { p1, p2 };
 }
 
+/**
+ * Render a "window run" — one or more adjacent `'win'` edges treated as a
+ * single wide window for visual purposes. The caller passes the canonical
+ * run-start cell (`row, col`), the canonical direction (`'north'`, `'west'`,
+ * `'nw-se'`, or `'ne-sw'`), and the number of cells the run spans.
+ *
+ * Style: a filled glass-pane rectangle centered on the wall edge with a
+ * wall-colored frame and vertical mullion dividers at each cell boundary.
+ * Window edges are NOT added to the wall-segments batch (the window symbol
+ * replaces the wall stroke on its edge). Flanking `'w'` walls still draw
+ * their strokes up to the window's ends.
+ */
+function renderWindowRun(
+  ctx: CanvasRenderingContext2D,
+  row: number,
+  col: number,
+  direction: 'north' | 'west' | 'nw-se' | 'ne-sw',
+  runLen: number,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
+  if (runLen <= 0) return;
+  const s = scaleFactor(transform);
+
+  // Run endpoints in grid coordinates.
+  //   north  — horizontal along row `row`        : (col,   row)   → (col+L, row)
+  //   west   — vertical along column `col`       : (col,   row)   → (col,   row+L)
+  //   nw-se  — diagonal down-right through cells : (col,   row)   → (col+L, row+L)
+  //   ne-sw  — diagonal down-left through cells  : (col+1, row)   → (col+1-L, row+L)
+  let x1: number, y1: number, x2: number, y2: number;
+  if (direction === 'north') {
+    x1 = col;
+    y1 = row;
+    x2 = col + runLen;
+    y2 = row;
+  } else if (direction === 'west') {
+    x1 = col;
+    y1 = row;
+    x2 = col;
+    y2 = row + runLen;
+  } else if (direction === 'nw-se') {
+    x1 = col;
+    y1 = row;
+    x2 = col + runLen;
+    y2 = row + runLen;
+  } else {
+    // ne-sw
+    x1 = col + 1;
+    y1 = row;
+    x2 = col + 1 - runLen;
+    y2 = row + runLen;
+  }
+
+  const p1 = toCanvas(x1 * gridSize, y1 * gridSize, transform);
+  const p2 = toCanvas(x2 * gridSize, y2 * gridSize, transform);
+
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 0.5) return;
+  // Right-hand perpendicular in screen space (unit length).
+  const nx = -dy / len;
+  const ny = dx / len;
+
+  // Pane rectangle geometry. `paneHalf` is the half-thickness perpendicular
+  // to the wall line — matches a door's visual thickness (~6*s) so the
+  // window reads at the same weight as a door panel at any zoom. Ends are
+  // trimmed slightly so the pane doesn't overrun the flanking wall stroke.
+  const paneHalf = 4.5 * s;
+  const endMargin = 2 * s;
+  const startT = endMargin / len;
+  const endT = 1 - endMargin / len;
+
+  const qx1 = p1.x + dx * startT;
+  const qy1 = p1.y + dy * startT;
+  const qx2 = p1.x + dx * endT;
+  const qy2 = p1.y + dy * endT;
+
+  // Four corners of the pane, counter-clockwise.
+  const c1x = qx1 + nx * paneHalf;
+  const c1y = qy1 + ny * paneHalf;
+  const c2x = qx2 + nx * paneHalf;
+  const c2y = qy2 + ny * paneHalf;
+  const c3x = qx2 - nx * paneHalf;
+  const c3y = qy2 - ny * paneHalf;
+  const c4x = qx1 - nx * paneHalf;
+  const c4y = qy1 - ny * paneHalf;
+
+  ctx.save();
+  ctx.lineCap = 'butt';
+  ctx.lineJoin = 'miter';
+
+  // Glass pane fill — saturated cyan-blue so the window survives warm
+  // ambient lighting (which otherwise washes pale blues toward peach) and
+  // cannot be confused with a door panel. Using a single strong tone
+  // instead of a pale base + wash — fewer layers, stronger signal.
+  ctx.fillStyle = theme.windowFill ?? '#4a9ec9';
+  ctx.beginPath();
+  ctx.moveTo(c1x, c1y);
+  ctx.lineTo(c2x, c2y);
+  ctx.lineTo(c3x, c3y);
+  ctx.lineTo(c4x, c4y);
+  ctx.closePath();
+  ctx.fill();
+
+  // Frame outline — same color as the wall stroke, clearly delineates the
+  // pane against the floor. Stroke the current pane path before starting
+  // new paths for the highlight.
+  ctx.strokeStyle = theme.wallStroke;
+  ctx.lineWidth = 3 * s;
+  ctx.stroke();
+
+  // Glass reflection highlight — a thin bright streak along the centerline
+  // of the pane (parallel to the wall). This is the classic top-down "glass
+  // pane" cue and reads as a window regardless of scene lighting, since
+  // the brightness contrast survives color shifts.
+  ctx.strokeStyle = theme.windowTint ?? '#e8f4fb';
+  ctx.lineWidth = Math.max(1, 1.5 * s);
+  ctx.beginPath();
+  ctx.moveTo(qx1, qy1);
+  ctx.lineTo(qx2, qy2);
+  ctx.stroke();
+
+  // Mullion dividers — one perpendicular bar at each internal cell
+  // boundary. 1-cell runs show no internal mullions, just the framed pane;
+  // N-cell runs show N-1 internal mullions, reading as a segmented window.
+  if (runLen > 1) {
+    ctx.beginPath();
+    for (let i = 1; i < runLen; i++) {
+      const t = i / runLen;
+      const mx = p1.x + dx * t;
+      const my = p1.y + dy * t;
+      ctx.moveTo(mx + nx * paneHalf, my + ny * paneHalf);
+      ctx.lineTo(mx - nx * paneHalf, my - ny * paneHalf);
+    }
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
 export {
   renderBorder,
+  renderWindowRun,
   drawDoorAtPosition,
   drawSecretDoorAtPosition,
   drawStairsInCell,

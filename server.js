@@ -15,6 +15,7 @@ import { createCanvas, Path2D, ImageData } from '@napi-rs/canvas';
 import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile.js';
 import { THEMES } from './src/render/themes.js';
 import { loadPropCatalogSync } from './src/render/prop-catalog-node.js';
+import { loadGoboCatalogSync } from './src/render/gobo-catalog-node.js';
 import {
   loadTextureCatalogMetadata,
   ensureTexturesForConfig,
@@ -158,10 +159,7 @@ function writeManifest(destDir) {
       }
     }
     const version = hasher.digest('hex').slice(0, 16);
-    fs.writeFileSync(
-      path.join(texturesDir, 'bundle.json'),
-      JSON.stringify({ version, textures }),
-    );
+    fs.writeFileSync(path.join(texturesDir, 'bundle.json'), JSON.stringify({ version, textures }));
   } catch {
     /* ignore — dir may not exist yet */
   }
@@ -170,6 +168,7 @@ function writeManifest(destDir) {
 // ── Load asset catalogs at startup ──────────────────────────────────────────
 
 const propCatalog = loadPropCatalogSync();
+loadGoboCatalogSync();
 let textureCatalog = loadTextureCatalogMetadata();
 
 // Load themes
@@ -242,6 +241,7 @@ app.use('/user-themes', express.static(userThemePath));
 // Data assets (props, lights, themes, rooms) always served from src/ — they're not code
 app.use('/props', express.static(path.join(__dirname, 'src', 'props')));
 app.use('/lights', express.static(path.join(__dirname, 'src', 'lights')));
+app.use('/gobos', express.static(path.join(__dirname, 'src', 'gobos')));
 app.use('/themes', express.static(path.join(__dirname, 'src', 'themes')));
 app.use('/rooms', express.static(path.join(__dirname, 'src', 'rooms')));
 
@@ -388,10 +388,14 @@ app.post('/api/export-png', async (req, res) => {
 app.post('/api/export-dd2vtt', async (req, res) => {
   const start = performance.now();
   try {
-    const config = req.body;
+    const { exportOptions, ...config } = req.body ?? {};
     if (!config?.metadata || !config?.cells) {
       return res.status(400).json({ error: 'Invalid dungeon config' });
     }
+    const renderOptions = {
+      bakeLighting: exportOptions?.bakeLighting !== false,
+      bakeWeather: exportOptions?.bakeWeather !== false,
+    };
 
     await ensureTexturesForConfig(textureCatalog, config, propCatalog);
 
@@ -399,7 +403,7 @@ app.post('/api/export-dd2vtt', async (req, res) => {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    renderDungeonToCanvas(ctx, config, width, height, propCatalog, textureCatalog);
+    renderDungeonToCanvas(ctx, config, width, height, propCatalog, textureCatalog, null, renderOptions);
 
     const pngBuffer = canvas.toBuffer('image/png');
     const dd2vtt = buildDd2vtt(pngBuffer, config, width, height);
@@ -408,7 +412,7 @@ app.post('/api/export-dd2vtt', async (req, res) => {
     const jsonStr = JSON.stringify(dd2vtt);
     console.log(`[export] dd2vtt ${width}x${height}, ${(jsonStr.length / 1024).toFixed(0)}KB in ${elapsed}ms`);
 
-    const filename = (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
+    const filename = (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.uvtt';
     res.set('Content-Type', 'application/json');
     res.set('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(jsonStr);

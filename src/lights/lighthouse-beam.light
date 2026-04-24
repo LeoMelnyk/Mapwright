@@ -1,0 +1,13 @@
+{
+  "displayName": "Lighthouse Beam",
+  "category": "Utility",
+  "description": "A focused white beam slowly sweeping a full circle",
+  "type": "directional",
+  "color": "#fff5dd",
+  "radius": 80,
+  "intensity": 1.4,
+  "falloff": "linear",
+  "z": 30,
+  "spread": 8,
+  "animation": { "type": "sweep", "speed": 1.0, "amplitude": 0, "angularSpeed": 30 }
+}

@@ -270,6 +270,90 @@ export function generateHitbox(commands: PropCommand[], footprint: [number, numb
   return simplified.length >= 3 ? simplified : null;
 }
 
+/** Convert manual hitbox commands (rect/circle/poly) into a single polygon. */
+function manualHitboxToPolygon(cmds: PropCommand[]): [number, number][] | null {
+  const points: [number, number][] = [];
+  for (const cmd of cmds) {
+    switch (cmd.subShape) {
+      case 'rect':
+        points.push(
+          [cmd.x!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+          [cmd.x!, cmd.y! + cmd.h!],
+        );
+        break;
+      case 'circle': {
+        const N = 16;
+        for (let i = 0; i < N; i++) {
+          const angle = (i / N) * Math.PI * 2;
+          points.push([cmd.cx! + cmd.r! * Math.cos(angle), cmd.cy! + cmd.r! * Math.sin(angle)]);
+        }
+        break;
+      }
+      case 'poly':
+        if (cmd.points?.length) points.push(...(cmd.points as [number, number][]));
+        break;
+      case undefined:
+      default:
+        break;
+    }
+  }
+  return points.length >= 3 ? points : null;
+}
+
+/**
+ * Build hitbox zones for z-height shadow projection.
+ * If manual hitbox commands carry z ranges, creates one zone per distinct range.
+ * Otherwise produces a single zone using the prop's height header (or Infinity).
+ */
+function buildHitboxZones(def: PropDefinition): { polygon: number[][]; zBottom: number; zTop: number }[] | null {
+  const hasZRanges = def.manualHitbox?.some((cmd: PropCommand) => cmd.zBottom != null);
+
+  if (hasZRanges) {
+    const groups = new Map<string, { cmds: PropCommand[]; zBottom: number; zTop: number }>();
+    for (const cmd of def.manualHitbox!) {
+      const key = cmd.zBottom != null ? `${cmd.zBottom}-${cmd.zTop}` : 'default';
+      if (!groups.has(key)) groups.set(key, { cmds: [], zBottom: cmd.zBottom ?? 0, zTop: cmd.zTop ?? Infinity });
+      groups.get(key)!.cmds.push(cmd);
+    }
+    const zones: { polygon: number[][]; zBottom: number; zTop: number }[] = [];
+    for (const { cmds, zBottom, zTop } of groups.values()) {
+      const polygon = manualHitboxToPolygon(cmds);
+      if (polygon) zones.push({ polygon, zBottom, zTop });
+    }
+    return zones.length > 0 ? zones : null;
+  }
+
+  const polygon = def.hitbox;
+  if (!polygon) return null;
+  const zTop = def.height != null && isFinite(def.height) ? def.height : Infinity;
+  return [{ polygon, zBottom: 0, zTop }];
+}
+
+/**
+ * Populate a prop definition's hitbox fields in place:
+ * `autoHitbox` (convex-hull rasterization of draw commands), `hitbox`
+ * (manual override or autoHitbox), `hitboxZones` (z-range polygons for light
+ * occlusion), `selectionHitbox` (manual selection override).
+ *
+ * Idempotent — each field is only computed if absent, so it's safe to call
+ * multiple times or on a def that already carries precomputed hitboxes (e.g.
+ * from the prop bundle's baked payload).
+ */
+export function materializePropHitbox(def: PropDefinition): void {
+  if (!def.autoHitbox && def.commands.length) {
+    def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
+  }
+  def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
+  if (!def.hitboxZones && def.blocksLight) {
+    def.hitboxZones = buildHitboxZones(def) ?? undefined;
+  }
+  if (!def.selectionHitbox && def.manualSelection?.length) {
+    def.selectionHitbox = manualHitboxToPolygon(def.manualSelection) ?? undefined;
+  }
+}
+
 /** Test a point (in prop-local normalized coords) against all commands at rotation=0, no flip. */
 function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand[]): boolean {
   let hit = false;

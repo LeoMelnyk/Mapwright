@@ -1,0 +1,21 @@
+{
+  "displayName": "Arcing Crystal",
+  "category": "Magical",
+  "description": "A crystal that erupts in brief electric flashes between long quiet periods",
+  "type": "point",
+  "color": "#bbddff",
+  "radius": 22,
+  "dimRadius": 35,
+  "intensity": 1.2,
+  "falloff": "smooth",
+  "z": 3,
+  "animation": {
+    "type": "strike",
+    "speed": 1.0,
+    "amplitude": 1.0,
+    "frequency": 0.3,
+    "duration": 0.18,
+    "probability": 0.5,
+    "baseline": 0.08
+  }
+}

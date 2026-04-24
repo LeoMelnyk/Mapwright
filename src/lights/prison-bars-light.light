@@ -1,0 +1,13 @@
+{
+  "displayName": "Prison Bars Light",
+  "category": "Utility",
+  "description": "Light through a barred window — vertical slats projected on the floor",
+  "type": "directional",
+  "color": "#dde0ee",
+  "radius": 18,
+  "intensity": 1.0,
+  "falloff": "linear",
+  "z": 10,
+  "spread": 30,
+  "cookie": { "type": "slats", "scale": 1.0, "strength": 0.95 }
+}

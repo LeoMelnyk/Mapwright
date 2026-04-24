@@ -1,0 +1,4 @@
+name: Rose Window
+description: Radial diamond pattern cast by a rose window's spoked tracery.
+pattern: diamond
+density: 4

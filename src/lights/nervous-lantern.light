@@ -1,0 +1,13 @@
+{
+  "displayName": "Nervous Lantern",
+  "category": "Utility",
+  "description": "A held lantern sweeping back and forth across a 120° arc",
+  "type": "directional",
+  "color": "#ffcc77",
+  "radius": 30,
+  "intensity": 1.0,
+  "falloff": "smooth",
+  "z": 5,
+  "spread": 25,
+  "animation": { "type": "sweep", "speed": 1.0, "amplitude": 0, "angularSpeed": 90, "arcRange": 120 }
+}

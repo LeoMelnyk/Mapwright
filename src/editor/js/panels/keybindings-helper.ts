@@ -32,6 +32,7 @@ const TOOL_BINDS = {
   ],
   wall: [{ key: 'Right-click', desc: 'Remove wall' }],
   door: [{ key: 'Right-click', desc: 'Remove door' }],
+  window: [{ key: 'Right-click', desc: 'Remove window' }],
   label: [{ key: 'Del', desc: 'Delete selected label' }],
   stairs: [
     { key: 'Esc', desc: 'Cancel placement' },
@@ -140,6 +141,7 @@ function getToolDisplayName(toolName: string) {
     fill: 'Fill',
     wall: 'Wall',
     door: 'Door',
+    window: 'Window',
     label: 'Label',
     stairs: 'Stairs',
     bridge: 'Bridge',
@@ -159,6 +161,7 @@ function getToolShortcut(toolName: string) {
     fill: '3',
     wall: '4',
     door: '5',
+    window: 'W',
     label: '6',
     stairs: 'S',
     bridge: 'B',

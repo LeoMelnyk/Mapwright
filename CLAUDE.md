@@ -172,9 +172,8 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 - `render/parse-props.ts` — Prop file parsing and coordinate transformation. `parsePropFile()`, `parseCommand()`, `parseCoord()`, `flipCommand()`, `transformCommand()`.
 - `render/hitbox-props.ts` — Hitbox generation, hit testing, light segment extraction. `generateHitbox()`, `hitTestPropPixel()`, `extractPropLightSegments()`.
 - `render/prop-validate.ts` — Validates prop draw commands stay within footprint bounds.
-- `render/lighting.ts` — 2D lighting engine. `renderLightmap()`, `computeVisibility()`, `extractWallSegments()`, `falloffMultiplier()`.
+- `render/lighting.ts` — 2D lighting engine. `renderLightmap()`, `computeVisibility()`, `extractWallSegments()`, `falloffMultiplier()`. The same path is used for both real-time editor preview and PNG export — there is no separate HQ pipeline anymore.
 - `render/lighting-geometry.ts` — Wall segment extraction and z-height prop shadow zones. `extractWallSegments()`, `extractPropShadowZones()`, `computePropShadowPolygon()`.
-- `render/lighting-hq.ts` — `renderLightmapHQ()`. Per-pixel falloff, shadow mask rasterization, normal map bump. Used for PNG export only.
 - `render/bridges.ts` — Bridge/dock rendering (wood, stone, rope, dock types). `renderAllBridges()`.
 - `render/blend.ts` — Texture blending at cell edges and corners. `renderTextureBlending()`, `patchBlendRegion()`.
 - `render/fluid.ts` — Fluid/liquid rendering (water, lava, pit). `getFluidPathCache()`, `getRenderedFluidLayer()`.
@@ -188,20 +187,23 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 
 ### Domain: lighting
 
-**Keywords:** light, shadow, visibility, ambient, glow, ray, dark, lightmap, falloff
+**Keywords:** light, shadow, visibility, ambient, glow, ray, dark, lightmap, falloff, gobo, cookie
 
-**Root dirs:** `src/render/`, `src/lights/`
+**Root dirs:** `src/render/`, `src/lights/`, `src/gobos/`
 
 **Known files:**
-- `render/lighting.ts` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`, `renderStaticLightmap()`, `renderAnimatedLightOverlay()`.
-- `render/lighting-geometry.ts` — Wall segment extraction, prop shadow zones. `extractWallSegments()`, `extractPropShadowZones()`, `computePropShadowPolygon()`.
-- `render/lighting-hq.ts` — `renderLightmapHQ()`. PNG export only.
+- `render/lighting.ts` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`, `renderStaticLightmap()`, `renderAnimatedLightOverlay()`, plus gobo render integration (`_applyGobosToRT`, gobo projection cache). Used for both editor preview and PNG export.
+- `render/lighting-geometry.ts` — Wall segment extraction, prop shadow zones, and gobo segment zones. `extractWallSegments()`, `extractPropShadowZones()`, `computePropShadowPolygon()`, `extractGoboZones()`, `computeGoboProjectionPolygon()`, `GoboIndex`.
+- `render/gobo-registry.ts` — In-memory gobo definition registry (pattern + density). Populated by editor / Node-side catalog loaders.
+- `render/gobo-catalog-node.ts` — Node-side gobo catalog loader for the CLI render pipeline.
 - `editor/js/tools/tool-light.ts` — Light placement tool.
 - `editor/js/panels/lighting.ts` — Lighting panel UI.
 - `editor/js/light-catalog.ts` — Light preset catalog loading and caching.
+- `editor/js/gobo-catalog.ts` — Gobo catalog loader (bundle-first, publishes into `render/gobo-registry`).
 - `lights/manifest.json` — Light preset catalog (candle, torch, brazier, etc.).
+- `gobos/manifest.json` — Gobo catalog (window-mullions, vertical-bars, horizontal-slats, ceiling-grate).
 
-**Focus:** Wall extraction → visibility polygon → lightmap pipeline, light object shape (`{id, x, y, type, radius, color, intensity, falloff, angle, spread}`), how props interact with lighting (`blocksLight`, `extractPropLightSegments` using hitbox polygons). Lightmap is split into a cached static layer (ambient + non-animated lights) and a per-frame animated overlay rendered at screen resolution.
+**Focus:** Wall extraction → visibility polygon → lightmap pipeline. Light object shape (`{id, x, y, type, radius, color, intensity, falloff, angle, spread, cookie?}`). Prop interaction modes: (a) `blocksLight` hitboxes → wall-segment / z-shadow projection; (b) `lights:` → auto-attached emitters with optional cookies; (c) `gobos:` → upright patterned occluders that any nearby light projects as a multiply mask (see `src/props/CLAUDE.md`). Lightmap is split into a cached static layer (ambient + non-animated lights) and a per-frame animated overlay rendered at screen resolution.
 
 ---
 
@@ -362,7 +364,7 @@ interface Cell {
 | `"iw"` | Invisible wall | Blocks always | **No** | Nothing |
 | `"id"` | Invisible door | Blocks (passable with `traverseDoors`) | **No** | Nothing (DM can open) |
 
-Invisible types are stripped from player cells in `player/fog.ts` and excluded from shadow geometry in `render/lighting.ts` (`extractWallSegments`). **Note:** `render/lighting-hq.ts` (export pipeline) imports `extractWallSegments` directly from `lighting.ts`, so invisible-type exclusions apply automatically to both real-time and HQ rendering without any additional changes.
+Invisible types are stripped from player cells in `player/fog.ts` and excluded from shadow geometry in `render/lighting.ts` (`extractWallSegments`). The export pipeline (`compile.ts`) calls the same `renderLightmap` as the editor preview, so invisible-type exclusions apply uniformly.
 
 ### Metadata
 ```typescript

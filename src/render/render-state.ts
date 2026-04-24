@@ -114,6 +114,17 @@ export function getDirtyRegion(): DirtyRegion | null {
   if (_dirtyFullRebuild) return null;
   return _dirtyRegion;
 }
+
+/**
+ * Force the next render to do a full rebuild (non-local effects — gobo
+ * sunpools, window apertures, anything whose visual impact exceeds the
+ * bounding box of the cells directly edited). Clears the partial dirty
+ * region so MapCache can't take the `_rebuildPartial` branch.
+ */
+export function markDirtyFullRebuild(): void {
+  _dirtyFullRebuild = true;
+  _broadcastFullRebuild = true;
+}
 /**
  * Reset the dirty region and full-rebuild flag.
  * @returns {void}

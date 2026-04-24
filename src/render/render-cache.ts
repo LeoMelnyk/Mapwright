@@ -209,7 +209,7 @@ export function smartInvalidate(
     }
     // Lava emits light — invalidate the static lightmap so fill lights
     // are re-extracted and rendered during the composite update.
-    invalidateVisibilityCache(false);
+    invalidateVisibilityCache('lights');
   }
 
   // Patch blend edges for the dirty region if a blend cache already exists.

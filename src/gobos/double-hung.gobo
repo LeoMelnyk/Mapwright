@@ -1,0 +1,4 @@
+name: Double-Hung Window
+description: Four-pane double-hung window, 2×2 grid of sashes.
+pattern: grid
+density: 3

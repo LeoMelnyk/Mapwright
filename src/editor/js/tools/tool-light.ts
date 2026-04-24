@@ -1,13 +1,14 @@
 // Light tool: place, select, and move light sources
 import type { Light, RenderTransform } from '../../../types.js';
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { mutate, markDirty, invalidateLightmap, notify } from '../state.js';
+import state, { mutate, markDirty, invalidateLightmap, notify, undo } from '../state.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 import { getLightCatalog } from '../light-catalog.js';
+import { openLightEditDialog } from '../panels/light-edit.js';
 import { showToast } from '../toast.js';
 
-const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
+const LIGHT_HIT_RADIUS = 14; // pixels at screen scale for click detection — sized to the bulb icon
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ export class LightTool extends Tool {
     origY?: number;
     origRadius?: number;
     metaSnapshot?: string;
+    isNewPlacement?: boolean;
   } | null = null;
   dragMoved: boolean = false;
   hoveredLightId: number | null = null;
@@ -125,11 +127,16 @@ export class LightTool extends Tool {
       }
 
       select.addEventListener('change', () => {
+        const selected = (select as HTMLInputElement).value;
+        if (!selected) {
+          this._clearPreset();
+          return;
+        }
         const lightCatalog = getLightCatalog();
         if (!lightCatalog) return;
-        const preset = lightCatalog.lights[(select as HTMLInputElement).value];
+        const preset = lightCatalog.lights[selected];
         if (!preset) return;
-        state.lightPreset = (select as HTMLInputElement).value;
+        state.lightPreset = selected;
         state.lightType = preset.type;
         state.lightColor = preset.color;
         state.lightRadius = preset.radius;
@@ -160,9 +167,22 @@ export class LightTool extends Tool {
     // Unified: hit-test first — select+drag if over a light, place otherwise
     const hit = hitTestLight(pos!);
     if (hit) {
+      // Double-click on a light opens the edit dialog (no drag).
+      if (event.detail === 2) {
+        state.selectedLightId = hit.id;
+        notify();
+        openLightEditDialog(hit.id);
+        return;
+      }
       this._startSelectOrDrag(pos);
-    } else {
+    } else if (state.lightPreset) {
       this._placeLight(pos, event);
+    } else if (state.selectedLightId != null) {
+      // No preset selected: clicking empty space deselects the current light
+      state.selectedLightId = null;
+      this._updateStatusInstruction();
+      notify();
+      requestRender();
     }
   }
 
@@ -196,6 +216,7 @@ export class LightTool extends Tool {
     }
 
     // Update hover state and cursor — only request render on actual state transitions
+    const idleCursor = state.lightPreset ? 'crosshair' : 'default';
     const hit = pos ? hitTestLight(pos) : null;
     if (hit) {
       if (this.hoveredLightId !== hit.id) {
@@ -206,7 +227,7 @@ export class LightTool extends Tool {
     } else {
       if (this.hoveredLightId !== null) {
         this.hoveredLightId = null;
-        setCursor('crosshair');
+        setCursor(idleCursor);
         requestRender();
       }
     }
@@ -214,7 +235,10 @@ export class LightTool extends Tool {
 
   onMouseUp() {
     if (this.dragging) {
-      if (this.dragMoved) {
+      // New placements: the "Add light" mutation already captured the placement;
+      // any drag-while-holding is part of the same gesture, so don't layer a
+      // separate "Move light" undo entry on top.
+      if (this.dragMoved && !this.dragging.isNewPlacement) {
         // Light is already at the new position from onMouseMove.
         // Temporarily restore pre-drag metadata so mutate captures the correct "before" state,
         // then re-apply the current (moved) state inside fn().
@@ -232,25 +256,36 @@ export class LightTool extends Tool {
       }
       this.dragging = null;
       this.dragMoved = false;
-      setCursor(this.hoveredLightId ? 'grab' : 'crosshair');
+      setCursor(this.hoveredLightId ? 'grab' : state.lightPreset ? 'crosshair' : 'default');
     }
   }
 
   onCancel() {
     if (this.dragging) {
-      // Restore original position — no undo entry created
-      const light = findLightById(this.dragging.lightId);
-      if (light && this.dragMoved) {
-        light.x = this.dragging.origX!;
-        light.y = this.dragging.origY!;
-        if (this.dragging.origRadius != null) light.radius = this.dragging.origRadius;
+      const dragging = this.dragging;
+      const light = findLightById(dragging.lightId);
+      if (dragging.isNewPlacement) {
+        // The click that placed this light is what's being cancelled — undo
+        // the "Add light" mutation entirely so we don't leave a half-placed
+        // light with stale coordinates on the map.
+        undo();
+        if (state.selectedLightId === dragging.lightId) state.selectedLightId = null;
+        if (this.hoveredLightId === dragging.lightId) this.hoveredLightId = null;
+        invalidateLightmap(false);
+        notify();
+        requestRender();
+      } else if (light && this.dragMoved) {
+        // Existing light: restore original position — no undo entry created
+        light.x = dragging.origX!;
+        light.y = dragging.origY!;
+        if (dragging.origRadius != null) light.radius = dragging.origRadius;
         invalidateLightmap(false);
         markDirty();
         requestRender();
       }
       this.dragging = null;
       this.dragMoved = false;
-      setCursor(this.hoveredLightId ? 'grab' : 'crosshair');
+      setCursor(this.hoveredLightId ? 'grab' : state.lightPreset ? 'crosshair' : 'default');
       return true;
     }
     return false;
@@ -285,7 +320,7 @@ export class LightTool extends Tool {
     }
     if (this.hoveredLightId === lightToDelete.id) {
       this.hoveredLightId = null;
-      setCursor('crosshair');
+      setCursor(state.lightPreset ? 'crosshair' : 'default');
     }
 
     this._updateStatusInstruction();
@@ -293,6 +328,16 @@ export class LightTool extends Tool {
   }
 
   onKeyDown(e: KeyboardEvent) {
+    // Enter on a selected light opens the edit dialog.
+    if (e.key === 'Enter' && state.selectedLightId != null) {
+      const target = e.target as HTMLElement | null;
+      // Don't hijack Enter while the user is typing in an input/textarea.
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      e.preventDefault();
+      openLightEditDialog(state.selectedLightId);
+      return;
+    }
+
     // Delete selected light
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (state.selectedLightId != null) {
@@ -301,14 +346,28 @@ export class LightTool extends Tool {
       return;
     }
 
-    // Escape: cancel drag or paste mode
-    if (e.key === 'Escape' && this.dragging) {
-      this.onCancel();
-      return;
-    }
-    if (e.key === 'Escape' && state.lightPasteMode) {
-      state.lightPasteMode = false;
-      requestRender();
+    // Escape: cascade — cancel drag → exit paste mode → deselect light → clear preset
+    if (e.key === 'Escape') {
+      if (this.dragging) {
+        this.onCancel();
+        return;
+      }
+      if (state.lightPasteMode) {
+        state.lightPasteMode = false;
+        requestRender();
+        return;
+      }
+      if (state.selectedLightId != null) {
+        state.selectedLightId = null;
+        this._updateStatusInstruction();
+        notify();
+        requestRender();
+        return;
+      }
+      if (state.lightPreset) {
+        this._clearPreset();
+        return;
+      }
       return;
     }
 
@@ -373,8 +432,8 @@ export class LightTool extends Tool {
     if (state.lightPasteMode && state.lightClipboard && this.hoverPos) {
       this._drawPastePreview(ctx, this.hoverPos, transform);
     }
-    // Draw placement preview when hovering empty space (no hit, no drag)
-    else if (this.hoverPos && !this.dragging && !this.hoveredLightId) {
+    // Draw placement preview when hovering empty space (no hit, no drag) — only with a preset
+    else if (this.hoverPos && !this.dragging && !this.hoveredLightId && state.lightPreset) {
       this._drawPlacementPreview(ctx, this.hoverPos, transform);
     }
   }
@@ -382,8 +441,22 @@ export class LightTool extends Tool {
   // ── Private Helpers ──────────────────────────────────────────────────────
 
   _updateStatusInstruction() {
+    if (!state.lightPreset) {
+      state.statusInstruction = 'Select a preset to place lights · Click existing to select · Right-click to delete';
+      return;
+    }
     const typeName = state.lightType === 'directional' ? 'Directional' : 'Point';
-    state.statusInstruction = `Click to place ${typeName} light · Shift+click to snap to grid · Hover existing to move · Right-click to delete`;
+    state.statusInstruction = `Click to place ${typeName} light · Shift+click to snap to grid · Hover existing to move · Right-click to delete · Esc to clear preset`;
+  }
+
+  _clearPreset() {
+    state.lightPreset = null;
+    const select = document.getElementById('light-preset-select') as HTMLInputElement | null;
+    if (select) select.value = '';
+    this._updateStatusInstruction();
+    setCursor(this.hoveredLightId ? 'grab' : 'default');
+    notify();
+    requestRender();
   }
 
   // ── Delete / Paste Helpers ───────────────────────────────────────────────
@@ -405,7 +478,7 @@ export class LightTool extends Tool {
     );
     if (this.hoveredLightId === lightRef.id) {
       this.hoveredLightId = null;
-      setCursor('crosshair');
+      setCursor(state.lightPreset ? 'crosshair' : 'default');
     }
     state.selectedLightId = null;
     this._updateStatusInstruction();
@@ -508,8 +581,18 @@ export class LightTool extends Tool {
 
     state.selectedLightId = newLight!.id;
 
-    // Start dragging the newly placed light so user can reposition while holding
-    this.dragging = { lightId: newLight!.id, offsetX: 0, offsetY: 0 };
+    // Start dragging the newly placed light so user can reposition while holding.
+    // isNewPlacement=true means onCancel should remove the light entirely (the
+    // placement itself is what's being cancelled), not try to restore a
+    // nonexistent pre-drag position.
+    this.dragging = {
+      lightId: newLight!.id,
+      offsetX: 0,
+      offsetY: 0,
+      origX: world.x,
+      origY: world.y,
+      isNewPlacement: true,
+    };
     this.dragMoved = false;
 
     requestRender();
@@ -559,35 +642,57 @@ export class LightTool extends Tool {
     isSelected: boolean,
     isHovered: boolean,
   ) {
-    const size = isSelected ? 10 : isHovered ? 9 : 7;
-
-    ctx.save();
+    const emojiSize = isSelected ? 24 : isHovered ? 22 : 18;
     const color = light.color || '#ff9944';
 
-    // Outer glow — use a larger translucent circle instead of expensive shadowBlur
-    const glowSize = isSelected ? 18 : isHovered ? 15 : 11;
+    ctx.save();
+
+    // Colored glow halo — tints the icon by the light's color
+    const glowR = emojiSize * 0.9;
     ctx.beginPath();
-    ctx.arc(px, py, glowSize, 0, Math.PI * 2);
-    ctx.fillStyle = color + (isSelected ? '40' : isHovered ? '30' : '20');
+    ctx.arc(px, py, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = color + (isSelected ? '60' : isHovered ? '45' : '30');
     ctx.fill();
 
-    // Icon circle
-    ctx.beginPath();
-    ctx.arc(px, py, size, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-
-    // Border
-    ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = isSelected ? 2.5 : isHovered ? 2 : 1.5;
-    ctx.stroke();
-
-    // Inner type indicator
-    ctx.fillStyle = '#fff';
-    ctx.font = size >= 10 ? 'bold 10px sans-serif' : size >= 9 ? 'bold 9px sans-serif' : 'bold 7px sans-serif';
+    // Lightbulb emoji — force opaque fill (Chromium applies fillStyle alpha
+    // to color-bitmap emoji, and the halo above left fillStyle at low alpha).
+    ctx.fillStyle = '#000';
+    ctx.globalAlpha = 1;
+    ctx.font = `${emojiSize}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(light.type === 'directional' ? 'D' : 'P', px, py);
+    ctx.fillText('💡', px, py);
+
+    // Selected ring
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(px, py, emojiSize * 0.7, 0, Math.PI * 2);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // Directional: arrow outside the bulb pointing along the light's angle
+    if (light.type === 'directional') {
+      const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
+      const start = emojiSize * 0.75;
+      const end = emojiSize * 1.3;
+      const ax = px + Math.cos(angleRad) * end;
+      const ay = py + Math.sin(angleRad) * end;
+      ctx.beginPath();
+      ctx.moveTo(px + Math.cos(angleRad) * start, py + Math.sin(angleRad) * start);
+      ctx.lineTo(ax, ay);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      const head = emojiSize * 0.3;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - Math.cos(angleRad - 0.5) * head, ay - Math.sin(angleRad - 0.5) * head);
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - Math.cos(angleRad + 0.5) * head, ay - Math.sin(angleRad + 0.5) * head);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }

@@ -80,9 +80,9 @@ describe('buildDd2vtt', () => {
   // -- Top-level format structure ------------------------------------------
 
   describe('format structure', () => {
-    it('returns format 0.3', () => {
+    it('returns format 0.4', () => {
       const result = buildDd2vtt(fakePng, emptyConfig(), 500, 500);
-      expect(result.format).toBe(0.3);
+      expect(result.format).toBe(0.4);
     });
 
     it('contains all required top-level keys', () => {
@@ -312,7 +312,10 @@ describe('buildDd2vtt', () => {
     it('no cells (all null) produces empty arrays', () => {
       const config = {
         metadata: { gridSize: 5, resolution: 1, ambientLight: 0.5, lightingEnabled: true, lights: [] },
-        cells: [[null, null], [null, null]],
+        cells: [
+          [null, null],
+          [null, null],
+        ],
       };
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.line_of_sight).toEqual([]);
@@ -325,12 +328,13 @@ describe('buildDd2vtt', () => {
 
   describe('light extraction', () => {
     it('converts lights to dd2vtt format with position, range, intensity, color', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [
-          { x: 5, y: 5, radius: 20, intensity: 0.8, color: '#ff9944' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [{ x: 5, y: 5, radius: 20, intensity: 0.8, color: '#ff9944' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights).toHaveLength(1);
 
@@ -346,80 +350,91 @@ describe('buildDd2vtt', () => {
 
     it('light radius is converted from feet to grid units', () => {
       const gridSize = 5;
-      const config = singleCellConfig({}, {
-        gridSize,
-        resolution: 1,
-        lightingEnabled: true,
-        lights: [
-          { x: 0, y: 0, radius: 20, intensity: 1.0, color: '#ffffff' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          gridSize,
+          resolution: 1,
+          lightingEnabled: true,
+          lights: [{ x: 0, y: 0, radius: 20, intensity: 1.0, color: '#ffffff' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       // radius 20 feet / displayGridSize 5 = 4 grid units
       expect(result.lights[0].range).toBe(4);
     });
 
     it('light color is converted from hex to space-separated 0-1 RGB', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [
-          { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff0000' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [{ x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff0000' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights[0].color).toBe('1.000 0.000 0.000');
     });
 
     it('white light color parses correctly', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [
-          { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ffffff' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [{ x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ffffff' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights[0].color).toBe('1.000 1.000 1.000');
     });
 
     it('no lights when lightingEnabled is false', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: false,
-        lights: [
-          { x: 5, y: 5, radius: 20, intensity: 1.0, color: '#ff9944' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: false,
+          lights: [{ x: 5, y: 5, radius: 20, intensity: 1.0, color: '#ff9944' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights).toEqual([]);
     });
 
     it('no lights when lights array is empty', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights).toEqual([]);
     });
 
     it('multiple lights are all exported', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [
-          { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff0000' },
-          { x: 10, y: 10, radius: 30, intensity: 0.5, color: '#0000ff' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [
+            { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff0000' },
+            { x: 10, y: 10, radius: 30, intensity: 0.5, color: '#0000ff' },
+          ],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights).toHaveLength(2);
     });
 
     it('defaults light intensity to 1.0 if not specified', () => {
-      const config = singleCellConfig({}, {
-        lightingEnabled: true,
-        lights: [
-          { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff9944' },
-        ],
-      });
+      const config = singleCellConfig(
+        {},
+        {
+          lightingEnabled: true,
+          lights: [{ x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff9944' }],
+        },
+      );
       const result = buildDd2vtt(fakePng, config, 500, 500);
       expect(result.lights[0].intensity).toBe(1.0);
     });

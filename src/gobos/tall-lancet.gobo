@@ -1,0 +1,5 @@
+name: Tall Lancet
+description: Cathedral-style tall narrow windows divided by slender vertical mullions.
+pattern: slats
+density: 3
+orientation: vertical

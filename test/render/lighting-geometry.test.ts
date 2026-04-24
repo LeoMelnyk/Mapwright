@@ -9,7 +9,9 @@ import {
   extractWallSegments,
   extractPropShadowZones,
   computePropShadowPolygon,
+  PropShadowIndex,
   DEFAULT_LIGHT_Z,
+  type ShadowZone,
 } from '../../src/render/lighting-geometry.js';
 import type { CellGrid } from '../../src/types.js';
 
@@ -520,8 +522,113 @@ describe('computePropShadowPolygon', () => {
     expect(farDist).toBeGreaterThan(nearDist);
   });
 
+  it('opacity scales down as light height approaches prop top', () => {
+    // Same prop, same horizontal position — vary lz through the zone.
+    // At the base: highest opacity. At the top: lowest opacity (~0.7).
+    const atBase = computePropShadowPolygon(-10, 1, 0, square, 0, 6, 100);
+    const atMid = computePropShadowPolygon(-10, 1, 3, square, 0, 6, 100);
+    const atTop = computePropShadowPolygon(-10, 1, 6, square, 0, 6, 100);
+    expect(atBase!.opacity).toBeGreaterThan(atMid!.opacity);
+    expect(atMid!.opacity).toBeGreaterThan(atTop!.opacity);
+    expect(atBase!.opacity).toBeCloseTo(1.0, 2);
+    expect(atTop!.opacity).toBeCloseTo(0.7, 2);
+  });
+
+  it('shadow length grows as light height approaches prop top', () => {
+    // A light just above the prop top produces a long shadow (projRatio caps);
+    // a light well above produces a shorter one.
+    const justAbove = computePropShadowPolygon(-10, 1, 4.2, square, 0, 4, 200);
+    const wellAbove = computePropShadowPolygon(-10, 1, 40, square, 0, 4, 200);
+    expect(justAbove).not.toBeNull();
+    expect(wellAbove).not.toBeNull();
+    const lenJust = Math.hypot(
+      justAbove!.farCenter[0] - justAbove!.nearCenter[0],
+      justAbove!.farCenter[1] - justAbove!.nearCenter[1],
+    );
+    const lenWell = Math.hypot(
+      wellAbove!.farCenter[0] - wellAbove!.nearCenter[0],
+      wellAbove!.farCenter[1] - wellAbove!.nearCenter[1],
+    );
+    expect(lenJust).toBeGreaterThan(lenWell);
+  });
+
+  it('clamps far-edge shadow length by lightRadius (cannot project past reach)', () => {
+    // Light close to the prop with a modest radius. The far polygon vertices
+    // should never sit further than `lightRadius` from the light; the near
+    // vertices live on the prop itself (within radius by construction).
+    const result = computePropShadowPolygon(-3, 1, 10, square, 0, 4, 10);
+    expect(result).not.toBeNull();
+    const n = result!.shadowPoly.length;
+    // The polygon is built as [...shadowFace, ...farVertices.reverse()] so the
+    // second half of the vertices are the projected ones.
+    const farVerts = result!.shadowPoly.slice(n / 2);
+    for (const [fx, fy] of farVerts) {
+      const d = Math.hypot(fx! - -3, fy! - 1);
+      expect(d).toBeLessThanOrEqual(10 + 0.01);
+    }
+  });
+
   it('DEFAULT_LIGHT_Z is a reasonable default', () => {
     expect(DEFAULT_LIGHT_Z).toBe(8);
     expect(typeof DEFAULT_LIGHT_Z).toBe('number');
+  });
+});
+
+// ─── PropShadowIndex ────────────────────────────────────────────────────────
+
+describe('PropShadowIndex', () => {
+  const makeZone = (cx: number, cy: number): ShadowZone => ({
+    worldPolygon: [
+      [cx - 1, cy - 1],
+      [cx + 1, cy - 1],
+      [cx + 1, cy + 1],
+      [cx - 1, cy + 1],
+    ],
+    centroidX: cx,
+    centroidY: cy,
+    zBottom: 0,
+    zTop: 6,
+  });
+
+  it('returns every zone when the query circle covers the whole map', () => {
+    const zones = [makeZone(10, 10), makeZone(50, 50), makeZone(200, 200)];
+    const idx = new PropShadowIndex(zones);
+    expect(idx.size).toBe(3);
+    const found = [...idx.query(100, 100, 1000)];
+    expect(found).toHaveLength(3);
+  });
+
+  it('prunes zones in distant buckets', () => {
+    // Three zones; query near the first should skip the other two.
+    const zones = [makeZone(0, 0), makeZone(1000, 0), makeZone(0, 1000)];
+    const idx = new PropShadowIndex(zones);
+    const found = [...idx.query(0, 0, 20)]; // bucket size is 30ft, radius 20 stays in one bucket
+    expect(found).toHaveLength(1);
+    expect(found[0]!.centroidX).toBe(0);
+  });
+
+  it('is conservative: returns candidates by bucket (caller filters by exact distance)', () => {
+    // Zone centroid at (31, 0) lives in bucket (1, 0). A query circle at (0, 0)
+    // with radius large enough to touch bucket (1, 0) (>30 ft) should surface
+    // the zone even though its centroid is more than the radius away in one
+    // direction — the caller is expected to apply the exact centroid distance
+    // check afterward.
+    const zones = [makeZone(31, 0)];
+    const idx = new PropShadowIndex(zones);
+    expect([...idx.query(0, 0, 20)]).toHaveLength(0); // circle confined to bucket (0,0)
+    expect([...idx.query(0, 0, 31)]).toHaveLength(1); // circle reaches into bucket (1,0)
+  });
+
+  it('empty index returns nothing and reports size 0', () => {
+    const idx = new PropShadowIndex([]);
+    expect(idx.size).toBe(0);
+    expect([...idx.query(0, 0, 100)]).toHaveLength(0);
+  });
+
+  it('handles negative coordinates (lights outside the origin)', () => {
+    const zones = [makeZone(-50, -50)];
+    const idx = new PropShadowIndex(zones);
+    const found = [...idx.query(-50, -50, 10)];
+    expect(found).toHaveLength(1);
   });
 });
