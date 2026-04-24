@@ -104,13 +104,14 @@ _setApi(api);
 function waitForReady(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- catalogs load async; null until ready
+      /* eslint-disable @typescript-eslint/no-unnecessary-condition -- catalogs load async; null until ready */
       if (
         document.getElementById('editor-canvas') &&
         state.dungeon &&
         getThemeCatalog() !== null &&
         getPropCatalog() !== null
       ) {
+        /* eslint-enable @typescript-eslint/no-unnecessary-condition */
         window.editorAPI = api as EditorAPI;
         console.log('[editor-api] API ready — window.editorAPI available');
         resolve();
