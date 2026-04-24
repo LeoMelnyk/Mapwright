@@ -286,4 +286,5 @@ vi.mock('../src/render/index.js', () => ({
     if (!Number.isFinite(v)) return 45;
     return Math.max(0, Math.min(180, v));
   }),
+  markWeatherFullRebuild: vi.fn(),
 }));
