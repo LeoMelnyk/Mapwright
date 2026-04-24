@@ -535,7 +535,7 @@ export function renderWeatherParticles(
         drawFlakesForGroup(ctx, group, list, gridSize, transform, cellPx, time);
       } else if (shape === 'cloud') {
         drawCloudsForGroup(ctx, group, list, gridSize, transform, cellPx, time);
-      } else if (shape === 'ripple') {
+      } else {
         drawRipplesForGroup(ctx, group, list, gridSize, transform, cellPx, time);
       }
 
@@ -639,10 +639,7 @@ export function updateWeatherCache(
   const hasGroups = !!groups && groups.length > 0;
 
   const dimsChanged =
-    cache.rows !== numRows ||
-    cache.cols !== numCols ||
-    cache.gridSize !== gridSize ||
-    cache.pxPerFoot !== pxPerFoot;
+    cache.rows !== numRows || cache.cols !== numCols || cache.gridSize !== gridSize || cache.pxPerFoot !== pxPerFoot;
 
   // Fast path: nothing dirty, nothing changed — reuse cache as-is.
   if (!dimsChanged && !_fullRebuild && !_dirtyRect && cache.initialized) return;
@@ -1110,8 +1107,7 @@ let _leafTemplateKey = '';
 // Reusable matrix object passed to addPath per particle. addPath snapshots
 // matrix values at call time, so we can set fields and reuse without
 // allocating a new DOMMatrix per leaf.
-const _leafMatrix: DOMMatrix | null =
-  typeof DOMMatrix !== 'undefined' ? new DOMMatrix() : null;
+const _leafMatrix: DOMMatrix | null = typeof DOMMatrix !== 'undefined' ? new DOMMatrix() : null;
 
 function getLeafTemplate(majorR: number, minorR: number): Path2D | null {
   const key = `${majorR.toFixed(2)}|${minorR.toFixed(2)}`;
@@ -1161,7 +1157,7 @@ function drawFlakesForGroup(
   // — the flattened ellipse reads as smaller than a circle of the same base
   // radius, so we bump the long axis.
   const majorRadius = isOval ? radius * 1.6 : radius;
-  const minorRadius = isOval ? majorRadius * (ovalAspect as number) : radius;
+  const minorRadius = isOval ? majorRadius * ovalAspect : radius;
 
   const windFactor = flow.hasMotion ? Math.min(1, flow.mag) : 0;
   // Drift formula preserves snow's original behavior (0.6 at calm, 2.5 at
@@ -1415,11 +1411,11 @@ function cloudColorStops(hex: string, alphaMax: number): { inner: string; outer:
   let r = 0;
   let g = 0;
   let b = 0;
-  if (hex.length === 7 && hex[0] === '#') {
+  if (hex.length === 7 && hex.startsWith('#')) {
     r = parseInt(hex.slice(1, 3), 16);
     g = parseInt(hex.slice(3, 5), 16);
     b = parseInt(hex.slice(5, 7), 16);
-  } else if (hex.length === 4 && hex[0] === '#') {
+  } else if (hex.length === 4 && hex.startsWith('#')) {
     const rr = hex[1] as string;
     const gg = hex[2] as string;
     const bb = hex[3] as string;

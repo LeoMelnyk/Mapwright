@@ -166,13 +166,7 @@ export function traceCornerTriangle(
   ctx.closePath();
 }
 
-function tracePolygon(
-  ctx: CanvasRenderingContext2D,
-  poly: number[][],
-  px: number,
-  py: number,
-  cellPx: number,
-): void {
+function tracePolygon(ctx: CanvasRenderingContext2D, poly: number[][], px: number, py: number, cellPx: number): void {
   ctx.moveTo(px + poly[0]![0]! * cellPx, py + poly[0]![1]! * cellPx);
   for (let i = 1; i < poly.length; i++) {
     ctx.lineTo(px + poly[i]![0]! * cellPx, py + poly[i]![1]! * cellPx);
@@ -189,14 +183,11 @@ function tracePolygon(
  * assignment (matching how the old renderer clipped to `trimClip`), and
  * diagonal-split cells fall back to `weatherGroupId` for both halves.
  */
-export function getCellWeatherHalf(
-  cell: Cell | null | undefined,
-  halfKey: CellHalfKey,
-): string | undefined {
+export function getCellWeatherHalf(cell: Cell | null | undefined, halfKey: CellHalfKey): string | undefined {
   if (!cell) return undefined;
   if (halfKey === 'full') return cell.weatherGroupId;
   const halves = cell.weatherHalves;
-  if (halves && halves[halfKey]) return halves[halfKey];
+  if (halves?.[halfKey]) return halves[halfKey];
   // Legacy fallback: split cell with only weatherGroupId set.
   if (cell.weatherGroupId) {
     if (cell.trimClip && cell.trimClip.length >= 3) {
@@ -223,11 +214,7 @@ export function getCellWeatherHalf(
  *     "same group on both halves" remains a persistent, queryable state
  *     instead of collapsing back to the ambiguous single-scalar form.
  */
-export function setCellWeatherHalf(
-  cell: Cell,
-  halfKey: CellHalfKey,
-  groupId: string | null,
-): void {
+export function setCellWeatherHalf(cell: Cell, halfKey: CellHalfKey, groupId: string | null): void {
   const halves = getCellHalves(cell);
   const isSplit = halves[0] !== 'full';
 
@@ -250,16 +237,14 @@ export function setCellWeatherHalf(
       // Old trim assignment only covered the interior.
       cell.weatherHalves = { interior: legacy };
     } else {
-      cell.weatherHalves = Object.fromEntries(halves.map((h) => [h, legacy])) as Partial<
-        Record<CellHalfKey, string>
-      >;
+      cell.weatherHalves = Object.fromEntries(halves.map((h) => [h, legacy])) as Partial<Record<CellHalfKey, string>>;
     }
   } else if (cell.weatherGroupId !== undefined) {
     // Invariant violation (both set): drop the legacy scalar.
     delete cell.weatherGroupId;
   }
 
-  if (!cell.weatherHalves) cell.weatherHalves = {};
+  cell.weatherHalves ??= {};
   if (groupId) cell.weatherHalves[halfKey] = groupId;
   else delete cell.weatherHalves[halfKey];
 
