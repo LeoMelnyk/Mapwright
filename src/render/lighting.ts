@@ -726,7 +726,7 @@ export function getEffectiveLight(light: Light, time: number): Light {
   // Apply group transition scale.
   intensityMult *= groupScale;
 
-  result.intensity = Math.max(0, light.intensity * Math.max(0, intensityMult));
+  result.intensity = Math.max(0.01, light.intensity * Math.max(0, intensityMult));
   if (light.radius && radiusMult !== 1.0) result.radius = Math.max(1, light.radius * Math.max(0.1, radiusMult));
   if (light.range && radiusMult !== 1.0) result.range = Math.max(1, light.range * Math.max(0.1, radiusMult));
   if (angleOverride !== null) result.angle = angleOverride;

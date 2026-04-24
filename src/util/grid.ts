@@ -364,13 +364,7 @@ export function floodFillRoom(
     startHalfKey?: CellHalfKey;
   } = {},
 ): Set<string> {
-  const {
-    traverseDoors = false,
-    rowMin = 0,
-    rowMax = cells.length - 1,
-    returnHalves = false,
-    startHalfKey,
-  } = options;
+  const { traverseDoors = false, rowMin = 0, rowMax = cells.length - 1, returnHalves = false, startHalfKey } = options;
   let { startEntryDir = null } = options;
 
   const filledCells = new Set<string>();
@@ -555,7 +549,7 @@ function _entryDirForStartHalf(cell: Cell, halfKey: CellHalfKey): string | null 
     if (!tc || typeof tc !== 'object') return null;
     const scored = (['north', 'south', 'east', 'west'] as const).map((d) => ({
       dir: d,
-      count: ((tc as Record<string, string>)[d[0]!] ?? '').length,
+      count: (tc[d[0]!] ?? '').length,
     }));
     scored.sort((a, b) => b.count - a.count);
     return halfKey === 'interior' ? scored[0]!.dir : scored[scored.length - 1]!.dir;
@@ -579,11 +573,7 @@ function _entryDirForStartHalf(cell: Cell, halfKey: CellHalfKey): string | null 
  * only when `trimCrossing` is unavailable, then to the caller's `trimSide`
  * when even that can't be computed.
  */
-function _deriveHalfKey(
-  cell: Cell,
-  entryDir: string | null,
-  trimSide: 'interior' | 'exterior',
-): CellHalfKey {
+function _deriveHalfKey(cell: Cell, entryDir: string | null, trimSide: 'interior' | 'exterior'): CellHalfKey {
   if (cell['nw-se']) {
     if (entryDir === 'north' || entryDir === 'east') return 'ne';
     return 'sw';
@@ -608,7 +598,7 @@ function _deriveHalfKey(
       // No trimCorner: fall back to trimCrossing exit-count heuristic
       // (still correct for non-tied cases) and then midpoint PIP.
       if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
-        const tc = cell.trimCrossing as Record<string, string>;
+        const tc = cell.trimCrossing;
         const myExits = (tc[entryDir[0]!] ?? '').length;
         let maxExits = 0;
         for (const d of ['n', 's', 'e', 'w']) {
