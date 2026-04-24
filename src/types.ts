@@ -19,6 +19,16 @@ export type DiagonalDirection = 'nw-se' | 'ne-sw';
 /** All direction names (cardinal + diagonal). */
 export type Direction = CardinalDirection | DiagonalDirection;
 
+/**
+ * Identifies which portion of a (possibly split) cell a per-half field applies to.
+ * - `'full'`                   — unsplit cell (no diagonal, no trim)
+ * - `'ne' | 'sw'`              — cell split by an nw-se diagonal wall
+ * - `'nw' | 'se'`              — cell split by an ne-sw diagonal wall
+ * - `'interior' | 'exterior'`  — trim cell: inside trimClip / outside trimClip
+ *                                (applies to both open and closed trims)
+ */
+export type CellHalfKey = 'full' | 'ne' | 'sw' | 'nw' | 'se' | 'interior' | 'exterior';
+
 /** Fill types for cells. */
 export type FillType = 'water' | 'lava' | 'pit';
 
@@ -89,8 +99,24 @@ export interface Cell {
   lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
-  /** ID of the weather group this cell belongs to. See {@link WeatherGroup}. */
+  /**
+   * ID of the weather group this cell belongs to. Used ONLY when the cell is
+   * not split by a diagonal wall or trim. For split cells, use
+   * {@link weatherHalves}. INVARIANT: `weatherGroupId` and `weatherHalves` are
+   * mutually exclusive — never both set on the same cell.
+   * See {@link WeatherGroup}.
+   */
   weatherGroupId?: string;
+  /**
+   * Per-half weather assignments for split cells. Only populated when the
+   * cell is split by a diagonal wall (`nw-se` / `ne-sw`) or a trim
+   * (`trimClip`). Missing halves are unassigned. When set,
+   * {@link weatherGroupId} MUST be absent. Valid keys depend on the split:
+   *   - `nw-se` diagonal → `'ne'` and/or `'sw'`
+   *   - `ne-sw` diagonal → `'nw'` and/or `'se'`
+   *   - trim cell        → `'interior'` and/or `'exterior'`
+   */
+  weatherHalves?: Partial<Record<CellHalfKey, string>>;
 }
 
 /** The 2D cell grid. null entries are void (no floor). */
@@ -363,7 +389,7 @@ export interface Window {
 // ── Weather ────────────────────────────────────────────────────────────────
 
 /** Weather particle type for a weather group. */
-export type WeatherType = 'rain' | 'snow' | 'ash' | 'embers' | 'sandstorm' | 'fog' | 'leaves';
+export type WeatherType = 'rain' | 'snow' | 'ash' | 'embers' | 'sandstorm' | 'fog' | 'leaves' | 'cloudy';
 
 /**
  * A weather group bundles a weather configuration (type, intensity, wind,
@@ -533,6 +559,8 @@ export interface Theme {
   door: string;
   doorFill?: string;
   doorStroke?: string;
+  windowFill?: string;
+  windowTint?: string;
   secretDoor: string;
   secretDoorColor?: string;
   label: string;
@@ -1159,6 +1187,7 @@ export interface Dd2vttFormat {
   };
   image: string;
   line_of_sight: Array<[{ x: number; y: number }, { x: number; y: number }]>;
+  objects_line_of_sight: Array<[{ x: number; y: number }, { x: number; y: number }]>;
   portals: Dd2vttPortal[];
   lights: Dd2vttLight[];
   environment: {

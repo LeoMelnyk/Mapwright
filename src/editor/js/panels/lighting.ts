@@ -54,8 +54,10 @@ function render() {
   checkbox.checked = metadata.lightingEnabled;
   checkbox.addEventListener('change', () => {
     metadata.lightingEnabled = checkbox.checked;
+    invalidateLightmap(false);
     markDirty();
     notify();
+    requestRender();
   });
   toggleRow.appendChild(checkbox);
   toggleRow.appendChild(document.createTextNode('Enable Lighting'));

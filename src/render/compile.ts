@@ -27,6 +27,7 @@ import {
 } from './decorations.js';
 import { extractFillLights, renderLightmap, invalidateVisibilityCache } from './lighting.js';
 import { buildFluidComposite, invalidateFluidCache, FLUID_BASE_SKIP, FLUID_TOP_SKIP } from './fluid.js';
+import { renderWeatherEffects } from './render-weather.js';
 import { getCachedRoomCells } from './render-cache.js';
 import {
   buildPlayerCells,
@@ -215,7 +216,10 @@ export function renderDungeonToCanvas(
   propCatalog: PropCatalog | null = null,
   textureCatalog: TextureCatalog | null = null,
   bgImageEl: HTMLImageElement | null = null,
+  renderOptions: { bakeLighting?: boolean; bakeWeather?: boolean } = {},
 ): void {
+  const bakeLightingOpt = renderOptions.bakeLighting !== false;
+  const bakeWeatherOpt = renderOptions.bakeWeather !== false;
   const gridSize = config.metadata.gridSize;
   const dungeonName = config.metadata.dungeonName;
   const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides ?? null);
@@ -253,7 +257,7 @@ export function renderDungeonToCanvas(
       const levelTexOpts = textureCatalog
         ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 }
         : null;
-      const levelLightingEnabled = config.metadata.lightingEnabled;
+      const levelLightingEnabled = config.metadata.lightingEnabled && bakeLightingOpt;
       // Pass 1: base phases (shading + floors + blending + bridges)
       renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
         showGrid: showGridInCorridors,
@@ -324,6 +328,13 @@ export function renderDungeonToCanvas(
         renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
       }
 
+      // Weather (static snapshot — haze + frozen particles). Matches the
+      // editor's static-mode render; lightning is omitted since a still image
+      // can't convey a flash.
+      if (bakeWeatherOpt) {
+        renderWeatherEffects(ctx, levelCells, config.metadata, gridSize, levelTransform);
+      }
+
       if (features.compassRose) {
         const compassPos = findCompassRosePosition(levelCells, gridSize, width, levelHeight, levelTransform);
         if (compassPos) drawCompassRose(ctx, compassPos.x, compassPos.y, theme);
@@ -355,7 +366,7 @@ export function renderDungeonToCanvas(
     }
 
     const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
-    const singleLevelLightingEnabled = config.metadata.lightingEnabled;
+    const singleLevelLightingEnabled = config.metadata.lightingEnabled && bakeLightingOpt;
     // Pass 1: base phases (shading + floors + blending + bridges)
     renderCells(ctx, config.cells, gridSize, theme, transform, {
       showGrid: showGridInCorridors,
@@ -414,6 +425,13 @@ export function renderDungeonToCanvas(
       );
       // Draw labels after lightmap so they are unaffected by the multiply overlay
       renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);
+    }
+
+    // Weather (static snapshot — haze + frozen particles). Matches the
+    // editor's static-mode render; lightning is omitted since a still image
+    // can't convey a flash.
+    if (bakeWeatherOpt) {
+      renderWeatherEffects(ctx, config.cells, config.metadata, gridSize, transform);
     }
 
     if (hasLevelSubtitles) {
@@ -530,4 +548,8 @@ export function renderPlayerViewToCanvas(
     );
     renderLabels(ctx, playerCells, gridSize, theme, transform, labelStyle);
   }
+
+  // Weather (static snapshot). Use the fog-filtered `playerCells` so unrevealed
+  // areas stay weather-free — matches the live player view's under-fog behavior.
+  renderWeatherEffects(ctx, playerCells, playerMetadata, gridSize, transform);
 }

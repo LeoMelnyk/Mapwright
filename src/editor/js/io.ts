@@ -564,6 +564,43 @@ export async function exportPng(): Promise<void> {
   }
 }
 
+function showExportVttModal(): Promise<{ bakeLighting: boolean; bakeWeather: boolean } | null> {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-export-vtt') as HTMLDialogElement;
+    const lightingEl = document.getElementById('modal-export-vtt-lighting') as HTMLInputElement;
+    const weatherEl = document.getElementById('modal-export-vtt-weather') as HTMLInputElement;
+    const btnOk = document.getElementById('modal-export-vtt-ok')!;
+    const btnCancel = document.getElementById('modal-export-vtt-cancel')!;
+
+    lightingEl.checked = true;
+    weatherEl.checked = true;
+    overlay.showModal();
+
+    const finish = (result: { bakeLighting: boolean; bakeWeather: boolean } | null) => {
+      overlay.close();
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+      overlay.removeEventListener('keydown', onKey);
+      resolve(result);
+    };
+    const onOk = () => finish({ bakeLighting: lightingEl.checked, bakeWeather: weatherEl.checked });
+    const onCancel = () => finish(null);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onOk();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+    overlay.addEventListener('keydown', onKey);
+  });
+}
+
 /**
  * Export the current dungeon as Universal VTT (.dd2vtt) format.
  * Sends the full config to the server which renders the PNG and builds the dd2vtt JSON.
@@ -572,7 +609,10 @@ export async function exportPng(): Promise<void> {
 export async function exportDd2vtt(): Promise<void> {
   const config = state.dungeon;
   const suggestedName =
-    (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
+    (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.uvtt';
+
+  const exportOptions = await showExportVttModal();
+  if (!exportOptions) return;
 
   showExportOverlay('Exporting to Universal VTT\u2026');
 
@@ -580,7 +620,7 @@ export async function exportDd2vtt(): Promise<void> {
     const res = await fetch('/api/export-dd2vtt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config),
+      body: JSON.stringify({ ...config, exportOptions }),
     });
     if (!res.ok) {
       hideExportOverlay();
@@ -595,7 +635,7 @@ export async function exportDd2vtt(): Promise<void> {
     const blob = await res.blob();
     hideExportOverlay();
     await saveBlob(blob, suggestedName);
-    showToast('Exported as Universal VTT (.dd2vtt)');
+    showToast('Exported as Universal VTT (.uvtt)');
   } catch (err) {
     hideExportOverlay();
     if ((err as Error).name === 'AbortError') return;

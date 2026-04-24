@@ -12,6 +12,12 @@ import {
   invalidateFluidCache,
   FLUID_BASE_SKIP,
   FLUID_TOP_SKIP,
+  updateWeatherCache,
+  blitWeatherCache,
+  renderWeatherParticles,
+  extractWeatherLightningLights,
+  hasActiveWeatherLightning,
+  hasActiveWeatherParticles,
 } from '../render/index.js';
 import { getCachedRoomCells } from '../render/render-cache.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from './fog.js';
@@ -37,11 +43,19 @@ function _hasAnimatedLights(): boolean {
   return lights.some((l) => l.animation?.type);
 }
 
+function _needsAnimTick(): boolean {
+  const meta = playerState.dungeon?.metadata;
+  if (!meta) return false;
+  // Weather particles animate with or without lighting; lightning only makes
+  // sense when lighting is on (it's injected into the lightmap pass).
+  if (hasActiveWeatherParticles(meta)) return true;
+  if (meta.lightingEnabled && (_hasAnimatedLights() || hasActiveWeatherLightning(meta))) return true;
+  return false;
+}
+
 function _tickAnimLoop(): void {
   S._animLoopId = null;
-  const meta = playerState.dungeon?.metadata;
-  if (!meta?.lightingEnabled) return;
-  if (!_hasAnimatedLights()) return;
+  if (!_needsAnimTick()) return;
   S._animClock = performance.now() / 1000;
   requestRender();
   S._animLoopId = setTimeout(_tickAnimLoop, ANIM_INTERVAL_MS);
@@ -118,10 +132,15 @@ function render(timestamp: number): void {
 
     // ── Animated light overlay (screen-resolution, every frame) ──
     const fullMetadata = playerState.dungeon.metadata;
-    if (fullMetadata.lightingEnabled && _hasAnimatedLights()) {
+    const hasWeatherLightning = fullMetadata.lightingEnabled && hasActiveWeatherLightning(fullMetadata);
+    if (fullMetadata.lightingEnabled && (_hasAnimatedLights() || hasWeatherLightning)) {
       const fullCells = playerState.dungeon.cells;
       const fillLights = extractFillLights(fullCells, gridSize, theme);
-      const allLights = fillLights.length ? [...fullMetadata.lights, ...fillLights] : fullMetadata.lights;
+      const lightningLights = extractWeatherLightningLights(fullCells, fullMetadata, S._animClock, gridSize);
+      const allLights =
+        fillLights.length || lightningLights.length
+          ? [...fullMetadata.lights, ...fillLights, ...lightningLights]
+          : fullMetadata.lights;
       const sx2 = transform.scale / getMapPxPerFoot();
       const mapScreenW = composite.cacheW * sx2;
       const mapScreenH = composite.cacheH * sx2;
@@ -148,6 +167,16 @@ function render(timestamp: number): void {
         fullMetadata,
       );
     }
+
+    // Weather effects — drawn under the fog overlay so unrevealed areas
+    // naturally mask them (no "rain in the void"). Same two-layer scheme as
+    // the editor: cached haze blitted per frame, particles animated per frame.
+    const fullCells = playerState.dungeon.cells;
+    const numRows = fullCells.length;
+    const numCols = fullCells[0]?.length ?? 0;
+    updateWeatherCache(fullCells, fullMetadata, gridSize, numRows, numCols, getMapPxPerFoot());
+    blitWeatherCache(ctx, transform);
+    renderWeatherParticles(ctx, fullCells, fullMetadata, gridSize, transform, S._animClock);
 
     // Fog mask (opaque black with transparent holes for revealed cells)
     const sx = transform.scale / getMapPxPerFoot();
@@ -195,9 +224,10 @@ function render(timestamp: number): void {
     drawDiagnostics(gridSize);
   }
 
-  // Auto-manage animation loop based on animated lights
-  const meta = playerState.dungeon.metadata;
-  if (meta.lightingEnabled && _hasAnimatedLights()) {
+  // Auto-manage animation loop — ticks when animated lights, weather
+  // lightning (needs lighting), or weather particles (no lighting required)
+  // are active. Otherwise idle.
+  if (_needsAnimTick()) {
     if (!S._animLoopId) _startAnimLoop();
   } else if (S._animLoopId) {
     _stopAnimLoop();
@@ -303,9 +333,11 @@ function renderFallback(theme: Theme, gridSize: number, transform: RenderTransfo
   });
 
   if (lightingEnabled) {
+    const lightningLights = extractWeatherLightningLights(playerCells, playerMetadata, S._animClock, gridSize);
+    const lights = lightningLights.length ? [...playerMetadata.lights, ...lightningLights] : playerMetadata.lights;
     renderLightmap(
       ctx,
-      playerMetadata.lights,
+      lights,
       playerCells,
       gridSize,
       transform,
@@ -318,6 +350,16 @@ function renderFallback(theme: Theme, gridSize: number, transform: RenderTransfo
       playerMetadata,
     );
     renderLabels(ctx, playerCells, gridSize, theme, transform, metadata.labelStyle);
+  }
+
+  // Weather effects — the fallback path has no fog overlay, so we render
+  // weather over the full map. Using `dungeon.cells` (not the fog-filtered
+  // `playerCells`) keeps the haze cache stable across reveal events, since
+  // the weather cache's dirty tracking is driven by map edits, not fog.
+  if (numRows && numCols) {
+    updateWeatherCache(dungeon.cells, metadata, gridSize, numRows, numCols, getMapPxPerFoot());
+    blitWeatherCache(ctx, transform);
+    renderWeatherParticles(ctx, dungeon.cells, metadata, gridSize, transform, S._animClock);
   }
 }
 

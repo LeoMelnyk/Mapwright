@@ -182,13 +182,18 @@ export function render(): void {
   (mapCache as unknown as Record<string, unknown>).pxPerFoot = MAP_PX_PER_FOOT;
   const useCache = mapCache.canCache(numRows, numCols, gridSize) && !_skip.cells;
 
+  // Static weather mode freezes particle motion and silences lightning —
+  // the haze layer still renders (it's already cached and pan/zoom-stable).
+  const weatherAnimated = (getEditorSettings().weatherMotion ?? 'animated') !== 'static';
+
   const animClock = state.animClock;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const hasAnimLightsFromMeta = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
   // Weather lightning also needs the per-frame lightmap path (so the
   // mapCache doesn't bake static lighting and stale the flash), so fold it
   // into the hasAnimLights decision.
-  const hasAnimLights = hasAnimLightsFromMeta || (lightingEnabled && hasActiveWeatherLightning(metadata));
+  const hasAnimLights =
+    hasAnimLightsFromMeta || (weatherAnimated && lightingEnabled && hasActiveWeatherLightning(metadata));
 
   if (useCache) {
     const _cacheStart = performance.now();
@@ -244,7 +249,9 @@ export function render(): void {
       const composite = mapCache.getComposite();
       if (composite) {
         const fillLights = extractFillLights(cells, gridSize, theme);
-        const lightningLights = extractWeatherLightningLights(cells, metadata, animClock, gridSize);
+        const lightningLights = weatherAnimated
+          ? extractWeatherLightningLights(cells, metadata, animClock, gridSize)
+          : [];
         const allLights =
           fillLights.length || lightningLights.length
             ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -327,7 +334,9 @@ export function render(): void {
     if (lightingEnabled && !_skip.lighting) {
       const _lightStart = performance.now();
       const fillLights = extractFillLights(cells, gridSize, theme);
-      const lightningLights = extractWeatherLightningLights(cells, metadata, animClock, gridSize);
+      const lightningLights = weatherAnimated
+        ? extractWeatherLightningLights(cells, metadata, animClock, gridSize)
+        : [];
       const allLights =
         fillLights.length || lightningLights.length
           ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -365,8 +374,10 @@ export function render(): void {
   const _weatherParticlesStart = performance.now();
   // Particles render directly to the main canvas every frame (not cached) —
   // they're animated, so caching would defeat the motion. Cheap no-op when
-  // no weather groups have intensity > 0.
-  renderWeatherParticles(ctx, cells, metadata, gridSize, transform, animClock);
+  // no weather groups have intensity > 0. Static mode uses `time = 0` — the
+  // canonical snapshot pass used by PNG export — so particles are drawn but
+  // frozen (no motion, no re-seeded positions between frames).
+  renderWeatherParticles(ctx, cells, metadata, gridSize, transform, weatherAnimated ? animClock : 0);
   // Lightning is injected into the lightmap pass as a transient point light
   // (see extractWeatherLightningLights above), so no dedicated draw here.
   const _weatherEnd = performance.now();
@@ -383,7 +394,8 @@ export function render(): void {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const hasAnimLightsLocal = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
   const needsAnim =
-    hasAnimLightsLocal || hasActiveWeatherLightning(metadata) || hasActiveWeatherParticles(metadata);
+    hasAnimLightsLocal ||
+    (weatherAnimated && (hasActiveWeatherLightning(metadata) || hasActiveWeatherParticles(metadata)));
   if (needsAnim && !cvState.animLoopId) {
     cvState.animLoopId = setTimeout(_tickAnimLoopRef, ANIM_INTERVAL_MS);
   } else if (!needsAnim && cvState.animLoopId) {

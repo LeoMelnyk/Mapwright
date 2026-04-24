@@ -3,12 +3,20 @@
 // dims, the weather tool becomes active, and the group-color overlay is
 // forced on so the user can see membership as they paint.
 
-import type { WeatherGroup, WeatherType } from '../../../types.js';
+import type { Cell, WeatherGroup, WeatherType } from '../../../types.js';
 import state, { markDirty, mutate, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { activateTool } from './toolbar.js';
 import { getActiveRightPanel, setRightPanelChangeCallback } from './right-sidebar.js';
 import { markWeatherFullRebuild, hasActiveWeatherLightning } from '../../../render/index.js';
+import {
+  cellHasGroup,
+  getCellHalves,
+  getCellWeatherHalf,
+  halfClip,
+  forEachCellWeatherAssignment,
+  setCellWeatherHalf,
+} from '../../../util/index.js';
 
 /** Auto-assigned color palette for weather groups. 8 distinguishable hues. */
 export const WEATHER_PALETTE: readonly string[] = [
@@ -30,6 +38,7 @@ const WEATHER_TYPES: { value: WeatherType; label: string }[] = [
   { value: 'sandstorm', label: 'Sandstorm' },
   { value: 'fog', label: 'Fog' },
   { value: 'leaves', label: 'Leaves' },
+  { value: 'cloudy', label: 'Cloudy' },
 ];
 
 let container: HTMLElement | null = null;
@@ -92,7 +101,7 @@ function defaultGroup(name: string, colorIndex: number): WeatherGroup {
     intensity: 0.5,
     wind: { direction: 0, intensity: 0 },
     lightning: { enabled: false, intensity: 0.7, frequency: 0.15, color: '#c4d8ff' },
-    hazeDensity: 0.2,
+    hazeDensity: 0,
   };
 }
 
@@ -100,7 +109,7 @@ function countCells(groupId: string): number {
   let n = 0;
   for (const row of state.dungeon.cells) {
     for (const cell of row) {
-      if (cell?.weatherGroupId === groupId) n++;
+      if (cell && cellHasGroup(cell, groupId)) n++;
     }
   }
   return n;
@@ -163,7 +172,8 @@ function deleteGroup(groupId: string): void {
   for (let r = 0; r < cells.length; r++) {
     const row = cells[r]!;
     for (let c = 0; c < row.length; c++) {
-      if (row[c]?.weatherGroupId === groupId) coords.push({ row: r, col: c });
+      const cell = row[c];
+      if (cell && cellHasGroup(cell, groupId)) coords.push({ row: r, col: c });
     }
   }
 
@@ -178,7 +188,13 @@ function deleteGroup(groupId: string): void {
       if (idx >= 0) groups.splice(idx, 1);
       for (const { row, col } of coords) {
         const cell = cells[row]?.[col];
-        if (cell) delete cell.weatherGroupId;
+        if (!cell) continue;
+        // Clear every half that referenced the deleted group.
+        for (const hk of getCellHalves(cell)) {
+          if (getCellWeatherHalf(cell, hk) === groupId) {
+            setCellWeatherHalf(cell, hk, null);
+          }
+        }
       }
     },
     { topic: 'cells' },
@@ -248,7 +264,6 @@ function render(): void {
   const overlayCb = document.createElement('input');
   overlayCb.type = 'checkbox';
   overlayCb.checked = state.showWeatherOverlay;
-  overlayCb.disabled = selectedId !== null;
   overlayCb.addEventListener('change', () => {
     state.showWeatherOverlay = overlayCb.checked;
     markDirty();
@@ -378,29 +393,33 @@ function renderEditor(group: WeatherGroup): HTMLElement {
     }),
   );
 
-  // Wind direction + intensity
-  box.appendChild(
-    sliderRow(
-      'Wind dir',
-      group.wind.direction,
-      0,
-      359,
-      1,
-      (v) => {
+  // Wind direction + intensity. Rain renders as top-down ripples that expand
+  // in place and fade — wind has no effect on the ripple lifecycle, so hide
+  // the controls rather than exposing sliders that do nothing.
+  if (group.type !== 'rain') {
+    box.appendChild(
+      sliderRow(
+        'Wind dir',
+        group.wind.direction,
+        0,
+        359,
+        1,
+        (v) => {
+          updateGroupField(group.id, (g) => {
+            g.wind.direction = v;
+          });
+        },
+        (v) => `${Math.round(v)}°`,
+      ),
+    );
+    box.appendChild(
+      sliderRow('Wind str', group.wind.intensity, 0, 1, 0.05, (v) => {
         updateGroupField(group.id, (g) => {
-          g.wind.direction = v;
+          g.wind.intensity = v;
         });
-      },
-      (v) => `${Math.round(v)}°`,
-    ),
-  );
-  box.appendChild(
-    sliderRow('Wind str', group.wind.intensity, 0, 1, 0.05, (v) => {
-      updateGroupField(group.id, (g) => {
-        g.wind.intensity = v;
-      });
-    }),
-  );
+      }),
+    );
+  }
 
   // Particle color override
   const colorRow = el('div', 'weather-field');
@@ -515,50 +534,100 @@ export function renderWeatherGroupOverlay(
   const selectedId = state.selectedWeatherGroupId;
   const rows = cells.length;
 
-  // Pass 1: translucent fill per cell
+  // Pass 1: translucent fill per half. For unsplit, plain rect. For split,
+  // clip to the half's polygon so diagonals / trim arcs show through.
   ctx.save();
   ctx.globalAlpha = 0.32;
   for (let r = 0; r < rows; r++) {
     const row = cells[r]!;
     for (let c = 0; c < row.length; c++) {
-      const gid = row[c]?.weatherGroupId;
-      if (!gid) continue;
-      const color = colorById.get(gid);
-      if (!color) continue;
+      const cell = row[c];
+      if (!cell) continue;
       const x = c * gridSize * transform.scale + transform.offsetX;
       const y = r * gridSize * transform.scale + transform.offsetY;
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, cellPx, cellPx);
+      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
+        const color = colorById.get(gid);
+        if (!color) return;
+        if (halfKey === 'full' && (!cell.trimClip || cell.trimClip.length < 3)) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, cellPx, cellPx);
+          return;
+        }
+        ctx.save();
+        ctx.beginPath();
+        const rule = halfClip(ctx, cell, halfKey, x, y, cellPx);
+        ctx.clip(rule);
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, cellPx, cellPx);
+        ctx.restore();
+      });
     }
   }
   ctx.restore();
 
-  // Pass 2: perimeter borders — only edges between cells of different groups
-  // (or between a group cell and a non-group cell). This merges contiguous
-  // regions so the border traces the outside of the region, not each cell.
+  // Pass 2: perimeter borders. For each gid on the cell, stroke the cardinal
+  // edges where the neighbor doesn't contain that gid anywhere — same simple
+  // rule the original overlay used, extended to split cells via
+  // `cellHasGroup` so a neighbor whose exterior sliver carries the group
+  // counts as "same group" even when the straight midpoint of the shared
+  // edge lands in the cell's interior portion.
+  //
+  // Split cells whose halves carry different groups (or where only one half
+  // is assigned) skip their outer edges — the internal boundary below
+  // already separates their sliver from the unassigned half, and neighbors
+  // draw the outside perimeter via their own edge checks.
   ctx.save();
   ctx.globalAlpha = 1;
   ctx.lineCap = 'square';
   for (let r = 0; r < rows; r++) {
     const row = cells[r]!;
     for (let c = 0; c < row.length; c++) {
-      const gid = row[c]?.weatherGroupId;
-      if (!gid) continue;
-      const color = colorById.get(gid);
-      if (!color) continue;
-      const isSelected = gid === selectedId;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = isSelected ? 2.5 : 1.5;
+      const cell = row[c];
+      if (!cell) continue;
       const x = c * gridSize * transform.scale + transform.offsetX;
       const y = r * gridSize * transform.scale + transform.offsetY;
-      const north = cells[r - 1]?.[c]?.weatherGroupId;
-      const south = cells[r + 1]?.[c]?.weatherGroupId;
-      const west = cells[r]?.[c - 1]?.weatherGroupId;
-      const east = cells[r]?.[c + 1]?.weatherGroupId;
-      if (north !== gid) edge(ctx, x, y, x + cellPx, y);
-      if (south !== gid) edge(ctx, x, y + cellPx, x + cellPx, y + cellPx);
-      if (west !== gid) edge(ctx, x, y, x, y + cellPx);
-      if (east !== gid) edge(ctx, x + cellPx, y, x + cellPx, y + cellPx);
+
+      const halves = getCellHalves(cell);
+      const isSplit = halves.length === 2;
+      const g0 = isSplit ? getCellWeatherHalf(cell, halves[0]!) : undefined;
+      const g1 = isSplit ? getCellWeatherHalf(cell, halves[1]!) : undefined;
+      const uniform = !isSplit || (g0 !== undefined && g0 === g1);
+
+      // Outer perimeter — only for cells where every half carries the same
+      // group (or the cell isn't split). Mixed / partial split cells rely
+      // on their internal boundary.
+      if (uniform) {
+        const myGids = new Set<string>();
+        forEachCellWeatherAssignment(cell, (_, gid) => myGids.add(gid));
+        for (const gid of myGids) {
+          const color = colorById.get(gid);
+          if (!color) continue;
+          const selected = gid === selectedId;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = selected ? 2.5 : 1.5;
+          const nN = cells[r - 1]?.[c] ?? null;
+          const nS = cells[r + 1]?.[c] ?? null;
+          const nW = cells[r]?.[c - 1] ?? null;
+          const nE = cells[r]?.[c + 1] ?? null;
+          if (!nN || !cellHasGroup(nN, gid)) edge(ctx, x, y, x + cellPx, y);
+          if (!nS || !cellHasGroup(nS, gid)) edge(ctx, x, y + cellPx, x + cellPx, y + cellPx);
+          if (!nW || !cellHasGroup(nW, gid)) edge(ctx, x, y, x, y + cellPx);
+          if (!nE || !cellHasGroup(nE, gid)) edge(ctx, x + cellPx, y, x + cellPx, y + cellPx);
+        }
+      }
+
+      // Internal boundary: split cell with different groups across halves
+      // (including "assigned vs unassigned"). Traces the diagonal line or
+      // the arc portion of trimClip.
+      if (isSplit && g0 !== g1) {
+        const borderGid = g0 === selectedId ? g0 : g1 === selectedId ? g1 : g0 ?? g1;
+        if (borderGid) {
+          const color = colorById.get(borderGid)!;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = borderGid === selectedId ? 2.5 : 1.5;
+          strokeInternalBoundary(ctx, cell, x, y, cellPx);
+        }
+      }
     }
   }
   ctx.restore();
@@ -569,6 +638,48 @@ function edge(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
   ctx.stroke();
+}
+
+/**
+ * Stroke the internal boundary line between two halves of a split cell:
+ * the diagonal for nw-se / ne-sw cells, or the non-cell-rect edges of
+ * `trimClip` (the arc or diagonal portion) for trim cells.
+ */
+function strokeInternalBoundary(
+  ctx: CanvasRenderingContext2D,
+  cell: Cell,
+  x: number,
+  y: number,
+  cellPx: number,
+): void {
+  if (cell['nw-se']) {
+    edge(ctx, x, y, x + cellPx, y + cellPx);
+    return;
+  }
+  if (cell['ne-sw']) {
+    edge(ctx, x + cellPx, y, x, y + cellPx);
+    return;
+  }
+  if (cell.trimClip && cell.trimClip.length >= 3) {
+    // Stroke each polygon edge whose midpoint lies strictly inside the cell
+    // (filters out edges that coincide with the cell rect — we don't want
+    // to double-stroke cell-outer edges here).
+    const poly = cell.trimClip;
+    const EPS = 1e-3;
+    ctx.beginPath();
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i]!;
+      const b = poly[(i + 1) % poly.length]!;
+      const midLx = (a[0]! + b[0]!) / 2;
+      const midLy = (a[1]! + b[1]!) / 2;
+      const onRect =
+        midLx < EPS || midLx > 1 - EPS || midLy < EPS || midLy > 1 - EPS;
+      if (onRect) continue;
+      ctx.moveTo(x + a[0]! * cellPx, y + a[1]! * cellPx);
+      ctx.lineTo(x + b[0]! * cellPx, y + b[1]! * cellPx);
+    }
+    ctx.stroke();
+  }
 }
 
 // ── DOM helpers ────────────────────────────────────────────────────────────

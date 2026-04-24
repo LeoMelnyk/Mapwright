@@ -119,6 +119,13 @@
               <option value="20">Ultra</option>
             </select>
           </div>
+          <div class="menu-field">
+            <label>Weather</label>
+            <select id="setting-weather-motion">
+              <option value="animated" selected>Animated</option>
+              <option value="static">Static</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -603,6 +610,28 @@
         <div class="mw-modal-footer">
           <button class="mw-modal-btn" id="modal-new-cancel">Cancel</button>
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-new-create">Create</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Export to Universal VTT options modal -->
+    <dialog id="modal-export-vtt" class="mw-modal-overlay">
+      <div class="mw-modal">
+        <div class="mw-modal-title">Export to Universal VTT</div>
+        <div class="mw-modal-body">
+          VTTs typically provide their own lighting and weather systems, so you may not want these baked into the exported image. Light sources are always exported as data — this only controls what gets rendered into the PNG.
+        </div>
+        <label class="mw-modal-checkbox">
+          <input type="checkbox" id="modal-export-vtt-lighting" checked>
+          <span>Bake lighting into image</span>
+        </label>
+        <label class="mw-modal-checkbox">
+          <input type="checkbox" id="modal-export-vtt-weather" checked>
+          <span>Bake static weather into image</span>
+        </label>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-export-vtt-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-export-vtt-ok">Export</button>
         </div>
       </div>
     </dialog>

@@ -1433,11 +1433,11 @@ function renderWindowRun(
   ctx.lineCap = 'butt';
   ctx.lineJoin = 'miter';
 
-  // Glass pane fill — use doorFill (usually a pale wall/paper color) with a
-  // slight blue wash to suggest glass. `doorFill` alone makes the window
-  // read as a door on light themes; layering a translucent cool tint on
-  // top nudges it toward "window" without losing theme consistency.
-  ctx.fillStyle = theme.doorFill ?? '#FFFFFF';
+  // Glass pane fill — saturated cyan-blue so the window survives warm
+  // ambient lighting (which otherwise washes pale blues toward peach) and
+  // cannot be confused with a door panel. Using a single strong tone
+  // instead of a pale base + wash — fewer layers, stronger signal.
+  ctx.fillStyle = theme.windowFill ?? '#4a9ec9';
   ctx.beginPath();
   ctx.moveTo(c1x, c1y);
   ctx.lineTo(c2x, c2y);
@@ -1446,15 +1446,22 @@ function renderWindowRun(
   ctx.closePath();
   ctx.fill();
 
-  ctx.globalAlpha = 0.25;
-  ctx.fillStyle = '#6ab0ff';
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
   // Frame outline — same color as the wall stroke, clearly delineates the
-  // pane against the floor.
+  // pane against the floor. Stroke the current pane path before starting
+  // new paths for the highlight.
   ctx.strokeStyle = theme.wallStroke;
   ctx.lineWidth = 3 * s;
+  ctx.stroke();
+
+  // Glass reflection highlight — a thin bright streak along the centerline
+  // of the pane (parallel to the wall). This is the classic top-down "glass
+  // pane" cue and reads as a window regardless of scene lighting, since
+  // the brightness contrast survives color shifts.
+  ctx.strokeStyle = theme.windowTint ?? '#e8f4fb';
+  ctx.lineWidth = Math.max(1, 1.5 * s);
+  ctx.beginPath();
+  ctx.moveTo(qx1, qy1);
+  ctx.lineTo(qx2, qy2);
   ctx.stroke();
 
   // Mullion dividers — one perpendicular bar at each internal cell

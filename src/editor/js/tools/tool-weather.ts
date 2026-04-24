@@ -6,19 +6,32 @@
 // Interaction:
 //   - Left click / drag:        marquee rectangle → assign cells to group.
 //   - Right click / drag:       marquee rectangle → unassign cells.
-//   - Shift + left click:       flood-fill assign (whole connected room).
-//   - Shift + right click:      flood-fill unassign (whole connected room).
+//   - Shift + left click:       flood-fill assign (whole connected half-region).
+//   - Shift + right click:      flood-fill unassign (whole connected half-region).
 //
-// The flood fill uses the shared `floodFillRoom` utility so walls, doors,
-// diagonal walls, and arc walls block the fill identically to the paint tool.
+// Split cells (diagonal walls, trims) carry per-half weather assignments. A
+// shift-click reads the click's position inside the clicked cell and seeds
+// the flood from the half that was hit — so flood fills respect diagonals
+// and arc boundaries like `floodFillRoom` already does.
+//
+// Marquee drags are a bulk tool: they fill every half of every cell in the
+// rect. Precision per-half assignment is done via flood fill.
 
-import type { Cell, RenderTransform } from '../../../types.js';
-import { Tool, type EdgeInfo } from './tool-base.js';
+import type { Cell, CellHalfKey, RenderTransform } from '../../../types.js';
+import { Tool, type CanvasPos, type EdgeInfo } from './tool-base.js';
 import state, { mutate } from '../state.js';
-import { requestRender } from '../canvas-view.js';
+import { requestRender, getTransform } from '../canvas-view.js';
 import { WEATHER_PALETTE } from '../panels/weather.js';
-import { floodFillRoom, parseCellKey } from '../../../util/index.js';
+import {
+  floodFillRoom,
+  getCellHalves,
+  getCellWeatherHalf,
+  hitTestHalf,
+  parseCellHalfKey,
+  setCellWeatherHalf,
+} from '../../../util/index.js';
 import { markWeatherCellDirty } from '../../../render/index.js';
+import { fromCanvas } from '../utils.js';
 
 interface MarqueeState {
   startRow: number;
@@ -27,6 +40,10 @@ interface MarqueeState {
   currentCol: number;
   /** Mouse button that started this marquee: 0 = left (assign), 2 = right (unassign). */
   button: 0 | 2;
+  /** Which half of the start cell was clicked. Used when the marquee never
+   *  leaves the start cell — a plain click on a split cell affects only the
+   *  clicked half. Dragging across multiple cells upgrades to whole-cell fill. */
+  startHalfKey: CellHalfKey;
 }
 
 export class WeatherTool extends Tool {
@@ -38,24 +55,42 @@ export class WeatherTool extends Tool {
     this.claimsRightDrag = true;
   }
 
-  override onMouseDown(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent | null): void {
+  override onMouseDown(
+    row: number,
+    col: number,
+    _edge: EdgeInfo | null,
+    event: MouseEvent | null,
+    pos: CanvasPos | null,
+  ): void {
     const groupId = state.selectedWeatherGroupId;
     if (!groupId) return;
 
     const button: 0 | 2 = event?.button === 2 ? 2 : 0;
     const shift = !!event?.shiftKey;
 
-    // Shift+click: one-shot flood fill. Does not start a marquee.
+    // Shift+click: one-shot flood fill. Resolve which half of the clicked
+    // cell was hit; the flood respects the diagonal/arc split from there.
     if (shift) {
-      if (state.dungeon.cells[row]?.[col]) {
-        if (button === 0) floodFillAssign(row, col, groupId);
-        else floodFillUnassign(row, col);
+      const cell = state.dungeon.cells[row]?.[col];
+      if (cell) {
+        const halfKey = resolveClickedHalf(cell, row, col, pos);
+        if (button === 0) floodFillAssignHalf(row, col, halfKey, groupId);
+        else floodFillUnassignHalf(row, col, halfKey);
       }
       requestRender();
       return;
     }
 
-    this.marquee = { startRow: row, startCol: col, currentRow: row, currentCol: col, button };
+    const startCell = state.dungeon.cells[row]?.[col];
+    const startHalfKey: CellHalfKey = startCell ? resolveClickedHalf(startCell, row, col, pos) : 'full';
+    this.marquee = {
+      startRow: row,
+      startCol: col,
+      currentRow: row,
+      currentCol: col,
+      button,
+      startHalfKey,
+    };
     requestRender();
   }
 
@@ -70,13 +105,27 @@ export class WeatherTool extends Tool {
   override onMouseUp(): void {
     if (!this.marquee) return;
     const groupId = state.selectedWeatherGroupId;
-    const { startRow, startCol, currentRow, currentCol, button } = this.marquee;
+    const { startRow, startCol, currentRow, currentCol, button, startHalfKey } = this.marquee;
     this.marquee = null;
 
+    const singleCell = startRow === currentRow && startCol === currentCol;
+
     if (button === 0) {
-      if (groupId) assignRect(startRow, startCol, currentRow, currentCol, groupId);
+      if (!groupId) {
+        requestRender();
+        return;
+      }
+      if (singleCell && startHalfKey !== 'full') {
+        assignSingleHalf(startRow, startCol, startHalfKey, groupId);
+      } else {
+        assignRect(startRow, startCol, currentRow, currentCol, groupId);
+      }
     } else {
-      unassignRect(startRow, startCol, currentRow, currentCol);
+      if (singleCell && startHalfKey !== 'full') {
+        unassignSingleHalf(startRow, startCol, startHalfKey);
+      } else {
+        unassignRect(startRow, startCol, currentRow, currentCol);
+      }
     }
     requestRender();
   }
@@ -126,9 +175,61 @@ export class WeatherTool extends Tool {
 }
 
 /**
+ * Resolve which half of the clicked cell a canvas-pixel position falls in.
+ * Returns 'full' for unsplit cells. When `pos` is missing (e.g. keyboard-
+ * driven invocation) defaults to the cell's first declared half.
+ */
+function resolveClickedHalf(cell: Cell, row: number, col: number, pos: CanvasPos | null): CellHalfKey {
+  const halves = getCellHalves(cell);
+  if (halves.length === 1) return halves[0]!;
+  if (!pos) return halves[0]!;
+  const transform = getTransform();
+  const gridSize = state.dungeon.metadata.gridSize;
+  const feet = fromCanvas(pos.x, pos.y, transform);
+  const lx = feet.x / gridSize - col;
+  const ly = feet.y / gridSize - row;
+  return hitTestHalf(cell, lx, ly);
+}
+
+/**
+ * Assign weather for a single half of a single cell (click on a split cell
+ * without dragging). One undo step.
+ */
+function assignSingleHalf(row: number, col: number, halfKey: CellHalfKey, groupId: string): void {
+  const cells = state.dungeon.cells;
+  const cell = cells[row]?.[col];
+  if (!cell) return;
+  if (getCellWeatherHalf(cell, halfKey) === groupId) return;
+  const coords = [{ row, col }];
+  mutate(
+    'Assign weather half',
+    coords,
+    () => setCellWeatherHalf(cell, halfKey, groupId),
+    { topic: 'cells' },
+  );
+  markWeatherCellDirty(row, col);
+}
+
+/** Clear weather for a single half of a single cell. One undo step. */
+function unassignSingleHalf(row: number, col: number, halfKey: CellHalfKey): void {
+  const cells = state.dungeon.cells;
+  const cell = cells[row]?.[col];
+  if (!cell) return;
+  if (getCellWeatherHalf(cell, halfKey) === undefined) return;
+  const coords = [{ row, col }];
+  mutate(
+    'Unassign weather half',
+    coords,
+    () => setCellWeatherHalf(cell, halfKey, null),
+    { topic: 'cells' },
+  );
+  markWeatherCellDirty(row, col);
+}
+
+/**
  * Assign every floor cell in the rectangle (inclusive) to `groupId`. Void
- * cells and cells already in `groupId` are skipped; all changes are one undo
- * step.
+ * cells are skipped; for split cells, every half is set to `groupId`. All
+ * changes are one undo step.
  */
 function assignRect(r1: number, c1: number, r2: number, c2: number, groupId: string): void {
   const rowMin = Math.min(r1, r2);
@@ -144,7 +245,11 @@ function assignRect(r1: number, c1: number, r2: number, c2: number, groupId: str
     for (let c = colMin; c <= colMax; c++) {
       const cell = row[c];
       if (!cell) continue;
-      if (cell.weatherGroupId === groupId) continue;
+      // Skip when every half is already this group.
+      if (cell.weatherGroupId === groupId && !cell.weatherHalves) continue;
+      const halves = getCellHalves(cell);
+      const allAssigned = halves.every((h) => getCellWeatherHalf(cell, h) === groupId);
+      if (allAssigned) continue;
       coords.push({ row: r, col: c });
       touched.push(cell);
     }
@@ -154,7 +259,9 @@ function assignRect(r1: number, c1: number, r2: number, c2: number, groupId: str
     coords.length === 1 ? 'Assign weather cell' : 'Assign weather cells',
     coords,
     () => {
-      for (const cell of touched) cell.weatherGroupId = groupId;
+      for (const cell of touched) {
+        for (const h of getCellHalves(cell)) setCellWeatherHalf(cell, h, groupId);
+      }
     },
     { topic: 'cells' },
   );
@@ -162,8 +269,8 @@ function assignRect(r1: number, c1: number, r2: number, c2: number, groupId: str
 }
 
 /**
- * Unassign every floor cell in the rectangle (inclusive) that currently has a
- * weatherGroupId. One undo step.
+ * Unassign every floor cell in the rectangle (inclusive). Both
+ * `weatherGroupId` and any `weatherHalves` entries are cleared. One undo step.
  */
 function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
   const rowMin = Math.min(r1, r2);
@@ -178,7 +285,8 @@ function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
     if (!row) continue;
     for (let c = colMin; c <= colMax; c++) {
       const cell = row[c];
-      if (!cell?.weatherGroupId) continue;
+      if (!cell) continue;
+      if (!cell.weatherGroupId && !cell.weatherHalves) continue;
       coords.push({ row: r, col: c });
       touched.push(cell);
     }
@@ -188,7 +296,9 @@ function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
     coords.length === 1 ? 'Unassign weather cell' : 'Unassign weather cells',
     coords,
     () => {
-      for (const cell of touched) delete cell.weatherGroupId;
+      for (const cell of touched) {
+        for (const h of getCellHalves(cell)) setCellWeatherHalf(cell, h, null);
+      }
     },
     { topic: 'cells' },
   );
@@ -196,56 +306,92 @@ function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
 }
 
 /**
- * Flood fill from (row, col) to every cell in the connected room, assigning
- * each to `groupId`. Walls, doors, diagonal walls, and arc walls all block —
- * shares the traversal used by the paint tool's flood fill via `floodFillRoom`.
+ * Flood fill from (row, col, halfKey) to every connected half-region,
+ * assigning each to `groupId`. Diagonal walls, arc walls, and trim
+ * boundaries confine the flood to one side — `floodFillRoom`'s half-aware
+ * mode handles the adjacency.
  */
-function floodFillAssign(startRow: number, startCol: number, groupId: string): void {
+function floodFillAssignHalf(
+  startRow: number,
+  startCol: number,
+  halfKey: CellHalfKey,
+  groupId: string,
+): void {
   const cells = state.dungeon.cells;
-  const room = floodFillRoom(cells, startRow, startCol);
-  const coords: { row: number; col: number }[] = [];
-  const touched: Cell[] = [];
+  const room = floodFillRoom(cells, startRow, startCol, {
+    returnHalves: true,
+    startHalfKey: halfKey,
+  });
+  // Group writes by cell (multiple halves of the same cell share one mutate entry).
+  const writesByCell = new Map<string, { row: number; col: number; halves: CellHalfKey[] }>();
   for (const key of room) {
-    const [r, c] = parseCellKey(key);
+    const { row: r, col: c, halfKey: hk } = parseCellHalfKey(key);
     const cell = cells[r]?.[c];
     if (!cell) continue;
-    if (cell.weatherGroupId === groupId) continue;
-    coords.push({ row: r, col: c });
-    touched.push(cell);
+    if (getCellWeatherHalf(cell, hk) === groupId) continue;
+    const k = `${r},${c}`;
+    let entry = writesByCell.get(k);
+    if (!entry) {
+      entry = { row: r, col: c, halves: [] };
+      writesByCell.set(k, entry);
+    }
+    entry.halves.push(hk);
   }
-  if (coords.length === 0) return;
+  if (writesByCell.size === 0) return;
+  const coords = Array.from(writesByCell.values()).map(({ row, col }) => ({ row, col }));
   mutate(
     'Flood-fill weather',
     coords,
     () => {
-      for (const cell of touched) cell.weatherGroupId = groupId;
+      for (const entry of writesByCell.values()) {
+        const cell = cells[entry.row]?.[entry.col];
+        if (!cell) continue;
+        for (const hk of entry.halves) setCellWeatherHalf(cell, hk, groupId);
+      }
     },
     { topic: 'cells' },
   );
   for (const { row, col } of coords) markWeatherCellDirty(row, col);
 }
 
-/** Flood unassign from (row, col): every cell in the connected room loses its weatherGroupId. */
-function floodFillUnassign(startRow: number, startCol: number): void {
+/**
+ * Flood unassign from (row, col, halfKey). Every connected half-region loses
+ * its weather assignment.
+ */
+function floodFillUnassignHalf(startRow: number, startCol: number, halfKey: CellHalfKey): void {
   const cells = state.dungeon.cells;
-  const room = floodFillRoom(cells, startRow, startCol);
-  const coords: { row: number; col: number }[] = [];
-  const touched: Cell[] = [];
+  const room = floodFillRoom(cells, startRow, startCol, {
+    returnHalves: true,
+    startHalfKey: halfKey,
+  });
+  const writesByCell = new Map<string, { row: number; col: number; halves: CellHalfKey[] }>();
   for (const key of room) {
-    const [r, c] = parseCellKey(key);
+    const { row: r, col: c, halfKey: hk } = parseCellHalfKey(key);
     const cell = cells[r]?.[c];
-    if (!cell?.weatherGroupId) continue;
-    coords.push({ row: r, col: c });
-    touched.push(cell);
+    if (!cell) continue;
+    if (getCellWeatherHalf(cell, hk) === undefined) continue;
+    const k = `${r},${c}`;
+    let entry = writesByCell.get(k);
+    if (!entry) {
+      entry = { row: r, col: c, halves: [] };
+      writesByCell.set(k, entry);
+    }
+    entry.halves.push(hk);
   }
-  if (coords.length === 0) return;
+  if (writesByCell.size === 0) return;
+  const coords = Array.from(writesByCell.values()).map(({ row, col }) => ({ row, col }));
   mutate(
     'Flood-clear weather',
     coords,
     () => {
-      for (const cell of touched) delete cell.weatherGroupId;
+      for (const entry of writesByCell.values()) {
+        const cell = cells[entry.row]?.[entry.col];
+        if (!cell) continue;
+        for (const hk of entry.halves) setCellWeatherHalf(cell, hk, null);
+      }
     },
     { topic: 'cells' },
   );
   for (const { row, col } of coords) markWeatherCellDirty(row, col);
 }
+

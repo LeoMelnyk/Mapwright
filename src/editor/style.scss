@@ -3069,6 +3069,22 @@ dialog.mw-modal-overlay::backdrop {
   border-color: var(--accent);
 }
 
+.mw-modal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mw-modal-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
 .mw-modal-row {
   display: flex;
   gap: 14px;

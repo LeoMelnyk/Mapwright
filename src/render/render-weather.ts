@@ -1,14 +1,30 @@
-// Static weather effects renderer.
+// Animated weather effects renderer.
 //
-// Renders per-cell particles (streaks, dots, wisps, ovals) and a translucent
-// haze wash for each cell assigned to a weather group. No animation yet —
-// particle positions are deterministic, seeded by (row, col, groupId), so the
-// same map always draws the same pattern between frames.
-//
-// Drawn as a phase of renderCells, layered on top of floors/walls/props but
-// below the lightmap so lighting can darken weather in shadowed areas.
+// Each weather group renders in two layers:
+//   • A translucent per-cell haze wash (cached once per state change, blitted
+//     each frame).
+//   • Animated particles dispatched per weather group by shape:
+//       - `flake`  → snow/ash/embers/sandstorm/fog/leaves — cross-cell
+//                    batched lifecycle with drift, wiggle, and fade.
+//       - `ripple` → rain — expanding top-down ripples.
+//       - `cloud`  → cloudy — soft shadow sprites drifting across the region
+//                    along the wind axis.
+// Particle motion is deterministic: seeded by (row, col, groupId, time) so
+// rendering is stable across pan/zoom. Drawn as a phase of renderCells,
+// layered on top of floors/walls/props but below the lightmap so lighting
+// can darken weather in shadowed areas.
 
-import type { Cell, CellGrid, Light, Metadata, RenderTransform, WeatherGroup, WeatherType } from '../types.js';
+import type {
+  Cell,
+  CellGrid,
+  CellHalfKey,
+  Light,
+  Metadata,
+  RenderTransform,
+  WeatherGroup,
+  WeatherType,
+} from '../types.js';
+import { forEachCellWeatherAssignment, halfClip, cellHasGroup } from '../util/index.js';
 
 // ── Invalidation state ─────────────────────────────────────────────────────
 // Two invalidation signals feed the cache:
@@ -47,22 +63,65 @@ interface TypeDefaults {
   color: string;
   /** Upper bound on particles per cell at intensity = 1. */
   maxParticles: number;
-  shape: 'ripple' | 'streak' | 'dot' | 'wisp' | 'oval';
-  /** Particle size as a fraction of cell size (dot/oval radius; ripple max radius). */
+  shape: 'ripple' | 'flake' | 'cloud';
+  /**
+   * Particle size as a fraction of cell size. For flake shapes = diameter,
+   * for ripple = max radius of the expanding arc, for cloud = diameter in
+   * cell-widths (so 3.0 = clouds ~3 cells across).
+   */
   sizeFrac: number;
-  /** Streak / wisp length as a fraction of cell size. */
-  lengthFrac: number;
-  /** Base velocity vector (canvas coordinates: +y is down). Wind adds on top. */
-  baseVx: number;
-  baseVy: number;
   /** Opacity used when stroking particles. Overridden by haze alpha internally. */
   particleAlpha: number;
   /**
-   * Animation speed in cells-per-second at unit velocity magnitude. Actual
-   * speed is this × |baseVel + wind|, clamped. Motion direction comes from
-   * the velocity vector; this scalar controls how fast particles traverse.
+   * Animation speed in cells-per-second at unit wind magnitude. Actual
+   * speed is this × |wind|, clamped. Used by cloud shadow drift and some
+   * flake wind timing.
    */
   cellsPerSec: number;
+
+  // ── flake-shape tuning ───────────────────────────────────────────────────
+  // These only apply when `shape === 'flake'`. Each parameter gives the
+  // variant its character — snow is slow + calm, ash settles gently, embers
+  // flicker out fast. Unset falls back to snow's values.
+  /** Average air-phase duration at no wind, in seconds. Lower = quicker turnover. */
+  airDurationBase?: number;
+  /** Fade-phase duration at no wind, in seconds. Lower = snappier burn-out. */
+  fadeDurationBase?: number;
+  /** No-wind 2D wiggle amplitude as a fraction of cell width. Higher = more erratic. */
+  wiggleAmp?: number;
+  /** Max drift distance in cells at max wind. Higher = more wind-sensitive. */
+  windDriftMaxCells?: number;
+  /** Max motion-trail length in cells at max wind. Higher = more streak. */
+  windTrailMaxCells?: number;
+  /**
+   * Minimum effective wind magnitude. If set, the wind vector is floored to
+   * at least this length (direction still taken from the user's slider), so
+   * the weather always reads as windy. Used for sandstorm — wind=0 acts as
+   * baseline, and the user's slider layers additional intensity on top.
+   */
+  baseWindMag?: number;
+  /**
+   * Minimum effective intensity (0..1). Applied inside cloud rendering so
+   * the slider never reads as empty — used by cloudy to guarantee some
+   * overhead cover even at "clear skies." Omit for types where 0% should
+   * mean truly nothing (e.g. fog).
+   */
+  intensityFloor?: number;
+  /**
+   * Ratio of minor axis to major axis (0..1). When set, flakes render as
+   * rotating ellipses instead of circles — each particle gets a seeded
+   * rotation that drifts slowly over time (tumbling in the air) and freezes
+   * once landed. Used for leaves.
+   */
+  ovalAspect?: number;
+  /**
+   * For cloud-shape sprites only: how far out from the center each lobe
+   * stays at full alpha before fading to transparent. 0 = no plateau
+   * (smooth radial fade, very wispy), 0.55 = default cloud-shadow look
+   * (solid core + soft edge), 0.9 = almost-solid lobe. Lower values read
+   * as softer, foggier patches.
+   */
+  cloudCoreFrac?: number;
 }
 
 const TYPE_DEFAULTS: Record<WeatherType, TypeDefaults> = {
@@ -74,77 +133,133 @@ const TYPE_DEFAULTS: Record<WeatherType, TypeDefaults> = {
     // side. Ripples spawn at seeded positions, grow outward, and fade.
     shape: 'ripple',
     sizeFrac: 0.3,
-    lengthFrac: 0,
-    baseVx: 0,
-    baseVy: 1,
     particleAlpha: 0.7,
     cellsPerSec: 1.6,
   },
   snow: {
     color: '#ffffff',
     maxParticles: 7,
-    shape: 'dot',
-    sizeFrac: 0.07,
-    lengthFrac: 0,
-    baseVx: 0,
-    baseVy: 0.3,
+    // From top-down, gravity is out-of-plane — flakes don't drift toward the
+    // bottom of the canvas on their own. Only wind moves them horizontally;
+    // without wind they wiggle near the spawn point and then fade on the
+    // floor.
+    shape: 'flake',
+    sizeFrac: 0.09,
     particleAlpha: 1,
     cellsPerSec: 0.3,
   },
   ash: {
     color: '#8a8a8a',
-    maxParticles: 6,
-    shape: 'dot',
-    sizeFrac: 0.07,
-    lengthFrac: 0,
-    baseVx: 0,
-    baseVy: 0.25,
-    particleAlpha: 0.95,
-    cellsPerSec: 0.18,
+    maxParticles: 7,
+    // Ash re-skins the snow `flake` lifecycle: airborne particles that
+    // wiggle, land, and fade. Settles more slowly than snow and lingers on
+    // the floor before fading, with a shorter wind trail since light soot
+    // doesn't really streak.
+    shape: 'flake',
+    sizeFrac: 0.065,
+    particleAlpha: 0.9,
+    cellsPerSec: 0.3,
+    airDurationBase: 4.2,
+    fadeDurationBase: 2.0,
+    wiggleAmp: 0.04,
+    windDriftMaxCells: 2.0,
+    windTrailMaxCells: 0.15,
   },
   embers: {
     color: '#ff8a3d',
-    maxParticles: 6,
-    shape: 'dot',
-    sizeFrac: 0.06,
-    lengthFrac: 0,
-    baseVx: 0,
-    baseVy: -0.5,
+    maxParticles: 8,
+    // Embers flicker fast: short airborne window, snappy fade ("burn out"),
+    // erratic wiggle (heat turbulence), and longer wind trails so a gust
+    // through a fire reads as streaking sparks.
+    shape: 'flake',
+    sizeFrac: 0.055,
     particleAlpha: 1,
     cellsPerSec: 0.45,
+    airDurationBase: 1.0,
+    fadeDurationBase: 0.4,
+    wiggleAmp: 0.1,
+    windDriftMaxCells: 1.8,
+    windTrailMaxCells: 0.5,
   },
   sandstorm: {
     color: '#d4b878',
-    maxParticles: 9,
-    shape: 'streak',
-    sizeFrac: 0.04,
-    lengthFrac: 0.32,
-    baseVx: 0,
-    baseVy: 0,
+    maxParticles: 14,
+    // Sandstorm reuses the flake lifecycle but with a baseline wind floor
+    // (25%) so there's always visible sand streaking through, even when the
+    // user leaves the wind slider at zero. The user's wind slider layers
+    // additional intensity on top up to the normal max. `fadeDurationBase=0`
+    // disables the landed/fade phase — sand doesn't settle, it blows past.
+    shape: 'flake',
+    sizeFrac: 0.03,
     particleAlpha: 0.85,
     cellsPerSec: 2.2,
+    airDurationBase: 0.6,
+    fadeDurationBase: 0,
+    wiggleAmp: 0.03,
+    windDriftMaxCells: 3.5,
+    windTrailMaxCells: 0.7,
+    baseWindMag: 0.25,
   },
   fog: {
-    color: '#cfd5d8',
-    maxParticles: 2,
-    shape: 'wisp',
-    sizeFrac: 0.04,
-    lengthFrac: 0.55,
-    baseVx: 0,
-    baseVy: 0,
-    particleAlpha: 0.55,
-    cellsPerSec: 0.08,
+    color: '#d4dcde',
+    maxParticles: 8,
+    // Fog uses the cloud shape — soft volumetric sprites drifting across
+    // the region — rather than per-cell particles. Lighter color than
+    // cloudy shadows so the patches read as fog tendrils at ground level.
+    // `hazeDensity` provides the uniform base fog; these patches add
+    // motion and variety on top. Overlap stacks naturally for denser
+    // pockets.
+    //
+    // Wind: the slider sweeps from "gentle fog creep" (wind=0, floored at
+    // 10% effective magnitude) to "wind-blown fog" (wind=100%, 10× the
+    // floor speed). Without the floor fog sits perfectly still, which
+    // reads as dead rather than ambient. No `intensityFloor` so fog can
+    // still be fully disabled by dropping intensity to 0.
+    shape: 'cloud',
+    sizeFrac: 4.0,
+    particleAlpha: 0.3,
+    cellsPerSec: 2.5,
+    baseWindMag: 0.1,
+    // Very soft lobes — no solid core plateau, so every fog patch fades
+    // from center to edge smoothly and reads as wispy rather than a
+    // hard-edged blob.
+    cloudCoreFrac: 0.1,
   },
   leaves: {
     color: '#9a7a3a',
     maxParticles: 3,
-    shape: 'oval',
+    // Leaves reuse the flake lifecycle but render as rotating ellipses
+    // (tumbling in air, static once landed) rather than circles. Zero wind
+    // trail — individual leaf shapes don't streak the way blowing snow or
+    // sand does. Long air phase (slow float), pronounced wiggle, and a long
+    // settled-fade so fallen leaves linger before drifting away.
+    shape: 'flake',
     sizeFrac: 0.1,
-    lengthFrac: 0,
-    baseVx: 0,
-    baseVy: 0.35,
     particleAlpha: 0.9,
     cellsPerSec: 0.3,
+    airDurationBase: 5.0,
+    fadeDurationBase: 2.5,
+    wiggleAmp: 0.07,
+    windDriftMaxCells: 2.2,
+    windTrailMaxCells: 0,
+    ovalAspect: 0.45,
+  },
+  cloudy: {
+    // Cloudy = soft cloud-shadow sprites drifting across the whole weather
+    // region in the wind direction. Unlike flake-based particles, clouds
+    // aren't per-cell — they live in region-space, traverse the bbox along
+    // the wind axis, and wrap seamlessly when they exit the far side. A 5%
+    // wind floor keeps them always moving. Color is pure black so the low
+    // alpha reads as a shadow (less light) rather than a color tint.
+    color: '#000000',
+    maxParticles: 6, // Number of distinct cloud sprites drifting at once
+    shape: 'cloud',
+    // `sizeFrac` here = cloud diameter in cell-widths (so 3.0 = spans ~3 cells).
+    sizeFrac: 3.0,
+    particleAlpha: 0.35,
+    cellsPerSec: 1.5, // At max wind, clouds travel ~1.5 cells/sec
+    baseWindMag: 0.05,
+    intensityFloor: 0.05, // Always at least a hint of cloud cover
   },
 };
 
@@ -180,60 +295,50 @@ function windVector(group: WeatherGroup): { x: number; y: number } {
   };
 }
 
-/**
- * Compute the particle motion angle (radians, canvas space) for a group.
- * Returns null when the base + wind vector is degenerate (both components
- * zero), meaning particles have no preferred direction — the caller draws
- * orientation-less particles (dots, random-rotation ovals).
- */
-function particleAngle(group: WeatherGroup): number | null {
-  const def = TYPE_DEFAULTS[group.type];
-  const wind = windVector(group);
-  const vx = def.baseVx + wind.x;
-  const vy = def.baseVy + wind.y;
-  if (Math.abs(vx) < 1e-6 && Math.abs(vy) < 1e-6) return null;
-  return Math.atan2(vy, vx);
-}
-
 interface FlowState {
   /** Unit direction of motion in canvas space (0,0 when the group is static). */
   dirX: number;
   dirY: number;
-  /** Unit perpendicular (rotated 90° CCW from dir). Used for spread. */
+  /** Unit perpendicular (rotated 90° CCW from dir). */
   perpX: number;
   perpY: number;
-  /**
-   * Seconds a particle takes to traverse one cycle — entry edge to exit edge
-   * across a cell, plus some lead-in/lead-out. Infinity when static.
-   */
-  cycleSec: number;
-  /** True when there's enough motion to run the flow model; false for static fallback. */
+  /** True when there's enough motion to run the wind model; false for static fallback. */
   hasMotion: boolean;
+  /** Unclamped wind magnitude. Zero when static. */
+  mag: number;
 }
 
 /**
- * Compute the flow parameters for a group at the current cell. Used by
- * streaks/dots/wisps/ovals to run a "particles enter upstream edge, cross
- * cell, exit downstream edge" animation without modulo wrapping. Ripples
- * (rain) don't use flow — they expand in place at seeded positions.
+ * Compute the wind flow parameters for a group. Consumed by the flake and
+ * cloud renderers to drive wind-driven drift, swivel, and cloud travel
+ * speed. The `baseWindMag` knob lets weather types (sandstorm, cloudy)
+ * enforce a minimum wind magnitude regardless of user input.
  */
-function flowState(group: WeatherGroup, cellPx: number): FlowState {
+function flowState(group: WeatherGroup): FlowState {
   const def = TYPE_DEFAULTS[group.type];
-  const wind = windVector(group);
-  const vx = def.baseVx + wind.x;
-  const vy = def.baseVy + wind.y;
-  const mag = Math.sqrt(vx * vx + vy * vy);
-  if (mag < 1e-6) {
-    return { dirX: 0, dirY: 0, perpX: 0, perpY: 0, cycleSec: Infinity, hasMotion: false };
+  let windX: number;
+  let windY: number;
+  const rawWind = windVector(group);
+  const userWindMag = Math.sqrt(rawWind.x * rawWind.x + rawWind.y * rawWind.y);
+  const baseWindMag = def.baseWindMag ?? 0;
+  if (baseWindMag > userWindMag) {
+    // Floor the wind magnitude at baseWindMag, keeping the user's direction.
+    // At user wind=0 the direction field is still meaningful (slider value),
+    // so we rebuild the vector from it instead of using the zeroed one.
+    const rad = (group.wind.direction * Math.PI) / 180;
+    windX = Math.sin(rad) * baseWindMag;
+    windY = -Math.cos(rad) * baseWindMag;
+  } else {
+    windX = rawWind.x;
+    windY = rawWind.y;
   }
-  const dirX = vx / mag;
-  const dirY = vy / mag;
-  const speedPxPerSec = def.cellsPerSec * Math.min(2, mag) * cellPx;
-  // Cycle distance is 1.5 × cell size: particles start ~0.25 cell before the
-  // near edge and exit ~0.25 cell past the far edge, so the visible path
-  // through the cell has no entry/exit pop.
-  const cycleSec = (cellPx * 1.5) / speedPxPerSec;
-  return { dirX, dirY, perpX: -dirY, perpY: dirX, cycleSec, hasMotion: true };
+  const mag = Math.sqrt(windX * windX + windY * windY);
+  if (mag < 1e-6) {
+    return { dirX: 0, dirY: 0, perpX: 0, perpY: 0, hasMotion: false, mag: 0 };
+  }
+  const dirX = windX / mag;
+  const dirY = windY / mag;
+  return { dirX, dirY, perpX: -dirY, perpY: dirX, hasMotion: true, mag };
 }
 
 /** Positive-modulo helper — standard `%` in JS returns negative for negative LHS. */
@@ -241,57 +346,21 @@ function pmod(x: number, m: number): number {
   return ((x % m) + m) % m;
 }
 
-/**
- * Compute a particle's canvas position under the flow model. `phaseSeed`
- * and `perpSeed` are stable per-particle random values in [0, 1).
- * Returns a position that smoothly traverses the cell along the motion
- * direction — entering from upstream edge, exiting downstream, with the
- * next cycle taking its place behind.
- */
-function flowPosition(
-  phaseSeed: number,
-  perpSeed: number,
-  time: number,
-  flow: FlowState,
-  cellX: number,
-  cellY: number,
-  cellPx: number,
-): { x: number; y: number } {
-  const phase = pmod(phaseSeed + time / flow.cycleSec, 1);
-  // Map phase 0..1 to along-distance from -0.25*cellPx to +1.25*cellPx
-  // (centered on the cell, extends 0.25 cellPx in each direction).
-  const along = (phase - 0.25) * cellPx * 1.5 - cellPx * 0.5;
-  const perp = (perpSeed - 0.5) * cellPx;
-  const centerX = cellX + cellPx * 0.5;
-  const centerY = cellY + cellPx * 0.5;
-  return {
-    x: centerX + flow.dirX * along + flow.perpX * perp,
-    y: centerY + flow.dirY * along + flow.perpY * perp,
-  };
-}
-
-interface InnerOptions {
-  drawHaze?: boolean;
-  drawParticles?: boolean;
-  /** Seconds elapsed (for animation). 0 renders particles at their seeded base positions. */
-  time?: number;
-  bounds?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null;
-}
+type WeatherBounds = { minRow: number; maxRow: number; minCol: number; maxCol: number };
 
 /**
- * Shared per-cell draw loop. Iterates every weather cell inside `bounds`
- * (or the whole grid), looks up its group, and calls the haze / particle
- * helpers according to `options`. Split from the public helpers so cache
- * builders (haze-only) and per-frame overlays (particles-only, animated)
- * can reuse the same traversal.
+ * Draw the translucent haze wash over every weather cell. Haze is the only
+ * part of weather rendering that's per-cell — particles are dispatched per
+ * weather group and drawn in batches by shape-specific renderers
+ * (`drawFlakesForGroup`, `drawRipplesForGroup`, `drawCloudsForGroup`).
  */
-function _renderWeatherInner(
+function _renderHazePass(
   ctx: CanvasRenderingContext2D,
   cells: CellGrid,
   metadata: Metadata | null | undefined,
   gridSize: number,
   transform: RenderTransform,
-  options: InnerOptions,
+  bounds?: WeatherBounds | null,
 ): void {
   if (!metadata) return;
   const groups = metadata.weatherGroups;
@@ -301,37 +370,38 @@ function _renderWeatherInner(
   for (const g of groups) groupById.set(g.id, g);
 
   const cellPx = gridSize * transform.scale;
-  const rMin = options.bounds ? Math.max(0, options.bounds.minRow) : 0;
-  const rMax = options.bounds ? Math.min(cells.length - 1, options.bounds.maxRow) : cells.length - 1;
-  const cMin = options.bounds ? Math.max(0, options.bounds.minCol) : 0;
+  const rMin = bounds ? Math.max(0, bounds.minRow) : 0;
+  const rMax = bounds ? Math.min(cells.length - 1, bounds.maxRow) : cells.length - 1;
+  const cMin = bounds ? Math.max(0, bounds.minCol) : 0;
   const cMaxDefault = (cells[0]?.length ?? 1) - 1;
-  const time = options.time ?? 0;
-  const needClip = !!options.drawParticles; // haze is always in-cell; particles overflow.
 
   for (let r = rMin; r <= rMax; r++) {
     const row = cells[r];
     if (!row) continue;
-    const cMax = options.bounds ? Math.min(row.length - 1, options.bounds.maxCol) : cMaxDefault;
+    const cMax = bounds ? Math.min(row.length - 1, bounds.maxCol) : cMaxDefault;
     for (let c = cMin; c <= cMax; c++) {
-      const gid = row[c]?.weatherGroupId;
-      if (!gid) continue;
-      const group = groupById.get(gid);
-      if (!group) continue;
-
+      const cell = row[c];
+      if (!cell) continue;
       const cellX = c * gridSize * transform.scale + transform.offsetX;
       const cellY = r * gridSize * transform.scale + transform.offsetY;
-
-      if (needClip) {
-        // Particles can overflow by streak length / wisp curvature; clip keeps
-        // the hard cell boundary and makes partial-rebuild cache updates safe.
+      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
+        const group = groupById.get(gid);
+        if (!group) return;
+        if (halfKey === 'full') {
+          // Fast path: unsplit cell with no trimClip → plain rect fill.
+          if (!cell.trimClip || cell.trimClip.length < 3) {
+            drawHazeWash(ctx, group, cellX, cellY, cellPx);
+            return;
+          }
+        }
+        // Split or trim-clipped cell: clip to the half's polygon.
         ctx.save();
         ctx.beginPath();
-        ctx.rect(cellX, cellY, cellPx, cellPx);
-        ctx.clip();
-      }
-      if (options.drawHaze) drawHazeWash(ctx, group, cellX, cellY, cellPx);
-      if (options.drawParticles) drawParticles(ctx, group, r, c, cellX, cellY, cellPx, time);
-      if (needClip) ctx.restore();
+        const rule = halfClip(ctx, cell, halfKey, cellX, cellY, cellPx);
+        ctx.clip(rule);
+        drawHazeWash(ctx, group, cellX, cellY, cellPx);
+        ctx.restore();
+      });
     }
   }
 }
@@ -351,12 +421,11 @@ export function renderWeatherEffects(
   transform: RenderTransform,
   bounds?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
 ): void {
-  _renderWeatherInner(ctx, cells, metadata, gridSize, transform, {
-    drawHaze: true,
-    drawParticles: true,
-    time: 0,
-    bounds,
-  });
+  // Haze first (in-cell fillRect, no clipping needed). Particles go through
+  // the region-clipped path so they stay inside weather regions just like in
+  // the animated editor view.
+  _renderHazePass(ctx, cells, metadata, gridSize, transform, bounds);
+  renderWeatherParticles(ctx, cells, metadata, gridSize, transform, 0);
 }
 
 /**
@@ -372,19 +441,19 @@ export function renderWeatherHaze(
   transform: RenderTransform,
   bounds?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
 ): void {
-  _renderWeatherInner(ctx, cells, metadata, gridSize, transform, {
-    drawHaze: true,
-    drawParticles: false,
-    time: 0,
-    bounds,
-  });
+  _renderHazePass(ctx, cells, metadata, gridSize, transform, bounds);
 }
 
 /**
  * Render only the particle layer. Call every frame from the editor with
  * `time = state.animClock` to drive motion; call with `time = 0` for a
- * static snapshot. Particles are clipped per-cell so they don't bleed into
- * the hard boundary between weather groups.
+ * static snapshot.
+ *
+ * Clipping is done once per weather group (to the union of the group's cell
+ * rects), not per cell — particles drift freely within the region but can't
+ * leak out of it. An outer `save/restore` isolates the canvas state so the
+ * particle pass doesn't leak its `fillStyle`/`strokeStyle`/`globalAlpha` into
+ * subsequent render phases.
  */
 export function renderWeatherParticles(
   ctx: CanvasRenderingContext2D,
@@ -394,11 +463,87 @@ export function renderWeatherParticles(
   transform: RenderTransform,
   time: number,
 ): void {
-  _renderWeatherInner(ctx, cells, metadata, gridSize, transform, {
-    drawHaze: false,
-    drawParticles: true,
-    time,
-  });
+  if (!metadata) return;
+  const groups = metadata.weatherGroups;
+  if (!groups || groups.length === 0) return;
+
+  // Group weather assignments by group id — per half, so split cells
+  // (diagonals, trims) can carry independent groups on each side.
+  //
+  // `halvesByGroup` drives the clip path: every half-assignment contributes
+  // its polygon to the group's union. `cellsByGroup` is the deduplicated
+  // cell list handed to the shape-specific draw functions; they sample
+  // particles per cell and rely on the outer clip to confine them.
+  const halvesByGroup = new Map<string, Array<{ r: number; c: number; halfKey: CellHalfKey }>>();
+  const cellsByGroup = new Map<string, Array<[number, number]>>();
+  const cellSeenByGroup = new Map<string, Set<string>>();
+  for (const g of groups) {
+    halvesByGroup.set(g.id, []);
+    cellsByGroup.set(g.id, []);
+    cellSeenByGroup.set(g.id, new Set());
+  }
+  for (let r = 0; r < cells.length; r++) {
+    const row = cells[r];
+    if (!row) continue;
+    for (let c = 0; c < row.length; c++) {
+      const cell = row[c];
+      if (!cell) continue;
+      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
+        const halves = halvesByGroup.get(gid);
+        if (!halves) return;
+        halves.push({ r, c, halfKey });
+        const seen = cellSeenByGroup.get(gid)!;
+        const key = `${r},${c}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          cellsByGroup.get(gid)!.push([r, c]);
+        }
+      });
+    }
+  }
+
+  const cellPx = gridSize * transform.scale;
+
+  ctx.save();
+  try {
+    for (const group of groups) {
+      const halves = halvesByGroup.get(group.id);
+      const list = cellsByGroup.get(group.id);
+      if (!halves || halves.length === 0 || !list || list.length === 0) continue;
+
+      ctx.save();
+      // Build a single clip path that unions every half this group owns.
+      // `halfClip` returns 'evenodd' for exterior halves (rect + trimClip
+      // hole); we upgrade the whole group's clip to even-odd if any
+      // contributor needs it — full/interior/diagonal halves don't overlap
+      // each other, so even-odd still renders them correctly.
+      ctx.beginPath();
+      let evenodd = false;
+      for (let i = 0; i < halves.length; i++) {
+        const h = halves[i]!;
+        const cell = cells[h.r]?.[h.c];
+        if (!cell) continue;
+        const x = h.c * gridSize * transform.scale + transform.offsetX;
+        const y = h.r * gridSize * transform.scale + transform.offsetY;
+        const rule = halfClip(ctx, cell, h.halfKey, x, y, cellPx);
+        if (rule === 'evenodd') evenodd = true;
+      }
+      ctx.clip(evenodd ? 'evenodd' : 'nonzero');
+
+      const shape = TYPE_DEFAULTS[group.type].shape;
+      if (shape === 'flake') {
+        drawFlakesForGroup(ctx, group, list, gridSize, transform, cellPx, time);
+      } else if (shape === 'cloud') {
+        drawCloudsForGroup(ctx, group, list, gridSize, transform, cellPx, time);
+      } else if (shape === 'ripple') {
+        drawRipplesForGroup(ctx, group, list, gridSize, transform, cellPx, time);
+      }
+
+      ctx.restore();
+    }
+  } finally {
+    ctx.restore();
+  }
 }
 
 // ── Weather cache ──────────────────────────────────────────────────────────
@@ -697,7 +842,7 @@ function pickStrikeCell(cells: CellGrid, groupId: string, seed: number): [number
     if (!row) continue;
     for (let c = 0; c < row.length; c++) {
       const cell = row[c];
-      if (cell?.weatherGroupId !== groupId) continue;
+      if (!cell || !cellHasGroup(cell, groupId)) continue;
       if (isStrikeEligibleCell(cell)) count++;
     }
   }
@@ -709,7 +854,7 @@ function pickStrikeCell(cells: CellGrid, groupId: string, seed: number): [number
     if (!row) continue;
     for (let c = 0; c < row.length; c++) {
       const cell = row[c];
-      if (cell?.weatherGroupId !== groupId) continue;
+      if (!cell || !cellHasGroup(cell, groupId)) continue;
       if (!isStrikeEligibleCell(cell)) continue;
       if (i === target) return [r, c];
       i++;
@@ -735,21 +880,16 @@ export function hasActiveWeatherLightning(metadata: Metadata | null | undefined)
 }
 
 /**
- * Returns true if any weather group has particles worth animating —
- * intensity > 0 and the type's base velocity or current wind gives them
- * motion. Used to decide whether the animation loop needs to tick even
- * when no lighting is active. Fog/sandstorm with zero wind render
- * statically (no motion), so they don't need the loop running.
+ * Returns true if any weather group has particles worth animating. Every
+ * supported shape (ripple, flake, cloud) has intrinsic motion — ripples
+ * expand in place, flakes wiggle and fade, clouds drift along the wind
+ * axis — so any group with intensity > 0 needs the animation loop ticking.
  */
 export function hasActiveWeatherParticles(metadata: Metadata | null | undefined): boolean {
   const groups = metadata?.weatherGroups;
   if (!groups || groups.length === 0) return false;
   for (const g of groups) {
-    if (g.intensity <= 0) continue;
-    const def = TYPE_DEFAULTS[g.type];
-    const vx = def.baseVx + Math.sin((g.wind.direction * Math.PI) / 180) * g.wind.intensity;
-    const vy = def.baseVy + -Math.cos((g.wind.direction * Math.PI) / 180) * g.wind.intensity;
-    if (Math.abs(vx) > 1e-6 || Math.abs(vy) > 1e-6) return true;
+    if (g.intensity > 0) return true;
   }
   return false;
 }
@@ -824,254 +964,637 @@ function drawHazeWash(
   const def = TYPE_DEFAULTS[group.type];
   const color = group.particleColor ?? def.color;
   // Cap at 0.5 so weather never completely occludes the floor; fog still reads
-  // as heavy at density = 1 because of the wisp particles layered on top.
+  // as heavy at density = 1 because the flake-blob particles layer on top.
   ctx.globalAlpha = Math.min(0.5, group.hazeDensity * 0.5);
   ctx.fillStyle = color;
   ctx.fillRect(cellX, cellY, cellPx, cellPx);
 }
 
-function drawParticles(
+// Module-scope scratch buffers for cross-cell batched ripple rendering.
+// Each ripple has a unique alpha (fade progress) and radius, but arcs of
+// any radius can share a single path — so bucketing by alpha lets the whole
+// group stroke in one call per bucket.
+const RIPPLE_FADE_BUCKETS = 5;
+const _rippleBucketX: number[][] = Array.from({ length: RIPPLE_FADE_BUCKETS }, () => []);
+const _rippleBucketY: number[][] = Array.from({ length: RIPPLE_FADE_BUCKETS }, () => []);
+const _rippleBucketR: number[][] = Array.from({ length: RIPPLE_FADE_BUCKETS }, () => []);
+
+/**
+ * Batched rain renderer: consumes every cell of a weather group in one pass
+ * and issues up to `RIPPLE_FADE_BUCKETS` stroke calls total instead of one
+ * per live ripple.
+ *
+ * Each "slot" in a cell has its own period and spawn position; within each
+ * period a ripple is born, expands to `maxRadius`, and fades. Between ripples
+ * the slot is silent so neighboring slots stagger instead of pulsing
+ * together.
+ */
+function drawRipplesForGroup(
   ctx: CanvasRenderingContext2D,
   group: WeatherGroup,
-  r: number,
-  c: number,
-  cellX: number,
-  cellY: number,
+  cellList: Array<[number, number]>,
+  gridSize: number,
+  transform: RenderTransform,
   cellPx: number,
   time: number,
 ): void {
   const def = TYPE_DEFAULTS[group.type];
+  if (def.shape !== 'ripple') return;
+  const color = group.particleColor ?? def.color;
+  const alpha = def.particleAlpha;
+  const maxRadius = cellPx * def.sizeFrac;
+  const liveFrac = 0.45;
   const count = Math.round(def.maxParticles * group.intensity);
   if (count <= 0) return;
 
-  const color = group.particleColor ?? def.color;
-  const angle = particleAngle(group);
-  const seed = hashCell(r, c, group.id, 0);
-  const rand = makeRng(seed);
-  const flow = flowState(group, cellPx);
+  for (let b = 0; b < RIPPLE_FADE_BUCKETS; b++) {
+    _rippleBucketX[b]!.length = 0;
+    _rippleBucketY[b]!.length = 0;
+    _rippleBucketR[b]!.length = 0;
+  }
 
-  switch (def.shape) {
-    case 'ripple':
-      drawRipples(ctx, color, def.particleAlpha, count, rand, cellX, cellY, cellPx, def.sizeFrac, time);
-      break;
-    case 'streak':
-      drawStreaks(ctx, color, def.particleAlpha, count, angle ?? Math.PI / 2, rand, cellX, cellY, cellPx, def.lengthFrac, flow, time);
-      break;
-    case 'dot':
-      drawDots(ctx, color, def.particleAlpha, count, rand, cellX, cellY, cellPx, def.sizeFrac, flow, time);
-      break;
-    case 'wisp':
-      drawWisps(ctx, color, def.particleAlpha, count, angle ?? 0, rand, cellX, cellY, cellPx, def.lengthFrac, flow, time);
-      break;
-    case 'oval':
-      drawOvals(ctx, color, def.particleAlpha, count, rand, cellX, cellY, cellPx, def.sizeFrac, flow, time);
-      break;
+  const scale = transform.scale;
+  const offX = transform.offsetX;
+  const offY = transform.offsetY;
+
+  for (let ci = 0; ci < cellList.length; ci++) {
+    const rc = cellList[ci] as [number, number];
+    const r = rc[0];
+    const c = rc[1];
+    const cellX = c * gridSize * scale + offX;
+    const cellY = r * gridSize * scale + offY;
+    const seed = hashCell(r, c, group.id, 0);
+    const rand = makeRng(seed);
+
+    for (let i = 0; i < count; i++) {
+      const px = rand() * cellPx;
+      const py = rand() * cellPx;
+      const periodJitter = 0.9 + rand() * 1.1;
+      const phaseOffset = rand();
+      const cyclePhase = pmod(time / periodJitter + phaseOffset, 1);
+      if (cyclePhase > liveFrac) continue;
+      const rippleProgress = cyclePhase / liveFrac;
+      const radius = rippleProgress * maxRadius;
+      const fade = 1 - rippleProgress;
+      let bucket = (fade * RIPPLE_FADE_BUCKETS) | 0;
+      if (bucket < 0) bucket = 0;
+      else if (bucket >= RIPPLE_FADE_BUCKETS) bucket = RIPPLE_FADE_BUCKETS - 1;
+      _rippleBucketX[bucket]!.push(cellX + px);
+      _rippleBucketY[bucket]!.push(cellY + py);
+      _rippleBucketR[bucket]!.push(radius);
+    }
+  }
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(0.8, cellPx * 0.02);
+  ctx.lineCap = 'round';
+
+  for (let b = 0; b < RIPPLE_FADE_BUCKETS; b++) {
+    const xs = _rippleBucketX[b] as number[];
+    const n = xs.length;
+    if (n === 0) continue;
+    const ys = _rippleBucketY[b] as number[];
+    const rs = _rippleBucketR[b] as number[];
+    ctx.globalAlpha = alpha * ((b + 0.5) / RIPPLE_FADE_BUCKETS);
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const fx = xs[i] as number;
+      const fy = ys[i] as number;
+      const fr = rs[i] as number;
+      ctx.moveTo(fx + fr, fy);
+      ctx.arc(fx, fy, fr, 0, Math.PI * 2);
+    }
+    ctx.stroke();
   }
 }
 
 /**
- * Rain from top-down: each "slot" in a cell has its own period and spawn
- * position. Within each period, a ripple is born, expands to `maxRadius`,
- * and fades. Between ripples the slot is quiet. Slots are staggered so the
- * cell constantly has a few live ripples at different stages.
+ * Snow from top-down. Gravity is out-of-plane so flakes don't drift down the
+ * canvas on their own — each flake lives in two phases:
+ *
+ *  • Air phase: if wind is present, the flake drifts along the wind vector
+ *    toward a seeded landing spot (distance scales with wind strength) with
+ *    a sinusoidal perpendicular swivel. With no wind, it just wiggles in a
+ *    small 2D pattern near the spawn spot.
+ *  • Landed phase: position locked, alpha fades to zero.
+ *
+ * Phase seeds stagger flakes so a cell always holds a mix of mid-drift,
+ * mid-wiggle, and mid-fade particles.
  */
-function drawRipples(
-  ctx: CanvasRenderingContext2D,
-  color: string,
-  alpha: number,
-  count: number,
-  rand: () => number,
-  cellX: number,
-  cellY: number,
-  cellPx: number,
-  sizeFrac: number,
-  time: number,
-): void {
-  const maxRadius = cellPx * sizeFrac;
-  // Active fraction of each slot's period during which the ripple is visible;
-  // the remaining time the slot is silent, which staggers neighboring slots
-  // without them all drawing at once.
-  const liveFrac = 0.45;
-  ctx.strokeStyle = color;
-  ctx.lineCap = 'round';
-  for (let i = 0; i < count; i++) {
-    const px = rand() * cellPx;
-    const py = rand() * cellPx;
-    const periodJitter = 0.9 + rand() * 1.1; // seconds
-    const phaseOffset = rand();
-    const cyclePhase = pmod(time / periodJitter + phaseOffset, 1);
-    if (cyclePhase > liveFrac) continue;
-    const rippleProgress = cyclePhase / liveFrac; // 0..1 within live window
-    const radius = rippleProgress * maxRadius;
-    const fade = 1 - rippleProgress;
-    ctx.globalAlpha = alpha * fade;
-    ctx.lineWidth = Math.max(0.8, cellPx * 0.02);
-    ctx.beginPath();
-    ctx.arc(cellX + px, cellY + py, radius, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+// Module-scope scratch buffers for cross-cell batched flake rendering.
+// FADE_BUCKETS quantizes fade alpha so all fade particles across the whole
+// group can be drawn with ~FADE_BUCKETS fill calls instead of one per
+// particle. 4 buckets is visually indistinguishable from continuous alpha
+// for a dim short-lived fade.
+const FADE_BUCKETS = 4;
+const _fadeBucketX: number[][] = Array.from({ length: FADE_BUCKETS }, () => []);
+const _fadeBucketY: number[][] = Array.from({ length: FADE_BUCKETS }, () => []);
+// Rotation per fade entry — only used for oval-shaped flake variants (leaves).
+// Kept populated in lockstep with X/Y when `ovalAspect` is set, left empty
+// otherwise.
+const _fadeBucketRot: number[][] = Array.from({ length: FADE_BUCKETS }, () => []);
+
+// Collected positions for oval-shaped flake variants (leaves). These get
+// baked into a single batched Path2D after the main loop via Path2D.addPath,
+// so the whole group of leaves is drawn with one ctx.fill call — same
+// batching discipline as snow/ash/embers.
+const _ovalAirX: number[] = [];
+const _ovalAirY: number[] = [];
+const _ovalAirRot: number[] = [];
+
+// Cached unit-ellipse Path2D template. addPath(template, matrix) transforms
+// the template by the given affine matrix when appending — so one template
+// is all we need regardless of per-leaf rotation.
+let _leafTemplate: Path2D | null = null;
+let _leafTemplateKey = '';
+// Reusable matrix object passed to addPath per particle. addPath snapshots
+// matrix values at call time, so we can set fields and reuse without
+// allocating a new DOMMatrix per leaf.
+const _leafMatrix: DOMMatrix | null =
+  typeof DOMMatrix !== 'undefined' ? new DOMMatrix() : null;
+
+function getLeafTemplate(majorR: number, minorR: number): Path2D | null {
+  const key = `${majorR.toFixed(2)}|${minorR.toFixed(2)}`;
+  if (_leafTemplate && _leafTemplateKey === key) return _leafTemplate;
+  if (typeof Path2D === 'undefined') return null;
+  _leafTemplate = new Path2D();
+  _leafTemplate.ellipse(0, 0, majorR, minorR, 0, 0, Math.PI * 2);
+  _leafTemplateKey = key;
+  return _leafTemplate;
 }
 
-function drawStreaks(
+/**
+ * Batched snow renderer: consumes every cell of a weather group in one pass
+ * and issues only ~5 canvas draw calls total (1 air stroke/fill + up to 4
+ * fade bucket fills), instead of O(cells × particles) individual draws.
+ *
+ * This is the critical perf path — per-particle canvas calls are dominated
+ * by GPU state-change overhead, so a 400-cell blizzard goes from thousands
+ * of draws to a handful per frame.
+ */
+function drawFlakesForGroup(
   ctx: CanvasRenderingContext2D,
-  color: string,
-  alpha: number,
-  count: number,
-  angle: number,
-  rand: () => number,
-  cellX: number,
-  cellY: number,
+  group: WeatherGroup,
+  cellList: Array<[number, number]>,
+  gridSize: number,
+  transform: RenderTransform,
   cellPx: number,
-  lengthFrac: number,
-  flow: FlowState,
   time: number,
 ): void {
-  const len = cellPx * lengthFrac;
-  const dx = Math.cos(angle) * len;
-  const dy = Math.sin(angle) * len;
-  ctx.globalAlpha = alpha;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = Math.max(0.6, cellPx * 0.02);
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  for (let i = 0; i < count; i++) {
-    const phaseSeed = rand();
-    const perpSeed = rand();
-    let px: number;
-    let py: number;
-    if (flow.hasMotion) {
-      const p = flowPosition(phaseSeed, perpSeed, time, flow, cellX, cellY, cellPx);
-      px = p.x;
-      py = p.y;
+  const def = TYPE_DEFAULTS[group.type];
+  if (def.shape !== 'flake') return;
+  const color = group.particleColor ?? def.color;
+  const alpha = def.particleAlpha;
+  const flow = flowState(group);
+
+  const radius = Math.max(0.8, cellPx * def.sizeFrac * 0.5);
+
+  // Per-variant tuning — defaults match snow.
+  const airBase = def.airDurationBase ?? 3.5;
+  const fadeBase = def.fadeDurationBase ?? 1.2;
+  const wiggleAmp = def.wiggleAmp ?? 0.05;
+  const driftMax = def.windDriftMaxCells ?? 2.5;
+  const trailMax = def.windTrailMaxCells ?? 0.3;
+  const ovalAspect = def.ovalAspect;
+  const isOval = ovalAspect !== undefined && ovalAspect > 0;
+  // Oval variants (leaves) need a larger draw radius to feel visibly leafy
+  // — the flattened ellipse reads as smaller than a circle of the same base
+  // radius, so we bump the long axis.
+  const majorRadius = isOval ? radius * 1.6 : radius;
+  const minorRadius = isOval ? majorRadius * (ovalAspect as number) : radius;
+
+  const windFactor = flow.hasMotion ? Math.min(1, flow.mag) : 0;
+  // Drift formula preserves snow's original behavior (0.6 at calm, 2.5 at
+  // max wind) when driftMax=2.5, and scales proportionally for other types.
+  const windDriftCells = flow.hasMotion ? driftMax * (0.24 + 0.76 * windFactor * windFactor) : 0;
+  const airScale = 1 - windFactor * 0.75;
+  const fadeDuration = fadeBase * (1 - windFactor * 0.75);
+  const trailCells = flow.hasMotion ? windFactor * trailMax : 0;
+  const useStreaks = trailCells > 0.02;
+  const trailDx = useStreaks ? -flow.dirX * cellPx * trailCells : 0;
+  const trailDy = useStreaks ? -flow.dirY * cellPx * trailCells : 0;
+
+  const baseCount = Math.round(def.maxParticles * group.intensity * (1 + windFactor * 2));
+  if (baseCount <= 0) return;
+
+  // Reset bucket scratch without reallocating.
+  for (let b = 0; b < FADE_BUCKETS; b++) {
+    _fadeBucketX[b]!.length = 0;
+    _fadeBucketY[b]!.length = 0;
+    if (isOval) _fadeBucketRot[b]!.length = 0;
+  }
+  if (isOval) {
+    _ovalAirX.length = 0;
+    _ovalAirY.length = 0;
+    _ovalAirRot.length = 0;
+  }
+
+  // Single path for all air-phase flakes across every cell in the group
+  // (circles or streaks). Oval flakes skip the path build — they render via
+  // sprite blits in a separate pass below.
+  if (!isOval) {
+    if (useStreaks) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = radius * 2;
+      ctx.lineCap = 'round';
     } else {
-      // No motion — scatter at seeded static positions.
-      px = cellX + phaseSeed * cellPx;
-      py = cellY + perpSeed * cellPx;
+      ctx.fillStyle = color;
     }
-    ctx.moveTo(px - dx / 2, py - dy / 2);
-    ctx.lineTo(px + dx / 2, py + dy / 2);
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
   }
-  ctx.stroke();
-}
 
-function drawDots(
-  ctx: CanvasRenderingContext2D,
-  color: string,
-  alpha: number,
-  count: number,
-  rand: () => number,
-  cellX: number,
-  cellY: number,
-  cellPx: number,
-  sizeFrac: number,
-  flow: FlowState,
-  time: number,
-): void {
-  const size = Math.max(1, cellPx * sizeFrac);
-  ctx.globalAlpha = alpha;
+  let airHasAny = false;
+  const scale = transform.scale;
+  const offX = transform.offsetX;
+  const offY = transform.offsetY;
+
+  for (let ci = 0; ci < cellList.length; ci++) {
+    const rc = cellList[ci] as [number, number];
+    const r = rc[0];
+    const c = rc[1];
+    const cellX = c * gridSize * scale + offX;
+    const cellY = r * gridSize * scale + offY;
+    const seed = hashCell(r, c, group.id, 0);
+    const rand = makeRng(seed);
+
+    for (let i = 0; i < baseCount; i++) {
+      const xSeed = rand();
+      const ySeed = rand();
+      const phaseSeed = rand();
+      const swivelSeed = rand();
+      const periodSeed = rand();
+      // Oval variants consume an extra rand for their seeded rotation so
+      // each leaf has its own orientation.
+      const rotSeed = isOval ? rand() : 0;
+
+      // ±30% jitter, proportional to airBase — a fixed ±1s jitter would push
+      // sub-second airBase values (embers, sandstorm) into zero or negative.
+      const airDuration = airBase * (1 + (periodSeed - 0.5) * 0.6) * airScale;
+      const totalDuration = airDuration + fadeDuration;
+      const lifeTime = pmod(time + phaseSeed * totalDuration, totalDuration);
+
+      const landX = cellX + xSeed * cellPx;
+      const landY = cellY + ySeed * cellPx;
+
+      if (lifeTime < airDuration) {
+        const progress = lifeTime / airDuration;
+        let px: number;
+        let py: number;
+        if (flow.hasMotion) {
+          const driftDist = cellPx * windDriftCells * (1 - progress);
+          const swivelFreq = 1.0 + swivelSeed * 0.8;
+          const swivelPhase = time * swivelFreq * Math.PI * 2 + swivelSeed * 100;
+          const swivelAmount = Math.sin(swivelPhase) * cellPx * 0.07;
+          px = landX - flow.dirX * driftDist + flow.perpX * swivelAmount;
+          py = landY - flow.dirY * driftDist + flow.perpY * swivelAmount;
+        } else {
+          const wiggleFreq = 0.8 + swivelSeed * 0.6;
+          const phaseA = time * wiggleFreq * Math.PI * 2 + swivelSeed * 100;
+          const phaseB = time * wiggleFreq * Math.PI * 2 * 1.3 + swivelSeed * 50 + 1.7;
+          px = landX + Math.sin(phaseA) * cellPx * wiggleAmp;
+          py = landY + Math.cos(phaseB) * cellPx * wiggleAmp;
+        }
+        // Fade-in envelope at the start of air phase: first `fadeInFrac`
+        // of the airborne window ramps alpha from 0→1 so particles don't
+        // pop in. Streaks skip fade-in (bucketing them would require a
+        // second stroke path and visual gain is minor when trails are
+        // short-lived).
+        const fadeInFrac = useStreaks ? 0 : 0.15;
+        const alphaFactor = fadeInFrac > 0 && progress < fadeInFrac ? progress / fadeInFrac : 1;
+        if (alphaFactor >= 0.99 || useStreaks) {
+          airHasAny = true;
+          if (useStreaks) {
+            ctx.moveTo(px, py);
+            ctx.lineTo(px + trailDx, py + trailDy);
+          } else if (isOval) {
+            // Defer oval rendering to a sprite-blit pass after the loop
+            // — path ops are too expensive per particle for thousands of
+            // leaves. Rotation tumbles while airborne.
+            const rotation = rotSeed * Math.PI * 2 + time * (rotSeed - 0.5) * 0.8;
+            _ovalAirX.push(px);
+            _ovalAirY.push(py);
+            _ovalAirRot.push(rotation);
+          } else {
+            ctx.moveTo(px + radius, py);
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+          }
+        } else {
+          // Fade-in: share the fade buckets with fade-out particles. Same
+          // alpha quantization; position is the live airborne spot, not
+          // the landing spot.
+          let bucket = (alphaFactor * FADE_BUCKETS) | 0;
+          if (bucket < 0) bucket = 0;
+          else if (bucket >= FADE_BUCKETS) bucket = FADE_BUCKETS - 1;
+          _fadeBucketX[bucket]!.push(px);
+          _fadeBucketY[bucket]!.push(py);
+          if (isOval) {
+            // Live tumbling rotation while fading in.
+            const rotation = rotSeed * Math.PI * 2 + time * (rotSeed - 0.5) * 0.8;
+            _fadeBucketRot[bucket]!.push(rotation);
+          }
+        }
+      } else {
+        const fadeProgress = (lifeTime - airDuration) / fadeDuration;
+        const particleAlpha = 1 - fadeProgress; // 1..0
+        let bucket = (particleAlpha * FADE_BUCKETS) | 0;
+        if (bucket < 0) bucket = 0;
+        else if (bucket >= FADE_BUCKETS) bucket = FADE_BUCKETS - 1;
+        _fadeBucketX[bucket]!.push(landX);
+        _fadeBucketY[bucket]!.push(landY);
+        if (isOval) {
+          // Landed leaves freeze their rotation — no more tumbling.
+          _fadeBucketRot[bucket]!.push(rotSeed * Math.PI * 2);
+        }
+      }
+    }
+  }
+
+  if (isOval) {
+    // Batched oval-flake rendering via Path2D.addPath. Each leaf's rotated
+    // ellipse is appended to a single Path2D by transforming a cached unit-
+    // ellipse template through a reused DOMMatrix — then one ctx.fill per
+    // alpha level draws every leaf in one GPU call. This is the same
+    // batching discipline as snow, just with per-particle transforms.
+    const template = getLeafTemplate(majorRadius, minorRadius);
+    const matrix = _leafMatrix;
+    if (template && matrix) {
+      ctx.fillStyle = color;
+
+      // Air phase.
+      const airN = _ovalAirX.length;
+      if (airN > 0) {
+        const airPath = new Path2D();
+        for (let i = 0; i < airN; i++) {
+          const px = _ovalAirX[i] as number;
+          const py = _ovalAirY[i] as number;
+          const rot = _ovalAirRot[i] as number;
+          const cosR = Math.cos(rot);
+          const sinR = Math.sin(rot);
+          matrix.a = cosR;
+          matrix.b = sinR;
+          matrix.c = -sinR;
+          matrix.d = cosR;
+          matrix.e = px;
+          matrix.f = py;
+          airPath.addPath(template, matrix);
+        }
+        ctx.globalAlpha = alpha;
+        ctx.fill(airPath);
+      }
+
+      // Fade buckets — one globalAlpha + one fill per bucket.
+      for (let b = 0; b < FADE_BUCKETS; b++) {
+        const xs = _fadeBucketX[b] as number[];
+        const n = xs.length;
+        if (n === 0) continue;
+        const ys = _fadeBucketY[b] as number[];
+        const rots = _fadeBucketRot[b] as number[];
+        const fadePath = new Path2D();
+        for (let i = 0; i < n; i++) {
+          const fx = xs[i] as number;
+          const fy = ys[i] as number;
+          const rot = rots[i] as number;
+          const cosR = Math.cos(rot);
+          const sinR = Math.sin(rot);
+          matrix.a = cosR;
+          matrix.b = sinR;
+          matrix.c = -sinR;
+          matrix.d = cosR;
+          matrix.e = fx;
+          matrix.f = fy;
+          fadePath.addPath(template, matrix);
+        }
+        ctx.globalAlpha = alpha * ((b + 0.5) / FADE_BUCKETS);
+        ctx.fill(fadePath);
+      }
+    }
+    return;
+  }
+
+  if (airHasAny) {
+    if (useStreaks) ctx.stroke();
+    else ctx.fill();
+  }
+
+  // Flush fade buckets — up to FADE_BUCKETS fills for the whole group.
   ctx.fillStyle = color;
-  for (let i = 0; i < count; i++) {
-    const phaseSeed = rand();
-    const perpSeed = rand();
-    let px: number;
-    let py: number;
-    if (flow.hasMotion) {
-      const p = flowPosition(phaseSeed, perpSeed, time, flow, cellX, cellY, cellPx);
-      px = p.x;
-      py = p.y;
-    } else {
-      px = cellX + phaseSeed * cellPx;
-      py = cellY + perpSeed * cellPx;
-    }
-    ctx.fillRect(px - size / 2, py - size / 2, size, size);
-  }
-}
-
-function drawWisps(
-  ctx: CanvasRenderingContext2D,
-  color: string,
-  alpha: number,
-  count: number,
-  angle: number,
-  rand: () => number,
-  cellX: number,
-  cellY: number,
-  cellPx: number,
-  lengthFrac: number,
-  flow: FlowState,
-  time: number,
-): void {
-  const len = cellPx * lengthFrac;
-  const dx = Math.cos(angle) * len;
-  const dy = Math.sin(angle) * len;
-  ctx.globalAlpha = alpha;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = Math.max(1.2, cellPx * 0.04);
-  ctx.lineCap = 'round';
-  for (let i = 0; i < count; i++) {
-    const phaseSeed = rand();
-    const perpSeed = rand();
-    const bulgeSeed = rand() - 0.5;
-    let px: number;
-    let py: number;
-    if (flow.hasMotion) {
-      const p = flowPosition(phaseSeed, perpSeed, time, flow, cellX, cellY, cellPx);
-      px = p.x;
-      py = p.y;
-    } else {
-      px = cellX + phaseSeed * cellPx;
-      py = cellY + perpSeed * cellPx;
-    }
-    const bulge = bulgeSeed * 0.4;
-    const perpX = -dy * bulge;
-    const perpY = dx * bulge;
+  for (let b = 0; b < FADE_BUCKETS; b++) {
+    const xs = _fadeBucketX[b] as number[];
+    const n = xs.length;
+    if (n === 0) continue;
+    const ys = _fadeBucketY[b] as number[];
+    ctx.globalAlpha = alpha * ((b + 0.5) / FADE_BUCKETS);
     ctx.beginPath();
-    ctx.moveTo(px - dx / 2, py - dy / 2);
-    ctx.quadraticCurveTo(px + perpX, py + perpY, px + dx / 2, py + dy / 2);
-    ctx.stroke();
-  }
-}
-
-function drawOvals(
-  ctx: CanvasRenderingContext2D,
-  color: string,
-  alpha: number,
-  count: number,
-  rand: () => number,
-  cellX: number,
-  cellY: number,
-  cellPx: number,
-  sizeFrac: number,
-  flow: FlowState,
-  time: number,
-): void {
-  const a = Math.max(1.2, cellPx * sizeFrac);
-  const b = a * 0.45;
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = color;
-  for (let i = 0; i < count; i++) {
-    const phaseSeed = rand();
-    const perpSeed = rand();
-    const rotSeed = rand();
-    let px: number;
-    let py: number;
-    if (flow.hasMotion) {
-      const p = flowPosition(phaseSeed, perpSeed, time, flow, cellX, cellY, cellPx);
-      px = p.x;
-      py = p.y;
-    } else {
-      px = cellX + phaseSeed * cellPx;
-      py = cellY + perpSeed * cellPx;
+    for (let i = 0; i < n; i++) {
+      const fx = xs[i] as number;
+      const fy = ys[i] as number;
+      ctx.moveTo(fx + radius, fy);
+      ctx.arc(fx, fy, radius, 0, Math.PI * 2);
     }
-    // Leaves also tumble — rotation advances slowly over time so each leaf
-    // has its own drift-spin seeded by rotSeed.
-    const rot = rotSeed * Math.PI * 2 + time * (rotSeed - 0.5) * 0.8;
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.rotate(rot);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, a, b, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
+  }
+}
+
+// ── Cloud shadows ──────────────────────────────────────────────────────────
+// `cloudy` weather isn't per-cell particles — it's a handful of soft cloud-
+// shadow sprites that drift across the whole weather region in the wind
+// direction. Each sprite is pre-rendered once (lumpy blob via overlapping
+// radial gradients), then blitted with drawImage at a time-based position
+// that wraps when it exits the region's bounding box along the wind axis.
+// The region clip (set in renderWeatherParticles) masks the sprites to the
+// actual weather region shape.
+
+const CLOUD_SPRITE_SIZE = 256;
+const CLOUD_VARIANTS = 4;
+// Multi-slot cache so multiple cloud-shape groups (e.g. cloudy + fog on the
+// same map) don't thrash each other's sprites each frame.
+const _cloudSpriteCache = new Map<string, HTMLCanvasElement[]>();
+
+function cloudColorStops(hex: string, alphaMax: number): { inner: string; outer: string } {
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (hex.length === 7 && hex[0] === '#') {
+    r = parseInt(hex.slice(1, 3), 16);
+    g = parseInt(hex.slice(3, 5), 16);
+    b = parseInt(hex.slice(5, 7), 16);
+  } else if (hex.length === 4 && hex[0] === '#') {
+    const rr = hex[1] as string;
+    const gg = hex[2] as string;
+    const bb = hex[3] as string;
+    r = parseInt(rr + rr, 16);
+    g = parseInt(gg + gg, 16);
+    b = parseInt(bb + bb, 16);
+  }
+  return {
+    inner: `rgba(${r},${g},${b},${alphaMax})`,
+    outer: `rgba(${r},${g},${b},0)`,
+  };
+}
+
+function getCloudSprites(color: string, coreFrac: number): HTMLCanvasElement[] | null {
+  // Key includes coreFrac so cloudy (hard-core shadows) and fog (soft
+  // wisps) cache separate sprite sets rather than stealing each other's.
+  const key = `${color}|${coreFrac.toFixed(2)}`;
+  const cached = _cloudSpriteCache.get(key);
+  if (cached) return cached;
+  if (typeof document === 'undefined') return null;
+  const sprites: HTMLCanvasElement[] = [];
+  // Each sprite uses a tiny per-lobe alpha (inner color stop alpha) so
+  // overlapping lobes inside a single cloud build a soft lumpy silhouette
+  // without any lobe's hard edge dominating. Global alpha at draw time scales
+  // the whole thing per `particleAlpha`.
+  const stops = cloudColorStops(color, 0.45);
+  for (let v = 0; v < CLOUD_VARIANTS; v++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = CLOUD_SPRITE_SIZE;
+    canvas.height = CLOUD_SPRITE_SIZE;
+    const sctx = canvas.getContext('2d');
+    if (!sctx) return null;
+
+    // Seeded per-variant so the library always regenerates the same shapes.
+    let seed = (0xc10d ^ Math.imul(v, 0x9e3779b1)) >>> 0;
+    const rand = () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const numLobes = 7 + Math.floor(rand() * 4); // 7–10 lobes per cloud
+    for (let i = 0; i < numLobes; i++) {
+      // Lobes cluster near the center to form a cohesive blob.
+      const cx = CLOUD_SPRITE_SIZE * (0.25 + rand() * 0.5);
+      const cy = CLOUD_SPRITE_SIZE * (0.3 + rand() * 0.4);
+      const r = CLOUD_SPRITE_SIZE * (0.18 + rand() * 0.18);
+      const grad = sctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, stops.inner);
+      if (coreFrac > 0) grad.addColorStop(coreFrac, stops.inner);
+      grad.addColorStop(1, stops.outer);
+      sctx.fillStyle = grad;
+      sctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+    }
+    sprites.push(canvas);
+  }
+  _cloudSpriteCache.set(key, sprites);
+  return sprites;
+}
+
+function drawCloudsForGroup(
+  ctx: CanvasRenderingContext2D,
+  group: WeatherGroup,
+  cellList: Array<[number, number]>,
+  gridSize: number,
+  transform: RenderTransform,
+  cellPx: number,
+  time: number,
+): void {
+  const def = TYPE_DEFAULTS[group.type];
+  if (def.shape !== 'cloud') return;
+  const color = group.particleColor ?? def.color;
+  // Intensity scales cloud coverage only — more clouds, not darker ones.
+  // Individual patch depth stays at `particleAlpha` so a dense layer and a
+  // sparse one both read as the same kind of weather, just more or less of
+  // it. `intensityFloor` on the type lets cloudy guarantee a minimum
+  // overcast; types that omit it (fog) allow 0% = truly nothing.
+  const floor = def.intensityFloor ?? 0;
+  const rawIntensity = Math.max(floor, Math.min(1, group.intensity));
+  const alpha = def.particleAlpha;
+  if (alpha <= 0) return;
+
+  const coreFrac = def.cloudCoreFrac ?? 0.55;
+  const sprites = getCloudSprites(color, coreFrac);
+  if (!sprites || sprites.length === 0) return;
+
+  // Region bbox in screen coords.
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const scale = transform.scale;
+  const offX = transform.offsetX;
+  const offY = transform.offsetY;
+  for (let ci = 0; ci < cellList.length; ci++) {
+    const rc = cellList[ci] as [number, number];
+    const x = rc[1] * gridSize * scale + offX;
+    const y = rc[0] * gridSize * scale + offY;
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x + cellPx > maxX) maxX = x + cellPx;
+    if (y + cellPx > maxY) maxY = y + cellPx;
+  }
+
+  // Wind direction in canvas space. With baseWindMag set, flow.hasMotion is
+  // always true, but guard just in case and default to eastward drift.
+  const flow = flowState(group);
+  const dirX = flow.hasMotion ? flow.dirX : 1;
+  const dirY = flow.hasMotion ? flow.dirY : 0;
+  const windMag = flow.hasMotion ? flow.mag : 0;
+  const speedPxPerSec = def.cellsPerSec * Math.min(2, windMag) * cellPx;
+
+  // Project bbox corners onto wind axis to get u (along-wind) and v (perpendicular) extents.
+  const cornersX = [minX, maxX, minX, maxX];
+  const cornersY = [minY, minY, maxY, maxY];
+  let uMin = Infinity;
+  let uMax = -Infinity;
+  let vMin = Infinity;
+  let vMax = -Infinity;
+  for (let i = 0; i < 4; i++) {
+    const cx = cornersX[i] as number;
+    const cy = cornersY[i] as number;
+    const u = cx * dirX + cy * dirY;
+    const v = -cx * dirY + cy * dirX;
+    if (u < uMin) uMin = u;
+    if (u > uMax) uMax = u;
+    if (v < vMin) vMin = v;
+    if (v > vMax) vMax = v;
+  }
+
+  const cloudDiameter = def.sizeFrac * cellPx; // world-size in px
+  // Per-cloud size jitter picks a multiplier in [0.4, 4.0] with a heavy
+  // bias toward the low end (pow curve) — most clouds are small-to-medium,
+  // with occasional large cloud masses drifting through. Margin must fit
+  // the largest possible size so big clouds don't pop into view at the
+  // region edge.
+  const MAX_SIZE_JITTER = 4.0;
+  const margin = cloudDiameter * MAX_SIZE_JITTER * 0.55;
+  const uPeriod = uMax - uMin + 2 * margin;
+  const vSpan = vMax - vMin;
+  if (uPeriod <= 0) return;
+
+  const cloudCount = Math.max(1, Math.round(def.maxParticles * (1 + rawIntensity * 9)));
+  ctx.globalAlpha = alpha;
+
+  for (let i = 0; i < cloudCount; i++) {
+    // Seed per (group, cloud index) so the drift is stable across frames.
+    let seed = hashCell(i, 0, group.id, 0xc1d5e);
+    const rand = (): number => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const seedU = rand();
+    const seedV = rand();
+    const spriteIdx = Math.floor(rand() * sprites.length);
+    // Skew toward smaller clouds with occasional big ones — pow(rand, 1.6)
+    // biases the distribution low, so most clouds are small-to-medium with
+    // occasional large masses rather than a flat even mix.
+    const sizeJitter = 0.4 + Math.pow(rand(), 1.6) * (MAX_SIZE_JITTER - 0.4);
+
+    // Wrap the along-wind position on the extended period. Positive speed
+    // drifts downstream; as time advances, the cloud moves from uMin−margin
+    // toward uMax+margin and wraps.
+    const u = uMin - margin + pmod(seedU + (time * speedPxPerSec) / uPeriod, 1) * uPeriod;
+    const v = vMin + seedV * vSpan;
+
+    // Back to screen coords.
+    const cx = u * dirX - v * dirY;
+    const cy = u * dirY + v * dirX;
+
+    const drawSize = cloudDiameter * sizeJitter;
+    const half = drawSize * 0.5;
+    const sprite = sprites[spriteIdx] as HTMLCanvasElement;
+    ctx.drawImage(sprite, cx - half, cy - half, drawSize, drawSize);
   }
 }
