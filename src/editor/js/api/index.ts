@@ -28,6 +28,7 @@ import * as transforms from './transforms.js';
 import * as furnish from './furnish.js';
 import * as discovery from './discovery.js';
 import * as vocab from './vocab.js';
+import * as weather from './weather.js';
 
 // ─── Assemble ────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,8 @@ const api = {
   ...discovery,
   // Room vocabulary library (palette-based room specs)
   ...vocab,
+  // Weather (groups + per-cell assignment)
+  ...weather,
   // Rename eval_ back to eval (eval is a reserved word in strict mode exports)
   eval: operational.eval_,
 };

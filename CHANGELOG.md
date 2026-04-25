@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.12.1
+
+### Fixed
+
+- **Redo now actually re-applies your edit** — every edit that went through the compact-patch undo path (paint, walls, doors, fills, lights, props — basically everything you do in the editor) could be undone, but Ctrl+Y / Redo silently restored the *pre-mutation* state instead of re-applying the change. Existing snapshot-only paths (e.g. theme rename via metadata panel) were unaffected, which is why the bug went unnoticed. Redo now restores the post-mutation state correctly.
+- **`placeLightInRoom` lands inside L- and U-shaped rooms** — the API used to drop the light at the bounding-box center of the room, which falls in void for any non-rectangular room. It now picks the floor cell closest to the room's true centroid, so lights placed by Claude or via the Puppeteer bridge always end up on actual floor.
+- **Editor no longer crashes if the saved active tool no longer exists** — opening a map (or restoring an autosave) whose `activeTool` referred to a tool that has since been renamed or removed used to throw on init. The tool switcher now skips the missing tool's deactivate step instead of crashing.
+
+### New API methods
+
+- **Weather is now scriptable from the Puppeteer bridge** — nine new methods cover the full Weather panel surface: `createWeatherGroup`, `removeWeatherGroup`, `listWeatherGroups`, `getWeatherGroup`, `setWeatherGroup`, `setWeatherCell`, `setWeatherRect`, `floodFillWeather`, `getWeatherCell`. Half-cell aware (diagonal-split and arc-trim cells) and routes through the same cache invalidation paths as the panel, so live editor previews stay in sync with API-driven edits. See the **Weather** section in `src/editor/CLAUDE.md` for details.
+
 ## v0.12.0
 
 ### Prop Panel

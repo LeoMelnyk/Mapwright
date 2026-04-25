@@ -599,6 +599,39 @@ Typical texture workflow:
 
 Edge blending (smooth gradient between adjacent different textures) is controlled per-theme via `theme.textureBlendWidth` (0.0–1.0, default 0.35).
 
+### Weather
+
+Weather lives in two places: configuration in `metadata.weatherGroups[]`, and per-cell membership via `cell.weatherGroupId` (or `cell.weatherHalves` on diagonal/trim split cells). A single map can run several groups at once — e.g. `rain` in the courtyard, `fog` in the crypt, `embers` in the throne room. Lightning on a group spawns ephemeral lights at render time that drive the existing lighting pipeline (wall shadows, falloff), so a strike inside a walled room flashes only that room.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `createWeatherGroup` | `[init]` | Create a new group. `init` fields: `name`, `type`, `intensity` (0–1), `hazeDensity` (0–1), `wind: {direction, intensity}`, `lightning: {enabled, intensity, frequency, color}`, `particleColor`. Defaults: `type='rain'`, `intensity=0.5`, no wind, no lightning. Returns `{ success, id, group }` |
+| `removeWeatherGroup` | `id` | Delete the group and clear `weatherGroupId` / `weatherHalves` on every assigned cell. Returns `{ success, removed: { cells } }` |
+| `listWeatherGroups` | — | Return every group with a `cellCount` summary. Returns `{ success, groups: [{...group, cellCount}] }` |
+| `getWeatherGroup` | `id` | Fetch one group by id with cellCount. Returns `{ success: false, error }` for missing ids (does not throw) |
+| `setWeatherGroup` | `id, patch` | Patch any subset of group fields. Same field set as `createWeatherGroup`. Pass `particleColor: null` to clear the override. Returns `{ success, group }` |
+| `setWeatherCell` | `row, col, groupId \| null, [halfKey='full']` | Assign or clear weather on a single cell. `halfKey` is required for cells split by a diagonal wall (`'ne'`/`'sw'` or `'nw'`/`'se'`) or arc trim (`'interior'`/`'exterior'`). Returns `{ success }` |
+| `setWeatherRect` | `r1, c1, r2, c2, groupId \| null` | Assign or clear every floor cell in the rectangle (one undo step). Skips void cells. Returns `{ success, count }` |
+| `floodFillWeather` | `row, col, groupId \| null, [halfKey='full']` | Flood-fill from a starting cell, respecting walls, doors, and half boundaries — same BFS the Paint tool uses. Returns `{ success, count }` |
+| `getWeatherCell` | `row, col` | Read every weather assignment on a cell. Returns `{ success, isSplit, assignments: [{halfKey, groupId}] }`. Empty assignments means no weather. |
+
+**Allowed weather types**: `rain`, `snow`, `ash`, `embers`, `sandstorm`, `fog`, `leaves`, `cloudy`.
+
+**Typical workflow:**
+```json
+[
+  ["createRoom", 2, 2, 8, 12],
+  ["setLabel", 5, 7, "C1"],
+  ["createWeatherGroup", { "name": "Courtyard rain", "type": "rain", "intensity": 0.7, "lightning": { "enabled": true } }]
+]
+```
+Capture the returned `id`, then assign cells:
+```json
+["setWeatherRect", 3, 3, 7, 11, "wg-abc123"]
+```
+
+**Validation:** out-of-range numerics (intensity, hazeDensity, frequencies, wind) throw `INVALID_WEATHER_VALUE`. Unknown weather type throws `INVALID_WEATHER_TYPE`. Bad hex color throws `INVALID_WEATHER_COLOR`. Unknown group id throws `WEATHER_GROUP_NOT_FOUND`. Forgetting `halfKey` on a split cell throws `WEATHER_HALF_REQUIRED`; passing `halfKey` to an unsplit cell throws `WEATHER_HALF_NOT_APPLICABLE`.
+
 ### Undo / Redo / Checkpoints
 
 | Method | Args | Description |

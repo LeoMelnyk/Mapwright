@@ -259,19 +259,32 @@ function applyEntry(
 
 /**
  * Create a redo entry that captures the inverse of what was just applied.
- * For patch entries, swap before/after. For snapshots, serialize current state.
+ *
+ * For patch entries we clone the entry without swapping before/after — the
+ * before/after pair is symmetric, and `applyEntry` chooses which side to use
+ * based on its `direction` argument. (Earlier code swapped, then `redo()`
+ * called `applyEntry(entry, 'redo')` which read `cp.after` — the swap made
+ * `cp.after` the original pre-mutation state, so redo silently restored the
+ * pre-mutation cell instead of the post-mutation cell.)
+ *
+ * For snapshot entries, capture the current state — that's what redo will
+ * need to restore once the user undoes again past this point.
  */
 function createRedoEntry(
   appliedEntry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } },
   label: string,
 ): typeof appliedEntry & { label: string; timestamp: number } {
   if (appliedEntry.patch) {
-    // Swap before/after for the reverse direction
     return {
       patch: {
-        cells: appliedEntry.patch.cells.map((cp) => ({ row: cp.row, col: cp.col, before: cp.after, after: cp.before })),
+        cells: appliedEntry.patch.cells.map((cp) => ({
+          row: cp.row,
+          col: cp.col,
+          before: cp.before,
+          after: cp.after,
+        })),
         meta: appliedEntry.patch.meta
-          ? { before: appliedEntry.patch.meta.after, after: appliedEntry.patch.meta.before }
+          ? { before: appliedEntry.patch.meta.before, after: appliedEntry.patch.meta.after }
           : null,
       },
       label,
