@@ -713,6 +713,42 @@ function _entriesSinceKeyframe(): number {
   return state.undoStack.length;
 }
 
+/**
+ * Apply post-mutation cache invalidations and notify subscribers.
+ *
+ * Used by every `mutate()` exit path so the patch / snapshot / metaOnly
+ * branches share the same finalization semantics. `renderBefore` is the
+ * pre-mutation cell snapshot from `captureBeforeState()` — pass `[]` when
+ * there are no cell changes (metaOnly), and `smartInvalidate` is skipped.
+ */
+function _finalizeMutation(
+  renderBefore: ReturnType<typeof captureBeforeState>,
+  cells: CellGrid,
+  options: {
+    invalidate?: InvalidateFlag[];
+    forceGeometry?: boolean;
+    forceFluid?: boolean;
+    textureOnly?: boolean;
+    topic?: NotifyTopic;
+  },
+): void {
+  if (renderBefore.length > 0) {
+    smartInvalidate(renderBefore, cells, {
+      forceGeometry: options.forceGeometry ?? false,
+      forceFluid: options.forceFluid ?? false,
+      textureOnly: options.textureOnly ?? false,
+    });
+  }
+  const flags = options.invalidate;
+  if (flags) {
+    if (flags.includes('lighting')) invalidateLightmap(true);
+    else if (flags.includes('lighting:props')) invalidateLightmap('props');
+    if (flags.includes('props')) markPropSpatialDirty();
+  }
+  markDirty();
+  notify(options.topic);
+}
+
 export function mutate(
   label: string,
   coords: Array<{ row: number; col: number }>,
@@ -748,14 +784,7 @@ export function mutate(
     state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
     if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
     state.redoStack.length = 0;
-    const flags = options.invalidate;
-    if (flags) {
-      if (flags.includes('lighting')) invalidateLightmap(true);
-      else if (flags.includes('lighting:props')) invalidateLightmap('props');
-      if (flags.includes('props')) markPropSpatialDirty();
-    }
-    markDirty();
-    notify(options.topic);
+    _finalizeMutation(renderBefore, cells, options);
     return;
   }
 
@@ -794,42 +823,13 @@ export function mutate(
       patchEntry.meta = { before: metaBefore, after: metaAfter };
     }
 
-    // Smart invalidation + finish
-    if (renderBefore.length > 0) {
-      smartInvalidate(renderBefore, cells, {
-        forceGeometry: options.forceGeometry ?? false,
-        forceFluid: options.forceFluid ?? false,
-        textureOnly: options.textureOnly ?? false,
-      });
-    }
-    const flags = options.invalidate;
-    if (flags) {
-      if (flags.includes('lighting')) invalidateLightmap(true);
-      else if (flags.includes('lighting:props')) invalidateLightmap('props');
-      if (flags.includes('props')) markPropSpatialDirty();
-    }
-    markDirty();
-    notify(options.topic);
+    _finalizeMutation(renderBefore, cells, options);
     return;
   }
 
   // Full snapshot path — fn() runs after pushUndo
   fn();
-  if (renderBefore.length > 0) {
-    smartInvalidate(renderBefore, cells, {
-      forceGeometry: options.forceGeometry ?? false,
-      forceFluid: options.forceFluid ?? false,
-      textureOnly: options.textureOnly ?? false,
-    });
-  }
-  const flags = options.invalidate;
-  if (flags) {
-    if (flags.includes('lighting')) invalidateLightmap(true);
-    else if (flags.includes('lighting:props')) invalidateLightmap('props');
-    if (flags.includes('props')) markPropSpatialDirty();
-  }
-  markDirty();
-  notify(options.topic);
+  _finalizeMutation(renderBefore, cells, options);
 }
 
 export default state;

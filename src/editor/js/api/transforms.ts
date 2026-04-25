@@ -48,7 +48,7 @@ export function cloneRoom(
 } {
   dr = toInt(dr);
   dc = toInt(dc);
-  const api = getApi() as unknown as { _collectRoomCells(l: string): Set<string> | null };
+  const api = getApi();
   const sourceSet = api._collectRoomCells(label);
   if (!sourceSet?.size) {
     throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${label}" not found`, { label });

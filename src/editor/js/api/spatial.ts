@@ -347,10 +347,7 @@ export function placeSymmetric(
     throw new ApiValidationError('INVALID_AXIS', `axis must be 'vertical' or 'horizontal'`, { axis });
   }
   const axisN: 'vertical' | 'horizontal' = axis;
-  const api = getApi() as unknown as {
-    getRoomBounds: (l: string) => { success: boolean; r1: number; c1: number; r2: number; c2: number };
-    placeProp: (r: number, c: number, t: string, f: number) => unknown;
-  };
+  const api = getApi();
   const bounds = api.getRoomBounds(roomLabel);
   if (!bounds.success) {
     throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
@@ -413,11 +410,7 @@ export function placeFlanking(
 } {
   const gap = options.gap ?? 1;
   const flankFacing = options.flankFacing ?? 0;
-  const api = getApi() as unknown as {
-    _collectRoomCells: (l: string) => Set<string> | null;
-    placeProp: (r: number, c: number, t: string, f: number) => { success: boolean };
-    getPropFootprint: (t: string, f: number) => { success: boolean; spanRows: number; spanCols: number };
-  };
+  const api = getApi();
   const roomCells = api._collectRoomCells(roomLabel);
   if (!roomCells) {
     throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });

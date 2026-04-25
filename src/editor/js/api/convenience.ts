@@ -447,9 +447,7 @@ export function placeLightInRoom(
 ): Record<string, unknown> {
   // Use the centroid of the room's actual floor cells, not the bbox center —
   // L/U/+ shaped rooms have bbox centers that fall in void.
-  const cellsResult = (
-    getApi() as unknown as { listRoomCells(l: string): { success: boolean; cells?: [number, number][]; error?: string } }
-  ).listRoomCells(label);
+  const cellsResult = getApi().listRoomCells(label);
   if (!cellsResult.success || !cellsResult.cells?.length) {
     return { success: false, error: cellsResult.error ?? `Room "${label}" not found` };
   }

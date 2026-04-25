@@ -115,11 +115,39 @@ interface EditorApiMap {
   ):
     | { success: true; r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number }
     | { success: false; error: string };
+  getPropFootprint(
+    propType: string,
+    facing?: number,
+  ): { success: boolean; spanRows?: number; spanCols?: number; cells?: [number, number][]; error?: string };
+  getPropsForRoomType(
+    roomType: string,
+  ): {
+    success: boolean;
+    error?: string;
+    props: {
+      name: string;
+      displayName?: string;
+      category: string;
+      footprint: [number, number];
+      facing?: boolean;
+      placement?: string | null;
+      typicalCount?: string | null;
+      clustersWith?: string[];
+      notes?: string | null;
+    }[];
+  };
   getValidPropPositions(
     label: string,
     propType: string,
     facing: number,
   ): { success: boolean; positions?: [number, number][] };
+  listRoomCells(
+    label: string,
+  ): { success: boolean; cells?: [number, number][]; error?: string };
+  listRooms(): {
+    success: true;
+    rooms: { label: string; r1: number; c1: number; r2: number; c2: number; center: { row: number; col: number } }[];
+  };
   placeLight(x: number, y: number, config?: PlaceLightConfig): { success: boolean; id: number };
   placeProp(
     row: number,
@@ -129,6 +157,21 @@ interface EditorApiMap {
   ): { success: boolean; warnings?: string[]; lightsAdded?: Array<{ id: number; preset: string }> };
   setDoor(row: number, col: number, direction: string, type?: string): { success: boolean };
   setLabel(row: number, col: number, text: string): { success: boolean };
+  validateConnectivity(
+    entranceLabel: string,
+  ): {
+    success: true;
+    connected: boolean;
+    reachable: string[];
+    unreachable: string[];
+    totalRooms: number;
+    visitedCells: number;
+  };
+  validateDoorClearance(): {
+    success: true;
+    clear: boolean;
+    issues: { row: number; col: number; direction: string; doorType: string; problem: string }[];
+  };
   waitForTextures(timeoutMs?: number): Promise<{ success: boolean }>;
 }
 
@@ -136,9 +179,16 @@ let _api: EditorApiMap | null = null;
 
 /**
  * Get the assembled editor API object for cross-module method calls.
+ *
+ * Throws if invoked before `_setApi()` has run — that should be impossible
+ * in production (the assembler runs once at module load) but a clear error
+ * here beats `Cannot read properties of null` from the first method call.
  */
 function getApi(): EditorApiMap {
-  return _api!;
+  if (!_api) {
+    throw new Error('Editor API accessed before initialisation — _setApi() has not run yet.');
+  }
+  return _api;
 }
 
 /**

@@ -282,17 +282,7 @@ export function critiqueMap(
   const intensityThreshold = options.intensitySumThreshold ?? 2.5;
   const findings: CritiqueFinding[] = [];
 
-  const api = getApi() as unknown as {
-    listRooms: () => {
-      success: boolean;
-      rooms: Array<{ label: string; r1: number; c1: number; r2: number; c2: number }>;
-    };
-    _collectRoomCells: (l: string) => Set<string> | null;
-    validateDoorClearance: () => {
-      clear: boolean;
-      issues: Array<{ row: number; col: number; direction: string; doorType: string; problem: string }>;
-    };
-  };
+  const api = getApi();
 
   const meta = state.dungeon.metadata;
   const gs = meta.gridSize || 5;

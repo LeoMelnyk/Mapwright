@@ -601,7 +601,17 @@ export function listProps(): {
 export function getPropsForRoomType(roomType: string): {
   success: boolean;
   error?: string;
-  props: { name: string; category: string; footprint: [number, number] }[];
+  props: {
+    name: string;
+    displayName?: string;
+    category: string;
+    footprint: [number, number];
+    facing?: boolean;
+    placement?: string | null;
+    typicalCount?: string | null;
+    clustersWith?: string[];
+    notes?: string | null;
+  }[];
 } {
   const catalog = state.propCatalog;
   if (!catalog) return { success: false, error: 'Prop catalog not loaded', props: [] };

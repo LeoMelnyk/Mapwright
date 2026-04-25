@@ -401,7 +401,7 @@ export function getRoomSummary(
 }
 
 function findLabelForCell(row: number, col: number): string | null {
-  const api = getApi() as unknown as { _collectRoomCells: (l: string) => Set<string> | null };
+  const api = getApi();
   const cells = state.dungeon.cells;
   const key = cellKey(row, col);
   // Find any labeled cell that belongs to a flood-fill containing this cell.
@@ -663,10 +663,7 @@ export function getPropPlacementOptions(
   const [spanRows, spanCols] =
     facing === 90 || facing === 270 ? [def.footprint[1], def.footprint[0]] : [...def.footprint];
 
-  const api = getApi() as unknown as {
-    _collectRoomCells(l: string): Set<string> | null;
-    _isCellCoveredByProp(r: number, c: number): boolean;
-  };
+  const api = getApi();
   const roomCells = api._collectRoomCells(label);
   if (!roomCells) return { success: false, error: `Room "${label}" not found` };
 
@@ -958,7 +955,7 @@ export function getThemeColors(): {
 } {
   const meta = state.dungeon.metadata;
   const themeRef = meta.theme;
-  const api = getApi() as unknown as { getMapInfo(): { theme?: string } | null };
+  const api = getApi();
   const info = api.getMapInfo();
   const themeName = typeof themeRef === 'string' ? themeRef : (info?.theme ?? 'custom');
   const obj = typeof themeRef === 'string' ? null : themeRef;
@@ -1005,11 +1002,7 @@ export function findConflicts(
   conflictCount: number;
   conflicts: Conflict[];
 } {
-  const api = getApi() as unknown as {
-    validateDoorClearance(): { issues: Array<{ row: number; col: number; problem: string; doorType: string }> };
-    validateConnectivity(label: string): { unreachable: string[] };
-    listRooms(): { rooms: Array<{ label: string; r1: number; c1: number; r2: number; c2: number }> };
-  };
+  const api = getApi();
   const cells = state.dungeon.cells;
   const meta = state.dungeon.metadata;
   const conflicts: Conflict[] = [];
@@ -1150,10 +1143,7 @@ function propIndexGlyph(n: number): string {
 }
 
 function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null {
-  const api = getApi() as unknown as {
-    getRoomBounds: (l: string) => { success: boolean; r1: number; c1: number; r2: number; c2: number };
-    _collectRoomCells: (l: string) => Set<string> | null;
-  };
+  const api = getApi();
   const boundsR = api.getRoomBounds(label);
   if (!boundsR.success) return null;
   const r1 = boundsR.r1,
