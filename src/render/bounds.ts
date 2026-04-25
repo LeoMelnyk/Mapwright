@@ -1,5 +1,6 @@
-import type { CellGrid, RenderTransform, DungeonBounds } from '../types.js';
+import type { CellGrid, DungeonBounds } from '../types.js';
 import { coordinateToFeet, getCoordinateBounds } from './validate.js';
+import { toCanvas } from '../util/index.js';
 
 /**
  * Calculate bounds from matrix-based cells.
@@ -116,20 +117,6 @@ function calculateBounds(config: LegacyConfig): DungeonBounds {
     minY: minY - padding,
     maxX: maxX + padding,
     maxY: maxY + padding,
-  };
-}
-
-/**
- * Convert feet coordinates to canvas pixels.
- * @param {number} x - X coordinate in feet
- * @param {number} y - Y coordinate in feet
- * @param {RenderTransform} transform - Transform with scale, offsetX, offsetY
- * @returns {{ x: number, y: number }} Canvas pixel coordinates
- */
-function toCanvas(x: number, y: number, transform: RenderTransform): { x: number; y: number } {
-  return {
-    x: x * transform.scale + transform.offsetX,
-    y: y * transform.scale + transform.offsetY,
   };
 }
 

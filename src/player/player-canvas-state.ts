@@ -150,16 +150,8 @@ export function getTransform(): RenderTransform {
   return { offsetX: playerState.panX, offsetY: playerState.panY, scale };
 }
 
-export function pixelToCell(
-  px: number,
-  py: number,
-  transform: RenderTransform,
-  gridSize: number,
-): { row: number; col: number } {
-  const x = (px - transform.offsetX) / transform.scale;
-  const y = (py - transform.offsetY) / transform.scale;
-  return { row: Math.floor(y / gridSize), col: Math.floor(x / gridSize) };
-}
+// `pixelToCell` is shared with the editor and renderer — see `src/util/grid.ts`.
+export { pixelToCell } from '../util/index.js';
 
 export function resolveTheme(): Theme | null {
   // Use the resolved theme sent by the DM (avoids empty THEMES lookup)

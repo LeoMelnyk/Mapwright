@@ -1,7 +1,45 @@
 // Shared grid traversal primitives used by the editor tools and renderer.
 
-import type { Cell, CellGrid, CardinalDirection, CellHalfKey, Direction, EdgeValue } from '../types.js';
+import type { Cell, CellGrid, CardinalDirection, CellHalfKey, Direction, EdgeValue, RenderTransform } from '../types.js';
 import { pointInPolygon } from './polygon.js';
+
+// ── Coordinate transforms (shared between editor, render, and player) ─────
+
+/**
+ * Convert feet coordinates to canvas pixels using a pan/zoom transform.
+ */
+export function toCanvas(x: number, y: number, transform: RenderTransform): { x: number; y: number } {
+  return {
+    x: x * transform.scale + transform.offsetX,
+    y: y * transform.scale + transform.offsetY,
+  };
+}
+
+/**
+ * Convert canvas pixel coordinates back to world feet using the inverse transform.
+ */
+export function fromCanvas(px: number, py: number, transform: RenderTransform): { x: number; y: number } {
+  return {
+    x: (px - transform.offsetX) / transform.scale,
+    y: (py - transform.offsetY) / transform.scale,
+  };
+}
+
+/**
+ * Convert a canvas pixel position to grid `(row, col)` indices.
+ */
+export function pixelToCell(
+  px: number,
+  py: number,
+  transform: RenderTransform,
+  gridSize: number,
+): { row: number; col: number } {
+  const feet = fromCanvas(px, py, transform);
+  return {
+    row: Math.floor(feet.y / gridSize),
+    col: Math.floor(feet.x / gridSize),
+  };
+}
 
 // ── Typed Cell edge accessors ──────────────────────────────────────────────
 // These centralise the dynamic property access needed for direction-based lookups,
@@ -10,6 +48,27 @@ import { pointInPolygon } from './polygon.js';
 /** Read an edge value from a cell by direction. */
 export function getEdge(cell: Cell, dir: Direction): EdgeValue {
   return cell[dir];
+}
+
+/**
+ * Scan a cell grid and return the set of texture IDs referenced by `cell.texture`
+ * or `cell.textureSecondary` on any populated cell. Used by the editor, the
+ * Node-side render pipeline, and the player view to figure out which textures
+ * need to be loaded for a given map.
+ */
+export function collectTextureIds(cells: CellGrid): Set<string> {
+  const ids = new Set<string>();
+  const KEYS = ['texture', 'textureSecondary'] as const;
+  for (const row of cells) {
+    for (const cell of row) {
+      if (!cell) continue;
+      for (const key of KEYS) {
+        const val = cell[key];
+        if (val) ids.add(val);
+      }
+    }
+  }
+  return ids;
 }
 
 /** Write an edge value on a cell by direction. */

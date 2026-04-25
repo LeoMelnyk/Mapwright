@@ -29,7 +29,7 @@ import {
   getCellWeatherHalf,
   setCellWeatherHalf,
   floodFillRoom,
-  parseCellKey,
+  parseCellHalfKey,
 } from '../../../util/index.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -103,6 +103,18 @@ function validateColor(name: string, v: unknown, context: Record<string, unknown
     );
   }
   return v;
+}
+
+/** Validate `wind.direction` and normalise into [0, 360). */
+function validateWindDirection(v: unknown): number {
+  if (typeof v !== 'number' || !Number.isFinite(v)) {
+    throw new ApiValidationError(
+      'INVALID_WEATHER_VALUE',
+      `wind.direction must be a finite number (got ${String(v)})`,
+      { field: 'wind.direction', value: v },
+    );
+  }
+  return ((v % 360) + 360) % 360;
 }
 
 function validateType(v: unknown): WeatherType {
@@ -182,14 +194,7 @@ export function createWeatherGroup(init: WeatherGroupInit = {}): {
 
   if (init.wind) {
     if (init.wind.direction !== undefined) {
-      const d = init.wind.direction;
-      if (typeof d !== 'number' || !Number.isFinite(d)) {
-        throw new ApiValidationError('INVALID_WEATHER_VALUE', `wind.direction must be a finite number (got ${String(d)})`, {
-          field: 'wind.direction',
-          value: d,
-        });
-      }
-      validated.wind.direction = ((d % 360) + 360) % 360;
+      validated.wind.direction = validateWindDirection(init.wind.direction);
     }
     if (init.wind.intensity !== undefined) {
       validated.wind.intensity = validateUnit('wind.intensity', init.wind.intensity);
@@ -331,14 +336,7 @@ export function setWeatherGroup(
   if (patch.wind) {
     nextWind = { direction: g.wind.direction, intensity: g.wind.intensity };
     if (patch.wind.direction !== undefined) {
-      const d = patch.wind.direction;
-      if (typeof d !== 'number' || !Number.isFinite(d)) {
-        throw new ApiValidationError('INVALID_WEATHER_VALUE', `wind.direction must be a finite number (got ${String(d)})`, {
-          field: 'wind.direction',
-          value: d,
-        });
-      }
-      nextWind.direction = ((d % 360) + 360) % 360;
+      nextWind.direction = validateWindDirection(patch.wind.direction);
     }
     if (patch.wind.intensity !== undefined) {
       nextWind.intensity = validateUnit('wind.intensity', patch.wind.intensity);
@@ -611,17 +609,3 @@ export function getWeatherCell(
   return { success: true, assignments, isSplit: halves[0] !== 'full' };
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-/**
- * Parse a `floodFillRoom` half-aware key ("r,c,halfKey") back into pieces.
- * Mirrors the helper in tool-weather.ts (kept private here so api/ doesn't
- * depend on the tool layer).
- */
-function parseCellHalfKey(key: string): { row: number; col: number; halfKey: CellHalfKey } {
-  const lastComma = key.lastIndexOf(',');
-  const halfKey = key.slice(lastComma + 1) as CellHalfKey;
-  const cellPart = key.slice(0, lastComma);
-  const [row, col] = parseCellKey(cellPart);
-  return { row, col, halfKey };
-}

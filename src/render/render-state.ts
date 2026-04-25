@@ -153,6 +153,25 @@ export function consumeBroadcastDirtyRegion(): DirtyRegion | null {
 }
 
 /**
+ * Expand `region` to include the given rect, or initialize it if null.
+ * Returns the (possibly newly-allocated) region so callers can re-assign.
+ */
+function _expandRegion(
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
+  minRow: number,
+  maxRow: number,
+  minCol: number,
+  maxCol: number,
+): { minRow: number; maxRow: number; minCol: number; maxCol: number } {
+  if (!region) return { minRow, maxRow, minCol, maxCol };
+  if (minRow < region.minRow) region.minRow = minRow;
+  if (maxRow > region.maxRow) region.maxRow = maxRow;
+  if (minCol < region.minCol) region.minCol = minCol;
+  if (maxCol > region.maxCol) region.maxCol = maxCol;
+  return region;
+}
+
+/**
  * Accumulate a rect of changed cells into the dirty region (for callers that bypass smartInvalidate).
  * @param {number} minRow - Top row of the changed region
  * @param {number} minCol - Left column of the changed region
@@ -161,23 +180,8 @@ export function consumeBroadcastDirtyRegion(): DirtyRegion | null {
  * @returns {void}
  */
 export function accumulateDirtyRect(minRow: number, minCol: number, maxRow: number, maxCol: number): void {
-  if (!_dirtyRegion) {
-    _dirtyRegion = { minRow, maxRow, minCol, maxCol };
-  } else {
-    if (minRow < _dirtyRegion.minRow) _dirtyRegion.minRow = minRow;
-    if (maxRow > _dirtyRegion.maxRow) _dirtyRegion.maxRow = maxRow;
-    if (minCol < _dirtyRegion.minCol) _dirtyRegion.minCol = minCol;
-    if (maxCol > _dirtyRegion.maxCol) _dirtyRegion.maxCol = maxCol;
-  }
-  // Mirror to broadcast accumulator
-  if (!_broadcastDirtyRegion) {
-    _broadcastDirtyRegion = { minRow, maxRow, minCol, maxCol };
-  } else {
-    if (minRow < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = minRow;
-    if (maxRow > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = maxRow;
-    if (minCol < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = minCol;
-    if (maxCol > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = maxCol;
-  }
+  _dirtyRegion = _expandRegion(_dirtyRegion, minRow, maxRow, minCol, maxCol);
+  _broadcastDirtyRegion = _expandRegion(_broadcastDirtyRegion, minRow, maxRow, minCol, maxCol);
 }
 
 /**
@@ -189,21 +193,6 @@ export function accumulateDirtyRect(minRow: number, minCol: number, maxRow: numb
  * @returns {void}
  */
 export function _accumulateDirtyCell(row: number, col: number): void {
-  if (!_dirtyRegion) {
-    _dirtyRegion = { minRow: row, maxRow: row, minCol: col, maxCol: col };
-  } else {
-    if (row < _dirtyRegion.minRow) _dirtyRegion.minRow = row;
-    if (row > _dirtyRegion.maxRow) _dirtyRegion.maxRow = row;
-    if (col < _dirtyRegion.minCol) _dirtyRegion.minCol = col;
-    if (col > _dirtyRegion.maxCol) _dirtyRegion.maxCol = col;
-  }
-  // Mirror to broadcast accumulator
-  if (!_broadcastDirtyRegion) {
-    _broadcastDirtyRegion = { minRow: row, maxRow: row, minCol: col, maxCol: col };
-  } else {
-    if (row < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = row;
-    if (row > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = row;
-    if (col < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = col;
-    if (col > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = col;
-  }
+  _dirtyRegion = _expandRegion(_dirtyRegion, row, row, col, col);
+  _broadcastDirtyRegion = _expandRegion(_broadcastDirtyRegion, row, row, col, col);
 }

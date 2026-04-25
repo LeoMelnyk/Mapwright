@@ -1,56 +1,13 @@
 // Grid math and coordinate helpers
 import type { Dungeon, RenderTransform } from '../../types.js';
 import { CURRENT_FORMAT_VERSION } from './migrations.js';
-import { RESOLUTION_DEFAULT } from '../../util/index.js';
+import { RESOLUTION_DEFAULT, fromCanvas } from '../../util/index.js';
 
-/**
- * Convert feet coordinates to canvas pixels.
- * @param {number} x - X position in feet.
- * @param {number} y - Y position in feet.
- * @param {Object} transform - The pan/zoom transform ({ scale, offsetX, offsetY }).
- * @returns {{ x: number, y: number }} Canvas pixel coordinates.
- */
-export function toCanvas(x: number, y: number, transform: RenderTransform): { x: number; y: number } {
-  return {
-    x: x * transform.scale + transform.offsetX,
-    y: y * transform.scale + transform.offsetY,
-  };
-}
-
-/**
- * Convert canvas pixels back to feet coordinates.
- * @param {number} px - Canvas pixel X.
- * @param {number} py - Canvas pixel Y.
- * @param {Object} transform - The pan/zoom transform ({ scale, offsetX, offsetY }).
- * @returns {{ x: number, y: number }} Position in feet.
- */
-export function fromCanvas(px: number, py: number, transform: RenderTransform): { x: number; y: number } {
-  return {
-    x: (px - transform.offsetX) / transform.scale,
-    y: (py - transform.offsetY) / transform.scale,
-  };
-}
-
-/**
- * Convert canvas pixel position to grid cell (row, col).
- * @param {number} px - Canvas pixel X.
- * @param {number} py - Canvas pixel Y.
- * @param {Object} transform - The pan/zoom transform.
- * @param {number} gridSize - Grid cell size in feet.
- * @returns {{ row: number, col: number }} Grid cell coordinates.
- */
-export function pixelToCell(
-  px: number,
-  py: number,
-  transform: RenderTransform,
-  gridSize: number,
-): { row: number; col: number } {
-  const feet = fromCanvas(px, py, transform);
-  return {
-    row: Math.floor(feet.y / gridSize),
-    col: Math.floor(feet.x / gridSize),
-  };
-}
+// Coordinate transforms (`toCanvas`, `fromCanvas`, `pixelToCell`) live in
+// `src/util/grid.ts` so the player view and the Node-side render pipeline can
+// share the same implementation. Re-exported here so editor-side importers
+// don't need to update their import paths.
+export { toCanvas, fromCanvas, pixelToCell } from '../../util/index.js';
 
 /**
  * Detect which edge of a cell the mouse is nearest to.
