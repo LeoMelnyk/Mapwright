@@ -47,7 +47,9 @@ function extractJson(stdout) {
           try {
             lastValid = JSON.parse(text.substring(j, i + 1));
             return lastValid;
-          } catch { break; }
+          } catch {
+            break;
+          }
         }
       }
     }
@@ -56,7 +58,6 @@ function extractJson(stdout) {
 }
 
 describe('Extended Pipeline E2E', () => {
-
   // 1. Multi-level dungeon
   it('creates a multi-level dungeon with stairs and links', async () => {
     const commands = JSON.stringify([
@@ -68,11 +69,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-multilevel.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
@@ -81,7 +78,7 @@ describe('Extended Pipeline E2E', () => {
     const saved = loadSavedMap(savePath);
     expect(saved.metadata.levels).toBeDefined();
     expect(saved.metadata.levels.length).toBeGreaterThanOrEqual(1);
-    expect(saved.metadata.levels.some(l => l.name === 'Level 2')).toBe(true);
+    expect(saved.metadata.levels.some((l) => l.name === 'Level 2')).toBe(true);
   });
 
   // 2. Lighting pipeline
@@ -96,10 +93,7 @@ describe('Extended Pipeline E2E', () => {
       ['getLights'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
@@ -119,18 +113,17 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-textures.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
     const res = saved.metadata.resolution || 1;
     const cell33 = saved.cells[3 * res]?.[3 * res];
     expect(cell33).toBeDefined();
-    expect(cell33.texture).toBe('stone-floor');
-    expect(cell33.textureOpacity).toBeCloseTo(0.8, 1);
+    // Textures live on the primary segment under the polygon-segment cell model.
+    const primarySeg = cell33.segments?.[0];
+    expect(primarySeg?.texture).toBe('stone-floor');
+    expect(primarySeg?.textureOpacity).toBeCloseTo(0.8, 1);
   });
 
   // 4. Fill operations
@@ -148,10 +141,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-fills.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -179,10 +169,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-trims.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     // Verify the corner cells have been modified (NW corner cell should be null or have trim data)
@@ -206,10 +193,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-doors.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -233,10 +217,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-proppatterns.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -262,9 +243,7 @@ describe('Extended Pipeline E2E', () => {
       ['validateConnectivity', 'A1'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-    ], port);
+    const result = await runBridge(['--commands', commands], port);
 
     expect(result.code).toBe(0);
     // The validateConnectivity result should show A2 as unreachable
@@ -289,14 +268,10 @@ describe('Extended Pipeline E2E', () => {
       ],
     };
 
-    const commands = JSON.stringify([
-      ['planBrief', brief],
-    ]);
+    const commands = JSON.stringify([['planBrief', brief]]);
 
     // planBrief returns { success, commands } — verify it succeeds and returns commands
-    const planResult = await runBridge([
-      '--commands', commands,
-    ], port);
+    const planResult = await runBridge(['--commands', commands], port);
 
     expect(planResult.code).toBe(0);
     expect(planResult.stdout).toContain('"success":true');
@@ -316,27 +291,18 @@ describe('Extended Pipeline E2E', () => {
       ['getUndoDepth'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-    ], port);
+    const result = await runBridge(['--commands', commands], port);
 
     expect(result.code).toBe(0);
     // Both getUndoDepth calls should appear in output
-    const depthLines = result.stdout.split('\n').filter(l => l.includes('getUndoDepth'));
+    const depthLines = result.stdout.split('\n').filter((l) => l.includes('getUndoDepth'));
     expect(depthLines.length).toBe(2);
 
     // Now undo the two prop placements and verify no props remain
-    const undoCommands = JSON.stringify([
-      ['undo'],
-      ['undo'],
-    ]);
+    const undoCommands = JSON.stringify([['undo'], ['undo']]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-undo.json');
-    const undoResult = await runBridge([
-      '--commands', undoCommands,
-      '--save', savePath,
-      '--info',
-    ], port);
+    const undoResult = await runBridge(['--commands', undoCommands, '--save', savePath, '--info'], port);
 
     // After undo, map should still exist (we're continuing session)
     // but in headless mode each run is fresh, so we test undo within a single run
@@ -350,7 +316,9 @@ describe('Extended Pipeline E2E', () => {
       ['createRoom', 2, 2, 8, 8],
       ['setLabel', 5, 5, 'A1'],
       // Use eval to capture depth then make changes then undo back
-      ['eval', `
+      [
+        'eval',
+        `
         const depth = editorAPI.getUndoDepth().depth;
         editorAPI.placeProp(3, 3, 'pillar');
         editorAPI.placeProp(4, 4, 'pillar');
@@ -358,18 +326,17 @@ describe('Extended Pipeline E2E', () => {
         editorAPI.undoToDepth(depth);
         const info = editorAPI.getMapInfo();
         return { depth, afterDepth, propCountAfterUndo: info.propCount };
-      `],
+      `,
+      ],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-    ], port);
+    const result = await runBridge(['--commands', commands], port);
 
     expect(result.code).toBe(0);
     // The eval result should show propCount went back to 0
     expect(result.stdout).toContain('propCountAfterUndo');
     // Parse the eval result
-    const evalLine = result.stdout.split('\n').find(l => l.includes('propCountAfterUndo'));
+    const evalLine = result.stdout.split('\n').find((l) => l.includes('propCountAfterUndo'));
     expect(evalLine).toBeDefined();
     const match = evalLine.match(/"propCountAfterUndo"\s*:\s*(\d+)/);
     expect(match).toBeDefined();
@@ -385,10 +352,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const exportPath = path.join(OUTPUT_DIR, 'e2e-export.png');
-    const result = await runBridge([
-      '--commands', commands,
-      '--export-png', exportPath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--export-png', exportPath], port);
 
     expect(result.code).toBe(0);
     expect(fs.existsSync(exportPath)).toBe(true);
@@ -433,10 +397,7 @@ describe('Extended Pipeline E2E', () => {
       ['setDoor', 25, 33, 'south'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
@@ -454,9 +415,7 @@ describe('Extended Pipeline E2E', () => {
       ['mergeRooms', 'A1', 'A2'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-    ], port);
+    const result = await runBridge(['--commands', commands], port);
 
     expect(result.code).toBe(0);
     // mergeRooms returns { success: true, removed: N } — verify walls were removed
@@ -473,10 +432,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-partition.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -498,11 +454,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-shift.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
@@ -519,10 +471,7 @@ describe('Extended Pipeline E2E', () => {
       ['normalizeMargin', 2],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
@@ -547,10 +496,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-bridges.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -577,10 +523,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-stairs.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -604,9 +547,7 @@ describe('Extended Pipeline E2E', () => {
       ['setDoorBetween', 'A1', 'A2', 'd'],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-    ], port);
+    const result = await runBridge(['--commands', commands], port);
 
     expect(result.code).toBe(0);
     // setDoorBetween returns { success: true, row, col, direction }
@@ -625,11 +566,7 @@ describe('Extended Pipeline E2E', () => {
       ['createCorridor', 'A1', 'A2', 3],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-      '--continue-on-error',
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--continue-on-error', '--info'], port);
 
     // createCorridor succeeds when rooms have gap and sufficient overlap
     const info = extractJson(result.stdout);
@@ -646,10 +583,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-fillrect.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -675,10 +609,7 @@ describe('Extended Pipeline E2E', () => {
     ]);
 
     const savePath = path.join(OUTPUT_DIR, 'e2e-hazard.json');
-    const result = await runBridge([
-      '--commands', commands,
-      '--save', savePath,
-    ], port);
+    const result = await runBridge(['--commands', commands, '--save', savePath], port);
 
     expect(result.code).toBe(0);
     const saved = loadSavedMap(savePath);
@@ -699,10 +630,7 @@ describe('Extended Pipeline E2E', () => {
       ['setFeature', 'compass', true],
     ]);
 
-    const result = await runBridge([
-      '--commands', commands,
-      '--info',
-    ], port);
+    const result = await runBridge(['--commands', commands, '--info'], port);
 
     expect(result.code).toBe(0);
     const info = extractJson(result.stdout);
