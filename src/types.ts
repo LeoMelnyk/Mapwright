@@ -56,21 +56,77 @@ export interface CellCenter {
   [key: string]: unknown;
 }
 
-/** A single cell in the dungeon grid. null = void (no floor). */
+/**
+ * A polygon sub-region of a cell. Cells with multiple segments tile [0,1]^2
+ * with no gaps and no overlaps; void is encoded as a segment with `voided: true`.
+ *
+ * INVARIANT: in a populated `cell.segments`, the polygons collectively cover
+ * the unit square exactly (sum of areas ≈ 1.0, no pairwise overlap).
+ *
+ * `cell.segments` is the authoritative texture / partition storage. Legacy
+ * pre-segments fields are converted on load by `migrateCellsToSegments` and
+ * never appear at runtime — the `LegacyCell` type in
+ * `util/migrate-segments.ts` is the only place the legacy field names are
+ * spelled out.
+ */
+export interface Segment {
+  /** Stable id within the cell — synthetic, e.g. `"s0"`, `"s1"`. */
+  id: string;
+  /**
+   * Polygon vertices in cell-local [0..1] coords as [x, y] = [col-axis, row-axis].
+   * Same convention as legacy `trimClip`. Winding order is caller-agnostic
+   * (the orientation-symmetric ray-casting PIP works for either).
+   */
+  polygon: number[][];
+  texture?: string;
+  textureOpacity?: number;
+  /** Empty space (no floor). Default false. */
+  voided?: boolean;
+  /** Per-segment weather group; replaces `cell.weatherHalves`. */
+  weatherGroupId?: string;
+}
+
+/**
+ * The boundary between two sibling segments inside a single cell. Stored on
+ * the cell, not duplicated on each segment, so there's a single source of
+ * truth for the wall flag.
+ *
+ * The polyline in `vertices` fully describes the boundary's shape — straight
+ * for diagonals (2 vertices at opposite corners), densely sampled for trim
+ * arcs/chords. Renderers and downstream consumers derive everything they
+ * need (chord-vs-diagonal classification, corner detection, smoothing) from
+ * the polyline; no separate metadata is stored. See `isChordEdge` /
+ * `getChordCorner` in `util/cell-segments.ts`.
+ */
+export interface InteriorEdge {
+  /** Polyline in cell-local [0..1] coords as [x, y]. Runs along a shared polygon edge of both segments. */
+  vertices: number[][];
+  /** Wall type on the boundary; `null` means open (passable). */
+  wall: EdgeValue;
+  /** Indices into `cell.segments` — the two segments separated by this edge. */
+  between: [number, number];
+}
+
+/**
+ * A single cell in the dungeon grid. null = void (no floor).
+ *
+ * Cell sub-region encoding lives entirely on `segments` + `interiorEdges`:
+ * diagonal walls, arc-trim chords, and per-half textures/weather are all
+ * properties of segments, not loose fields on the cell. Pre-segments saves
+ * carry a flatter legacy shape; those fields are converted on load by
+ * `migrateCellsToSegments`. The `LegacyCell` type in
+ * `util/migrate-segments.ts` is the only place legacy field names are
+ * spelled out — runtime code reads/writes through the segment helpers.
+ */
 export interface Cell {
   north?: EdgeValue;
   south?: EdgeValue;
   east?: EdgeValue;
   west?: EdgeValue;
-  'nw-se'?: EdgeValue;
-  'ne-sw'?: EdgeValue;
   fill?: FillType;
   fillDepth?: number;
   hazard?: boolean;
-  texture?: string;
-  textureOpacity?: number;
-  textureSecondary?: string;
-  textureSecondaryOpacity?: number;
+  /** Corner-blend texture overlays. Render-time, populated lazily. */
   textureNE?: string;
   textureNEOpacity?: number;
   textureSW?: string;
@@ -79,44 +135,25 @@ export interface Cell {
   textureNWOpacity?: number;
   textureSE?: string;
   textureSEOpacity?: number;
-  trimmed?: boolean;
-  trimWall?: CardinalDirection | number[][];
-  trimCorner?: string;
-  trimRound?: boolean;
-  trimInverted?: boolean;
-  trimOpen?: boolean;
-  trimPassable?: boolean;
-  trimClip?: number[][];
-  trimCrossing?: boolean | Record<string, string>;
-  trimHideExterior?: boolean;
-  trimShowExteriorOnly?: boolean;
-  trimInsideArc?: boolean;
-  trimArcRadius?: number;
-  trimArcCenterRow?: number;
-  trimArcCenterCol?: number;
-  trimArcInverted?: boolean;
   waterDepth?: number;
   lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
   /**
-   * ID of the weather group this cell belongs to. Used ONLY when the cell is
-   * not split by a diagonal wall or trim. For split cells, use
-   * {@link weatherHalves}. INVARIANT: `weatherGroupId` and `weatherHalves` are
-   * mutually exclusive — never both set on the same cell.
-   * See {@link WeatherGroup}.
+   * Polygon sub-regions of the cell. When absent or empty, the cell behaves
+   * as if it had one implicit "full" segment covering [0,1]^2 (synthesized
+   * by `getSegments()` in `util/cell-segments.ts`). Per-segment fields
+   * include `texture`, `textureOpacity`, `voided`, and `weatherGroupId`.
    */
-  weatherGroupId?: string;
+  segments?: Segment[];
   /**
-   * Per-half weather assignments for split cells. Only populated when the
-   * cell is split by a diagonal wall (`nw-se` / `ne-sw`) or a trim
-   * (`trimClip`). Missing halves are unassigned. When set,
-   * {@link weatherGroupId} MUST be absent. Valid keys depend on the split:
-   *   - `nw-se` diagonal → `'ne'` and/or `'sw'`
-   *   - `ne-sw` diagonal → `'nw'` and/or `'se'`
-   *   - trim cell        → `'interior'` and/or `'exterior'`
+   * Boundaries between segments inside this cell. Each entry references
+   * two segment indices and carries the wall flag (and optional smooth-arc
+   * render hint) for that boundary. Cardinal walls (cell-to-cell) remain
+   * on `cell.north` / `south` / `east` / `west`; `interiorEdges` is
+   * strictly intra-cell.
    */
-  weatherHalves?: Partial<Record<CellHalfKey, string>>;
+  interiorEdges?: InteriorEdge[];
 }
 
 /** The 2D cell grid. null entries are void (no floor). */
@@ -945,6 +982,7 @@ export interface EditorState {
   // Tool config
   activeTool: string;
   roomMode: string;
+  circularStyle: string;
   paintMode: string;
   fillMode: string;
   waterDepth: number;
@@ -975,7 +1013,6 @@ export interface EditorState {
   // Paint tool
   activeTexture: string | null;
   textureOpacity: number;
-  paintSecondary: boolean;
 
   // Light tool
   selectedLightId: number | null;
@@ -1002,7 +1039,14 @@ export interface EditorState {
   propPasteMode: boolean;
 
   // Hover/selection
-  hoveredCell: { row: number; col: number } | null;
+  /**
+   * Cell currently under the cursor. `segmentIndex` is the index into
+   * `getSegments(cell)` for the segment containing the cursor — always 0
+   * for unsplit cells, otherwise picks the polygon hit by the cursor's
+   * cell-local position. Tools that act per-segment (paint, weather) read
+   * `segmentIndex`; whole-cell tools (fill, erase, fog) read `row`/`col` only.
+   */
+  hoveredCell: { row: number; col: number; segmentIndex: number } | null;
   hoveredEdge: { row: number; col: number; direction: string } | null;
   hoveredCorner: { row: number; col: number } | null;
   selectedCells: { row: number; col: number }[];
@@ -1030,6 +1074,10 @@ export interface EditorState {
 
   // Debug
   debugShowHitboxes: boolean;
+  /** When true, every BFS via traverse() colors visited cells by depth from the seed. */
+  debugFloodRainbow: boolean;
+  /** Most recent flood: cellKey "row,col" → BFS depth. Populated when debugFloodRainbow is on. */
+  floodRainbowCells: Map<string, number>;
 
   // App metadata
   appVersion?: string;
@@ -1154,6 +1202,10 @@ export interface CreateTrimOptions {
   round?: boolean;
   inverted?: boolean;
   open?: boolean;
+  /** When true, the chord wall is stored as 'iw' (invisible). Renderer skips
+   *  the stroke and lighting omits the segment, but token movement still
+   *  treats it as a boundary (same semantics as cardinal `iw` walls). */
+  invisible?: boolean;
 }
 
 /** Options for partitionRoom API method. */

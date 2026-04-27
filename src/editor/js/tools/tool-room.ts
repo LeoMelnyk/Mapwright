@@ -1,13 +1,31 @@
-import type { RenderTransform } from '../../../types.js';
+import type { CreateTrimOptions, EdgeValue, RenderTransform } from '../../../types.js';
 // Room tool: click+drag to select a rectangle of cells, then auto-wall the boundary
 //
 // Basic mode: drag a rectangle → on mouseup, paint cells + wall outer edges + clear inner walls
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
 
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { mutate } from '../state.js';
+import state, { pushUndo, setUndoDisabled, markDirty, notify, mutate, invalidateLightmap } from '../state.js';
+import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
+// Lazy-resolved to avoid the module-load cycle:
+//   tools/tool-room → api/trims → api/_shared → tools/index → tools/tool-room
+// User-facing draws always happen after the editor API is assembled, so we
+// can safely look the function up at call time via the global API surface
+// (set by api/index.ts on app boot).
+type CreateTrimFn = (
+  r1: number,
+  c1: number,
+  r2: number,
+  c2: number,
+  cornerOrOptions?: string | CreateTrimOptions,
+  extraOptions?: CreateTrimOptions,
+) => unknown;
+function resolveCreateTrim(): CreateTrimFn | null {
+  const api = (window as Window & { editorAPI?: { createTrim?: CreateTrimFn } }).editorAPI;
+  return api?.createTrim ?? null;
+}
 import {
   CARDINAL_DIRS,
   OPPOSITE,
@@ -41,10 +59,15 @@ export class RoomTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
-    state.statusInstruction =
-      state.roomMode === 'merge'
-        ? 'Drag over adjacent rooms to merge them into one'
-        : 'Drag to draw room · Shift for square · Right-click to void';
+    const invisible = state.wallType === 'iw';
+    const wallSuffix = invisible ? ' with invisible walls' : '';
+    if (state.roomMode === 'merge') {
+      state.statusInstruction = 'Drag over adjacent rooms to merge them into one';
+    } else if (state.roomMode === 'circular') {
+      state.statusInstruction = `Drag to draw circular room${wallSuffix} · Shift for square (perfect circle)`;
+    } else {
+      state.statusInstruction = `Drag to draw room${wallSuffix} · Shift for square · Right-click to void`;
+    }
   }
 
   onDeactivate() {
@@ -157,6 +180,10 @@ export class RoomTool extends Tool {
   /**
    * Apply walls: paint all cells in the drag rect, wall outer edges, clear inner walls.
    * Merge mode: only wall edges facing void/OOB, clear walls against existing cells.
+   * Circular shape: after walling the rect, void the four corners with round arc trims
+   *   so a square drag becomes a perfect circle (and a rect becomes a rounded oval).
+   * Invisible walls: when state.wallType === 'iw', uses 'iw' for both perimeter walls
+   *   and (for circular) the curved chord walls — see api/trims.ts `invisible` option.
    */
   _applyWalls() {
     if (!this.dragStart || !this.dragEnd) return;
@@ -177,11 +204,7 @@ export class RoomTool extends Tool {
 
     if (selected.size === 0) return;
 
-    const mergeMode = state.roomMode === 'merge';
     const cells = state.dungeon.cells;
-
-    // Capture before state for all selected cells plus their 1-cell border
-    // (the border cells may also be modified when mirroring outer walls)
     const rows = cells.length,
       cols = cells[0]?.length ?? 0;
     const coords = [];
@@ -190,52 +213,121 @@ export class RoomTool extends Tool {
         coords.push({ row: r, col: c });
       }
     }
-    mutate(
-      'Draw room',
-      coords,
-      () => {
-        const has = (r: number, c: number) => selected.has(cellKey(r, c));
 
-        for (const key of selected) {
-          const [r, c] = parseCellKey(key);
+    const wallType = (state.wallType === 'iw' ? 'iw' : 'w') as EdgeValue;
+    const circular = state.roomMode === 'circular';
+    const invisible = wallType === 'iw';
+    const openCircle = circular && state.circularStyle === 'open';
+    const label =
+      `Draw ${invisible ? 'invisible ' : ''}${circular ? (openCircle ? 'open circular ' : 'circular ') : ''}room`
+        .replace(/\s+/g, ' ')
+        .trim();
 
-          cells[r]![c] ??= {};
-          const cell = cells[r]![c];
+    if (!circular) {
+      mutate(label, coords, () => this._paintWalls(selected, wallType), { invalidate: ['lighting'] });
+      return;
+    }
 
-          for (const { dir, dr, dc } of CARDINAL_DIRS) {
-            const nr = r + dr;
-            const nc = c + dc;
-            const inBounds_ = isInBounds(cells, nr, nc);
-            const neighborCell = inBounds_ ? cells[nr]![nc] : null;
-            const reciprocal = OPPOSITE[dir];
+    // Circular: bundle wall painting + 4 corner trims into one undo step.
+    // Each createTrim runs its own mutate(); setUndoDisabled keeps it from
+    // pushing additional undo entries. We capture renderBefore + invalidate
+    // ourselves at the end since mutate() skips that work when undo is off.
+    const w = c2 - c1 + 1;
+    const h = r2 - r1 + 1;
+    const trimSize = Math.floor(Math.min(w, h) / 2);
 
-            if (mergeMode) {
-              if (!inBounds_ || !neighborCell) {
-                if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-              } else {
-                if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-                if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's')
-                  delete neighborCell[reciprocal];
-              }
-            } else {
-              if (has(nr, nc)) {
-                if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-                if (neighborCell) {
-                  if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's')
-                    delete neighborCell[reciprocal];
-                }
-              } else {
-                if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-                if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
-                  neighborCell[reciprocal] = 'w';
-                }
-              }
+    const createTrim = resolveCreateTrim();
+    if (!createTrim) {
+      // API not yet ready — fall back to a plain rectangular room rather than
+      // silently swallowing the user's drag.
+      mutate(label, coords, () => this._paintWalls(selected, wallType), { invalidate: ['lighting'] });
+      return;
+    }
+
+    const renderBefore = captureBeforeState(cells, coords);
+    pushUndo(label);
+    setUndoDisabled(true);
+    try {
+      this._paintWalls(selected, wallType);
+
+      if (trimSize >= 1) {
+        // Room tool coords are in internal grid space (matching state.dungeon.cells
+        // indices), but the createTrim API runs `toInt(displayCoord)` on its inputs.
+        // Convert internal → display before calling so the round-trip lands on the
+        // same internal cells. Round-trip is exact for any integer internal index
+        // because toInt = round(disp * resolution). At resolution=1 this is a no-op.
+        const resolution = state.dungeon.metadata.resolution || 1;
+        const s = trimSize - 1;
+        const cornerSpecs: Array<[string, number, number, number, number]> = [
+          ['nw', r1, c1, r1 + s, c1 + s],
+          ['ne', r1, c2, r1 + s, c2 - s],
+          ['sw', r2, c1, r2 - s, c1 + s],
+          ['se', r2, c2, r2 - s, c2 - s],
+        ];
+        for (const [corner, tipR, tipC, extR, extC] of cornerSpecs) {
+          createTrim(tipR / resolution, tipC / resolution, extR / resolution, extC / resolution, corner, {
+            round: true,
+            inverted: false,
+            open: openCircle,
+            invisible,
+          });
+        }
+      }
+    } finally {
+      setUndoDisabled(false);
+    }
+
+    smartInvalidate(renderBefore, cells, { forceGeometry: true });
+    invalidateLightmap(true);
+    markDirty();
+    notify();
+  }
+
+  /**
+   * Paint perimeter walls around the selected cell set. Honors merge mode
+   * (only wall void-facing edges) and skips doors/secret-doors so the user
+   * can re-drag a room without losing existing connections.
+   */
+  _paintWalls(selected: Set<string>, wallType: EdgeValue) {
+    const mergeMode = state.roomMode === 'merge';
+    const cells = state.dungeon.cells;
+    const has = (r: number, c: number) => selected.has(cellKey(r, c));
+
+    for (const key of selected) {
+      const [r, c] = parseCellKey(key);
+
+      cells[r]![c] ??= {};
+      const cell = cells[r]![c];
+
+      for (const { dir, dr, dc } of CARDINAL_DIRS) {
+        const nr = r + dr;
+        const nc = c + dc;
+        const inBounds_ = isInBounds(cells, nr, nc);
+        const neighborCell = inBounds_ ? cells[nr]![nc] : null;
+        const reciprocal = OPPOSITE[dir];
+
+        if (mergeMode) {
+          if (!inBounds_ || !neighborCell) {
+            if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = wallType;
+          } else {
+            if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
+            if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+          }
+        } else {
+          if (has(nr, nc)) {
+            if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
+            if (neighborCell) {
+              if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+            }
+          } else {
+            if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = wallType;
+            if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
+              neighborCell[reciprocal] = wallType;
             }
           }
         }
-      },
-      { invalidate: ['lighting'] },
-    );
+      }
+    }
   }
 
   _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {

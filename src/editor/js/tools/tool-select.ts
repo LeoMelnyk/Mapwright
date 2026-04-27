@@ -1,4 +1,5 @@
-import type { RenderTransform } from '../../../types.js';
+import type { CardinalDirection, RenderTransform } from '../../../types.js';
+import { deleteEdge } from '../../../util/index.js';
 // Select tool: click/drag to select cells; drag selected cells to move them
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
@@ -7,10 +8,11 @@ import { showToast } from '../toast.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { markPropSpatialDirty } from '../prop-spatial.js';
 import { refreshLinkedLights, visibleAnchorOf } from '../prop-overlay.js';
+import { dumpFogRegion } from '../dm-session.js';
 
 const MOVE_THRESHOLD = 8; // pixels before a mousedown-on-selection becomes a move drag
 
-const DIRS = [
+const DIRS: { dir: CardinalDirection; dr: number; dc: number; opp: CardinalDirection }[] = [
   { dir: 'north', dr: -1, dc: 0, opp: 'south' },
   { dir: 'south', dr: 1, dc: 0, opp: 'north' },
   { dir: 'east', dr: 0, dc: 1, opp: 'west' },
@@ -26,6 +28,7 @@ export class SelectTool extends Tool {
   dragStart: { row: number; col: number } | null = null;
   dragEnd: { row: number; col: number } | null = null;
   shiftHeld: boolean = false;
+  dumpDrag: boolean = false;
   moveDragging: boolean = false;
   moveDragStart: { row: number; col: number } | null = null;
   moveDragOffset: { dRow: number; dCol: number } | null = null;
@@ -61,6 +64,7 @@ export class SelectTool extends Tool {
 
   onDeactivate() {
     this.dragging = false;
+    this.dumpDrag = false;
     this.dragStart = null;
     this.dragEnd = null;
     this.moveDragging = false;
@@ -84,8 +88,11 @@ export class SelectTool extends Tool {
       return;
     }
 
+    // Ctrl+Shift+drag: dump cell data + fog state for a rectangular region (debug panel only)
+    const isDumpDrag = (event.ctrlKey || event.metaKey) && event.shiftKey;
+
     // Inspect mode: click a cell to select it (the properties panel shows automatically)
-    if (state.selectMode === 'inspect') {
+    if (state.selectMode === 'inspect' && !isDumpDrag) {
       const cells = state.dungeon.cells;
       if (row >= 0 && row < cells.length && col >= 0 && col < (cells[0]?.length ?? 0)) {
         state.selectedCells = [{ row, col }];
@@ -104,7 +111,7 @@ export class SelectTool extends Tool {
       return;
     }
 
-    // Clicking on unselected space → start box-select
+    // Clicking on unselected space → start box-select (or dump-drag)
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) {
       state.selectedCells = [];
@@ -112,7 +119,8 @@ export class SelectTool extends Tool {
       return;
     }
     this.dragging = true;
-    this.shiftHeld = event.shiftKey;
+    this.dumpDrag = isDumpDrag;
+    this.shiftHeld = event.shiftKey && !isDumpDrag;
     this.dragStart = { row, col };
     this.dragEnd = { row, col };
     markDirty();
@@ -186,6 +194,16 @@ export class SelectTool extends Tool {
     const maxRow = Math.max(this.dragStart!.row, this.dragEnd!.row);
     const minCol = Math.min(this.dragStart!.col, this.dragEnd!.col);
     const maxCol = Math.max(this.dragStart!.col, this.dragEnd!.col);
+
+    // Ctrl+Shift+drag: dump cell + fog data for the region; leave selection untouched
+    if (this.dumpDrag) {
+      this.dumpDrag = false;
+      this.dragStart = null;
+      this.dragEnd = null;
+      dumpFogRegion(minRow, minCol, maxRow, maxCol);
+      markDirty();
+      return;
+    }
 
     const boxCells = [];
     for (let r = minRow; r <= maxRow; r++) {
@@ -356,7 +374,7 @@ export class SelectTool extends Tool {
           nc = snap.col + dc;
         if (!selectedSet.has(`${nr},${nc}`)) {
           const neighbor = cells[nr]?.[nc];
-          if (neighbor) delete (neighbor as Record<string, unknown>)[opp];
+          if (neighbor) deleteEdge(neighbor, opp);
           delete snap.data[dir];
         }
       }
@@ -376,7 +394,7 @@ export class SelectTool extends Tool {
           nc = dc2 + ndc;
         if (selectedSet.has(`${nr},${nc}`) || destSet.has(`${nr},${nc}`)) continue;
         const neighbor = cells[nr]?.[nc];
-        if (neighbor) delete (neighbor as Record<string, unknown>)[opp];
+        if (neighbor) deleteEdge(neighbor, opp);
       }
     }
 
@@ -516,8 +534,18 @@ export class SelectTool extends Tool {
       const h = (maxRow - minRow + 1) * cs;
 
       ctx.save();
-      ctx.fillStyle = this.shiftHeld ? 'rgba(100, 220, 160, 0.15)' : 'rgba(100, 160, 255, 0.15)';
-      ctx.strokeStyle = this.shiftHeld ? 'rgba(100, 220, 160, 0.9)' : 'rgba(100, 160, 255, 0.9)';
+      const fillColor = this.dumpDrag
+        ? 'rgba(255, 220, 80, 0.18)'
+        : this.shiftHeld
+          ? 'rgba(100, 220, 160, 0.15)'
+          : 'rgba(100, 160, 255, 0.15)';
+      const strokeColor = this.dumpDrag
+        ? 'rgba(255, 200, 50, 0.95)'
+        : this.shiftHeld
+          ? 'rgba(100, 220, 160, 0.9)'
+          : 'rgba(100, 160, 255, 0.9)';
+      ctx.fillStyle = fillColor;
+      ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 3]);
       ctx.fillRect(x, y, w, h);

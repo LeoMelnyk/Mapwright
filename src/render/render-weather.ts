@@ -14,17 +14,16 @@
 // layered on top of floors/walls/props but below the lightmap so lighting
 // can darken weather in shadowed areas.
 
-import type {
-  Cell,
-  CellGrid,
-  CellHalfKey,
-  Light,
-  Metadata,
-  RenderTransform,
-  WeatherGroup,
-  WeatherType,
-} from '../types.js';
-import { forEachCellWeatherAssignment, halfClip, cellHasGroup } from '../util/index.js';
+import type { Cell, CellGrid, Light, Metadata, RenderTransform, WeatherGroup, WeatherType } from '../types.js';
+import {
+  forEachCellWeatherAssignment,
+  cellHasGroup,
+  isCellSplit,
+  cellHasChordEdge,
+  getEdge,
+  getSegments,
+  traceSegment,
+} from '../util/index.js';
 
 // ── Invalidation state ─────────────────────────────────────────────────────
 // Two invalidation signals feed the cache:
@@ -384,21 +383,19 @@ function _renderHazePass(
       if (!cell) continue;
       const cellX = c * gridSize * transform.scale + transform.offsetX;
       const cellY = r * gridSize * transform.scale + transform.offsetY;
-      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
+      forEachCellWeatherAssignment(cell, (_halfKey, gid, segIdx) => {
         const group = groupById.get(gid);
         if (!group) return;
-        if (halfKey === 'full') {
-          // Fast path: unsplit cell with no trimClip → plain rect fill.
-          if (!cell.trimClip || cell.trimClip.length < 3) {
-            drawHazeWash(ctx, group, cellX, cellY, cellPx);
-            return;
-          }
+        if (!isCellSplit(cell)) {
+          drawHazeWash(ctx, group, cellX, cellY, cellPx);
+          return;
         }
-        // Split or trim-clipped cell: clip to the half's polygon.
+        const seg = getSegments(cell)[segIdx];
+        if (!seg) return;
         ctx.save();
         ctx.beginPath();
-        const rule = halfClip(ctx, cell, halfKey, cellX, cellY, cellPx);
-        ctx.clip(rule);
+        traceSegment(ctx, seg, cellX, cellY, cellPx);
+        ctx.clip();
         drawHazeWash(ctx, group, cellX, cellY, cellPx);
         ctx.restore();
       });
@@ -467,18 +464,18 @@ export function renderWeatherParticles(
   const groups = metadata.weatherGroups;
   if (!groups || groups.length === 0) return;
 
-  // Group weather assignments by group id — per half, so split cells
+  // Group weather assignments by group id — per segment, so split cells
   // (diagonals, trims) can carry independent groups on each side.
   //
-  // `halvesByGroup` drives the clip path: every half-assignment contributes
-  // its polygon to the group's union. `cellsByGroup` is the deduplicated
-  // cell list handed to the shape-specific draw functions; they sample
-  // particles per cell and rely on the outer clip to confine them.
-  const halvesByGroup = new Map<string, Array<{ r: number; c: number; halfKey: CellHalfKey }>>();
+  // `segmentsByGroup` drives the clip path: every segment-assignment
+  // contributes its polygon to the group's union. `cellsByGroup` is the
+  // deduplicated cell list handed to the shape-specific draw functions; they
+  // sample particles per cell and rely on the outer clip to confine them.
+  const segmentsByGroup = new Map<string, Array<{ r: number; c: number; segIdx: number }>>();
   const cellsByGroup = new Map<string, Array<[number, number]>>();
   const cellSeenByGroup = new Map<string, Set<string>>();
   for (const g of groups) {
-    halvesByGroup.set(g.id, []);
+    segmentsByGroup.set(g.id, []);
     cellsByGroup.set(g.id, []);
     cellSeenByGroup.set(g.id, new Set());
   }
@@ -488,10 +485,10 @@ export function renderWeatherParticles(
     for (let c = 0; c < row.length; c++) {
       const cell = row[c];
       if (!cell) continue;
-      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
-        const halves = halvesByGroup.get(gid);
-        if (!halves) return;
-        halves.push({ r, c, halfKey });
+      forEachCellWeatherAssignment(cell, (_halfKey, gid, segIdx) => {
+        const list = segmentsByGroup.get(gid);
+        if (!list) return;
+        list.push({ r, c, segIdx });
         const seen = cellSeenByGroup.get(gid)!;
         const key = `${r},${c}`;
         if (!seen.has(key)) {
@@ -507,28 +504,29 @@ export function renderWeatherParticles(
   ctx.save();
   try {
     for (const group of groups) {
-      const halves = halvesByGroup.get(group.id);
+      const segs = segmentsByGroup.get(group.id);
       const list = cellsByGroup.get(group.id);
-      if (!halves || halves.length === 0 || !list || list.length === 0) continue;
+      if (!segs || segs.length === 0 || !list || list.length === 0) continue;
 
       ctx.save();
-      // Build a single clip path that unions every half this group owns.
-      // `halfClip` returns 'evenodd' for exterior halves (rect + trimClip
-      // hole); we upgrade the whole group's clip to even-odd if any
-      // contributor needs it — full/interior/diagonal halves don't overlap
-      // each other, so even-odd still renders them correctly.
+      // Build a single clip path that unions every segment this group owns.
+      // Trace each segment's polygon directly — no halfKey round-trip.
       ctx.beginPath();
-      let evenodd = false;
-      for (let i = 0; i < halves.length; i++) {
-        const h = halves[i]!;
-        const cell = cells[h.r]?.[h.c];
+      for (let i = 0; i < segs.length; i++) {
+        const s = segs[i]!;
+        const cell = cells[s.r]?.[s.c];
         if (!cell) continue;
-        const x = h.c * gridSize * transform.scale + transform.offsetX;
-        const y = h.r * gridSize * transform.scale + transform.offsetY;
-        const rule = halfClip(ctx, cell, h.halfKey, x, y, cellPx);
-        if (rule === 'evenodd') evenodd = true;
+        const x = s.c * gridSize * transform.scale + transform.offsetX;
+        const y = s.r * gridSize * transform.scale + transform.offsetY;
+        const cellSegs = getSegments(cell);
+        const seg = cellSegs[s.segIdx];
+        if (cellSegs.length === 1) {
+          ctx.rect(x, y, cellPx, cellPx);
+        } else if (seg) {
+          traceSegment(ctx, seg, x, y, cellPx);
+        }
       }
-      ctx.clip(evenodd ? 'evenodd' : 'nonzero');
+      ctx.clip('nonzero');
 
       const shape = TYPE_DEFAULTS[group.type].shape;
       if (shape === 'flake') {
@@ -822,7 +820,15 @@ function computeStrikeState(time: number, groupId: string, frequency: number): S
  * scene should only light up on the weather-exposed side of the wall.
  */
 function isStrikeEligibleCell(cell: Cell): boolean {
-  return !cell.north && !cell.south && !cell.east && !cell.west && !cell['nw-se'] && !cell['ne-sw'];
+  return (
+    !cell.north &&
+    !cell.south &&
+    !cell.east &&
+    !cell.west &&
+    !getEdge(cell, 'nw-se') &&
+    !getEdge(cell, 'ne-sw') &&
+    !cellHasChordEdge(cell)
+  );
 }
 
 /**

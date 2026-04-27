@@ -6,16 +6,20 @@
 import type { Cell, WeatherGroup, WeatherType } from '../../../types.js';
 import state, { markDirty, mutate, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
-import { activateTool } from './toolbar.js';
+import { activateTool, setToolbarDisabled } from './toolbar.js';
 import { getActiveRightPanel, setRightPanelChangeCallback } from './right-sidebar.js';
 import { markWeatherFullRebuild, hasActiveWeatherLightning } from '../../../render/index.js';
 import {
   cellHasGroup,
   getCellHalves,
   getCellWeatherHalf,
-  halfClip,
   forEachCellWeatherAssignment,
   setCellWeatherHalf,
+  isCellSplit,
+  cellHasChordEdge,
+  getSegments,
+  traceSegment,
+  getEdge,
 } from '../../../util/index.js';
 
 /** Auto-assigned color palette for weather groups. 8 distinguishable hues. */
@@ -125,7 +129,7 @@ function enterAssignMode(groupId: string): void {
   }
   state.selectedWeatherGroupId = groupId;
   state.showWeatherOverlay = true;
-  document.body.classList.add('weather-assign-active');
+  setToolbarDisabled('weather-assign', true);
   state.statusInstruction =
     'Assigning cells to weather group · Click to assign · Shift+click to flood fill · Right-click to remove · Esc to finish';
   activateTool('weather');
@@ -134,7 +138,7 @@ function enterAssignMode(groupId: string): void {
 function exitAssignMode(): void {
   if (state.selectedWeatherGroupId === null) return;
   state.selectedWeatherGroupId = null;
-  document.body.classList.remove('weather-assign-active');
+  setToolbarDisabled('weather-assign', false);
   state.statusInstruction = null;
   if (savedOverlayState !== null) state.showWeatherOverlay = savedOverlayState;
   savedOverlayState = null;
@@ -545,18 +549,20 @@ export function renderWeatherGroupOverlay(
       if (!cell) continue;
       const x = c * gridSize * transform.scale + transform.offsetX;
       const y = r * gridSize * transform.scale + transform.offsetY;
-      forEachCellWeatherAssignment(cell, (halfKey, gid) => {
+      forEachCellWeatherAssignment(cell, (_halfKey, gid, segIdx) => {
         const color = colorById.get(gid);
         if (!color) return;
-        if (halfKey === 'full' && (!cell.trimClip || cell.trimClip.length < 3)) {
+        if (!isCellSplit(cell)) {
           ctx.fillStyle = color;
           ctx.fillRect(x, y, cellPx, cellPx);
           return;
         }
+        const seg = getSegments(cell)[segIdx];
+        if (!seg) return;
         ctx.save();
         ctx.beginPath();
-        const rule = halfClip(ctx, cell, halfKey, x, y, cellPx);
-        ctx.clip(rule);
+        traceSegment(ctx, seg, x, y, cellPx);
+        ctx.clip();
         ctx.fillStyle = color;
         ctx.fillRect(x, y, cellPx, cellPx);
         ctx.restore();
@@ -587,10 +593,12 @@ export function renderWeatherGroupOverlay(
       const x = c * gridSize * transform.scale + transform.offsetX;
       const y = r * gridSize * transform.scale + transform.offsetY;
 
-      const halves = getCellHalves(cell);
-      const isSplit = halves.length === 2;
-      const g0 = isSplit ? getCellWeatherHalf(cell, halves[0]!) : undefined;
-      const g1 = isSplit ? getCellWeatherHalf(cell, halves[1]!) : undefined;
+      // Read segments directly — no halfKey round-trip. `g0`/`g1` are
+      // weatherGroupId on segments[0] / segments[1] when the cell is split.
+      const segs = getSegments(cell);
+      const isSplit = segs.length === 2;
+      const g0 = isSplit ? segs[0]?.weatherGroupId : undefined;
+      const g1 = isSplit ? segs[1]?.weatherGroupId : undefined;
       const uniform = !isSplit || (g0 !== undefined && g0 === g1);
 
       // Outer perimeter — only for cells where every half carries the same
@@ -620,7 +628,7 @@ export function renderWeatherGroupOverlay(
       // (including "assigned vs unassigned"). Traces the diagonal line or
       // the arc portion of trimClip.
       if (isSplit && g0 !== g1) {
-        const borderGid = g0 === selectedId ? g0 : g1 === selectedId ? g1 : g0 ?? g1;
+        const borderGid = g0 === selectedId ? g0 : g1 === selectedId ? g1 : (g0 ?? g1);
         if (borderGid) {
           const color = colorById.get(borderGid)!;
           ctx.strokeStyle = color;
@@ -645,26 +653,21 @@ function edge(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number,
  * the diagonal for nw-se / ne-sw cells, or the non-cell-rect edges of
  * `trimClip` (the arc or diagonal portion) for trim cells.
  */
-function strokeInternalBoundary(
-  ctx: CanvasRenderingContext2D,
-  cell: Cell,
-  x: number,
-  y: number,
-  cellPx: number,
-): void {
-  if (cell['nw-se']) {
+function strokeInternalBoundary(ctx: CanvasRenderingContext2D, cell: Cell, x: number, y: number, cellPx: number): void {
+  if (getEdge(cell, 'nw-se')) {
     edge(ctx, x, y, x + cellPx, y + cellPx);
     return;
   }
-  if (cell['ne-sw']) {
+  if (getEdge(cell, 'ne-sw')) {
     edge(ctx, x + cellPx, y, x, y + cellPx);
     return;
   }
-  if (cell.trimClip && cell.trimClip.length >= 3) {
-    // Stroke each polygon edge whose midpoint lies strictly inside the cell
-    // (filters out edges that coincide with the cell rect — we don't want
-    // to double-stroke cell-outer edges here).
-    const poly = cell.trimClip;
+  if (cellHasChordEdge(cell)) {
+    // Stroke each polygon edge of the interior segment whose midpoint lies
+    // strictly inside the cell (filters out edges that coincide with the
+    // cell rect — we don't want to double-stroke cell-outer edges here).
+    const poly = getSegments(cell)[0]?.polygon;
+    if (!poly) return;
     const EPS = 1e-3;
     ctx.beginPath();
     for (let i = 0; i < poly.length; i++) {
@@ -672,8 +675,7 @@ function strokeInternalBoundary(
       const b = poly[(i + 1) % poly.length]!;
       const midLx = (a[0]! + b[0]!) / 2;
       const midLy = (a[1]! + b[1]!) / 2;
-      const onRect =
-        midLx < EPS || midLx > 1 - EPS || midLy < EPS || midLy > 1 - EPS;
+      const onRect = midLx < EPS || midLx > 1 - EPS || midLy < EPS || midLy > 1 - EPS;
       if (onRect) continue;
       ctx.moveTo(x + a[0]! * cellPx, y + a[1]! * cellPx);
       ctx.lineTo(x + b[0]! * cellPx, y + b[1]! * cellPx);

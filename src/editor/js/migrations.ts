@@ -1,4 +1,4 @@
-import type { CellGrid } from '../../types.js';
+import type { LegacyCellGrid } from '../../util/migrate-segments.js';
 
 /** Loose dungeon JSON shape for migrations (fields may be absent in older formats). */
 interface MigrationJson {
@@ -11,7 +11,11 @@ interface MigrationJson {
     bridges?: unknown[];
     stairs?: unknown[];
   };
-  cells: CellGrid;
+  // Pre-migration cells carry the legacy field shape; the migrations pipe
+  // them through `migrateCellsToSegments` (run separately at load time) into
+  // canonical segment shape. Typed as LegacyCellGrid so the migration code
+  // can read `cell['nw-se']` / `cell.trimCorner` / `cell.trimArc*` etc.
+  cells: LegacyCellGrid;
   [key: string]: unknown;
 }
 // Format versioning and migration registry for .mapwright save files.
@@ -19,7 +23,7 @@ interface MigrationJson {
 import { migrateHalfTextures } from './io.js';
 import { computeCircleCenter, computeArcCellData, computeTrimCrossing } from '../../util/trim-geometry.js';
 
-export const CURRENT_FORMAT_VERSION = 4;
+export const CURRENT_FORMAT_VERSION = 5;
 
 // Migration registry: each entry upgrades from one version to the next.
 // Migrations are applied in sequence: 0→1, 1→2, etc.
@@ -32,6 +36,21 @@ const migrations = [
   { from: 2, to: 3, migrate: (json: MigrationJson) => migrateToHalfCell(json) },
   // v3 → v4: convert old arc trim format to per-cell trimClip/trimWall/trimPassable
   { from: 3, to: 4, migrate: (json: MigrationJson) => _migrateArcToPerCell(json.cells) },
+  // v4 → v5: cell partitioning — texture/diagonal-wall/trim-arc fields
+  // (`texture`, `textureSecondary`, `'nw-se'`, `'ne-sw'`, `trimClip`, etc.)
+  // collapse into authoritative `cell.segments` + `cell.interiorEdges`.
+  // The actual segment migration runs in `loadDungeonJSON` /
+  // `loadMap` via `migrateCellsToSegments` because it lives in `src/util/`
+  // and is reachable from both editor and CLI render paths. This entry is
+  // a marker so older builds opening a v5+ file fail loudly instead of
+  // silently rendering blank cells.
+  {
+    from: 4,
+    to: 5,
+    migrate: (_json: MigrationJson) => {
+      /* no-op — segments populated at load */
+    },
+  },
 ];
 
 /**
@@ -399,7 +418,7 @@ function migrateToHalfCell(json: MigrationJson) {
  * outer edges to the internal sub-cell boundary — placing the wall at the
  * midpoint of the original 5ft cell.
  */
-function _centerMidwallDoors(cells: CellGrid, numRows: number, numCols: number) {
+function _centerMidwallDoors(cells: LegacyCellGrid, numRows: number, numCols: number) {
   const isDoor = (v: string | null | undefined) => v === 'd' || v === 's';
 
   for (let r = 0; r < numRows; r += 2) {
@@ -453,7 +472,7 @@ function _centerMidwallDoors(cells: CellGrid, numRows: number, numCols: number) 
   }
 }
 
-function _fixArcTrims(cells: CellGrid) {
+function _fixArcTrims(cells: LegacyCellGrid) {
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
 
@@ -602,7 +621,7 @@ function _fixArcTrims(cells: CellGrid) {
  * Safe to run multiple times (idempotent) and on maps created at half-cell
  * resolution (no-op since those maps have correct per-cell trim flags).
  */
-function _repairArcFloodBoundary(cells: CellGrid) {
+function _repairArcFloodBoundary(cells: LegacyCellGrid) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
@@ -677,6 +696,7 @@ function _repairArcFloodBoundary(cells: CellGrid) {
 
       if (isInside) {
         // Legacy property removed in format v4+
+        // eslint-disable-next-line no-restricted-syntax
         (neighbor as Record<string, unknown>).fogBoundary = true;
         repaired++;
       }
@@ -723,7 +743,7 @@ function _inTrimZone(r: number, c: number, cornerRow: number, cornerCol: number,
  * to new per-cell format (trimClip, trimWall, trimPassable).
  * Also cleans up fogBoundary markers and stale trimInsideArc from earlier migrations.
  */
-function _migrateArcToPerCell(cells: CellGrid) {
+function _migrateArcToPerCell(cells: LegacyCellGrid) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
@@ -782,6 +802,7 @@ function _migrateArcToPerCell(cells: CellGrid) {
           delete cell['ne-sw'];
           delete cell['nw-se'];
           // Legacy property removed in format v4+
+          // eslint-disable-next-line no-restricted-syntax
           delete (cell as Record<string, unknown>).fogBoundary;
 
           if (data) {
@@ -807,12 +828,14 @@ function _migrateArcToPerCell(cells: CellGrid) {
           delete cell.trimArcRadius;
           delete cell.trimArcInverted;
           // Legacy property removed in format v4+
+          // eslint-disable-next-line no-restricted-syntax
           delete (cell as Record<string, unknown>).fogBoundary;
           converted++;
         } else if ((cell as Record<string, unknown>).fogBoundary) {
           // fogBoundary marker from earlier migration: check if arc passes through
           const data = computeArcCellData(r, c, cx, cy, R, arc.corner, arc.inverted);
           // Legacy property removed in format v4+
+          // eslint-disable-next-line no-restricted-syntax
           delete (cell as Record<string, unknown>).fogBoundary;
           if (data) {
             cell.trimCorner = arc.corner;
@@ -884,7 +907,7 @@ function _migrateArcToPerCell(cells: CellGrid) {
  * Repair: add trimCrossing to arc cells from intermediate code versions
  * that stored trimWall/trimClip but not trimCrossing.
  */
-function _repairMissingCrossing(cells: CellGrid) {
+function _repairMissingCrossing(cells: LegacyCellGrid) {
   let repaired = 0;
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length ?? 0); c++) {

@@ -1,5 +1,6 @@
 import type {
   CardinalDirection,
+  Cell,
   CellGrid,
   RenderTransform,
   TextureCatalog,
@@ -75,7 +76,54 @@ interface BlendTopoCacheState {
   edges: BlendEdge[] | null;
   corners: BlendCorner[] | null;
 }
-import { CARDINAL_DIRS, OPPOSITE, isEdgeOpen, log } from '../util/index.js';
+import {
+  CARDINAL_DIRS,
+  OPPOSITE,
+  isEdgeOpen,
+  getSegments,
+  segmentIndexOnBorder,
+  segmentIndexAtCorner,
+  cellHasChordEdge,
+  log,
+} from '../util/index.js';
+
+type CornerKey = 'nw' | 'ne' | 'sw' | 'se';
+
+/**
+ * Read the texture of the segment that borders the given cardinal side of
+ * the cell. For unsplit cells this is the cell's only texture; for diagonal
+ * cells it picks the half that actually faces that side, so a diagonal
+ * wall doesn't bleed the opposite half's texture across to the neighbor.
+ */
+function cellTextureOnSide(cell: Cell | null | undefined, side: CardinalDirection): string | undefined {
+  if (!cell) return undefined;
+  return getSegments(cell)[segmentIndexOnBorder(cell, side)]?.texture;
+}
+
+function cellTextureOpacityOnSide(cell: Cell | null | undefined, side: CardinalDirection): number | undefined {
+  if (!cell) return undefined;
+  return getSegments(cell)[segmentIndexOnBorder(cell, side)]?.textureOpacity;
+}
+
+/**
+ * Read the texture of the segment containing the given corner of the cell.
+ * Returns `undefined` when the corner sits on an interior wall (between two
+ * segments — e.g. the endpoints of a diagonal wall) so the caller skips
+ * the corner blend rather than picking an arbitrary half.
+ */
+function cellTextureAtCorner(cell: Cell | null | undefined, corner: CornerKey): string | undefined {
+  if (!cell) return undefined;
+  const idx = segmentIndexAtCorner(cell, corner);
+  if (idx === null) return undefined;
+  return getSegments(cell)[idx]?.texture;
+}
+
+function cellTextureOpacityAtCorner(cell: Cell | null | undefined, corner: CornerKey): number | undefined {
+  if (!cell) return undefined;
+  const idx = segmentIndexAtCorner(cell, corner);
+  if (idx === null) return undefined;
+  return getSegments(cell)[idx]?.textureOpacity;
+}
 
 // ── Texture blend topology cache ──────────────────────────────────────────────
 // Pre-computes edge/corner blend descriptors and world-space Path2D clip polygons.
@@ -633,14 +681,66 @@ const CORNER_DIRS: readonly {
   dc1: number;
   dr2: number;
   dc2: number;
-  corner: string;
+  corner: CornerKey;
   dir1: CardinalDirection;
   dir2: CardinalDirection;
+  // The corner of each participating neighbor that meets `corner` of the
+  // current cell. n1Corner is on the dir1 neighbor, n2Corner on the dir2
+  // neighbor, diagCorner on the diagonal-across cell. Used so segment-aware
+  // texture lookups query the half of each neighbor that actually faces
+  // this corner.
+  n1Corner: CornerKey;
+  n2Corner: CornerKey;
+  diagCorner: CornerKey;
 }[] = [
-  { dr1: -1, dc1: 0, dr2: 0, dc2: -1, corner: 'nw', dir1: 'north', dir2: 'west' },
-  { dr1: -1, dc1: 0, dr2: 0, dc2: 1, corner: 'ne', dir1: 'north', dir2: 'east' },
-  { dr1: 1, dc1: 0, dr2: 0, dc2: -1, corner: 'sw', dir1: 'south', dir2: 'west' },
-  { dr1: 1, dc1: 0, dr2: 0, dc2: 1, corner: 'se', dir1: 'south', dir2: 'east' },
+  {
+    dr1: -1,
+    dc1: 0,
+    dr2: 0,
+    dc2: -1,
+    corner: 'nw',
+    dir1: 'north',
+    dir2: 'west',
+    n1Corner: 'sw',
+    n2Corner: 'ne',
+    diagCorner: 'se',
+  },
+  {
+    dr1: -1,
+    dc1: 0,
+    dr2: 0,
+    dc2: 1,
+    corner: 'ne',
+    dir1: 'north',
+    dir2: 'east',
+    n1Corner: 'se',
+    n2Corner: 'nw',
+    diagCorner: 'sw',
+  },
+  {
+    dr1: 1,
+    dc1: 0,
+    dr2: 0,
+    dc2: -1,
+    corner: 'sw',
+    dir1: 'south',
+    dir2: 'west',
+    n1Corner: 'nw',
+    n2Corner: 'se',
+    diagCorner: 'ne',
+  },
+  {
+    dr1: 1,
+    dc1: 0,
+    dr2: 0,
+    dc2: 1,
+    corner: 'se',
+    dir1: 'south',
+    dir2: 'east',
+    n1Corner: 'ne',
+    n2Corner: 'sw',
+    diagCorner: 'nw',
+  },
 ];
 
 function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions) {
@@ -656,21 +756,29 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row]![col]) continue;
-      if (cell.trimClip) continue; // no blending on trimmed cells
+      if (!cell || !roomCells[row]![col]) continue;
+      if (cellHasChordEdge(cell)) continue; // no blending on trimmed cells
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
         const nr = row + dr,
           nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.texture || !roomCells[nr]![nc]) continue;
-        if (neighbor.trimClip) continue;
-        if (neighbor.texture === cell.texture) continue;
+        if (!neighbor || !roomCells[nr]![nc]) continue;
+        if (cellHasChordEdge(neighbor)) continue;
+        // Pick the texture of whichever segment actually faces this edge —
+        // for a diagonally-walled cell the two halves border different
+        // cardinal sides, so the cell's "primary" texture is wrong on the
+        // sides that belong to the other half.
+        const cellTex = cellTextureOnSide(cell, dir);
+        if (!cellTex) continue;
+        const neighborTex = cellTextureOnSide(neighbor, OPPOSITE[dir]);
+        if (!neighborTex) continue;
+        if (neighborTex === cellTex) continue;
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
-        const currentEntry = catalog.textures[cell.texture];
-        const neighborEntry = catalog.textures[neighbor.texture];
+        const currentEntry = catalog.textures[cellTex];
+        const neighborEntry = catalog.textures[neighborTex];
         if (!currentEntry || !neighborEntry) continue;
         if (!neighborEntry.img.complete || !neighborEntry.img.naturalWidth) continue;
 
@@ -722,7 +830,7 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
           col,
           direction: dir,
           neighborEntry,
-          neighborOpacity: neighbor.textureOpacity ?? 1.0,
+          neighborOpacity: cellTextureOpacityOnSide(neighbor, OPPOSITE[dir]) ?? 1.0,
           srcX,
           srcY,
           srcW,
@@ -738,45 +846,57 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row]![col]) continue;
-      if (cell.trimClip) continue; // no blending on trimmed cells
-      const currentEntry = catalog.textures[cell.texture];
-      if (!currentEntry) continue;
-      const curH = computeBaseHeight(currentEntry);
+      if (!cell || !roomCells[row]![col]) continue;
+      if (cellHasChordEdge(cell)) continue; // no blending on trimmed cells
 
-      for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {
+      for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2, n1Corner, n2Corner, diagCorner } of CORNER_DIRS) {
+        // The current cell's texture at *this* corner. Skipped (undefined)
+        // when the corner sits on a diagonal wall — both halves meet there
+        // and we can't pick a non-arbitrary side.
+        const cellTex = cellTextureAtCorner(cell, corner);
+        if (!cellTex) continue;
+        const currentEntry = catalog.textures[cellTex];
+        if (!currentEntry) continue;
+        const curH = computeBaseHeight(currentEntry);
+
         const n1r = row + dr1,
           n1c = col + dc1;
         const n2r = row + dr2,
           n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
-        if (n1Cell?.trimClip) continue; // no blending from trimmed cells
-        if (n2Cell?.trimClip) continue;
+        if (cellHasChordEdge(n1Cell)) continue; // no blending from trimmed cells
+        if (cellHasChordEdge(n2Cell)) continue;
         if (!isEdgeOpen(cell, n1Cell ?? null, dir1) || !isEdgeOpen(cell, n2Cell ?? null, dir2)) continue;
         const diagR = row + dr1 + dr2;
         const diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
         const diagCell = cells[diagR]?.[diagC];
-        if (!diagCell?.texture) continue;
-        if (diagCell.trimClip) continue; // no blending from trimmed cells
+        if (!diagCell) continue;
+        if (cellHasChordEdge(diagCell)) continue; // no blending from trimmed cells
+        // Each neighbor's texture is read at the corner of *that* cell which
+        // meets our corner — same segment-aware reasoning as the cell side.
+        const diagTex = cellTextureAtCorner(diagCell, diagCorner);
+        if (!diagTex) continue;
 
         let softTexture, softSampleR, softSampleC, softOpacity;
-        if (diagCell.texture === cell.texture) {
-          if (!n1Cell?.texture || !n2Cell?.texture) continue;
-          if (n1Cell.texture === cell.texture || n2Cell.texture === cell.texture) continue;
-          if (n1Cell.texture !== n2Cell.texture) continue;
+        if (diagTex === cellTex) {
+          const n1Tex = cellTextureAtCorner(n1Cell, n1Corner);
+          const n2Tex = cellTextureAtCorner(n2Cell, n2Corner);
+          if (!n1Tex || !n2Tex) continue;
+          if (n1Tex === cellTex || n2Tex === cellTex) continue;
+          if (n1Tex !== n2Tex) continue;
           if (!roomCells[n1r]?.[n1c] || !roomCells[n2r]?.[n2c]) continue;
-          softTexture = n1Cell.texture;
+          softTexture = n1Tex;
           softSampleR = n1r;
           softSampleC = n1c;
-          softOpacity = n1Cell.textureOpacity ?? 1.0;
+          softOpacity = cellTextureOpacityAtCorner(n1Cell, n1Corner) ?? 1.0;
         } else {
           if (!roomCells[diagR]?.[diagC]) continue;
-          softTexture = diagCell.texture;
+          softTexture = diagTex;
           softSampleR = diagR;
           softSampleC = diagC;
-          softOpacity = diagCell.textureOpacity ?? 1.0;
+          softOpacity = cellTextureOpacityAtCorner(diagCell, diagCorner) ?? 1.0;
         }
 
         const adjEntry = catalog.textures[softTexture];
@@ -1091,21 +1211,25 @@ function _buildBlendTopologyForRegion(
   for (let row = minR; row <= maxR; row++) {
     for (let col = minC; col <= maxC; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row]?.[col]) continue;
-      if (cell.trimClip) continue;
+      if (!cell || !roomCells[row]?.[col]) continue;
+      if (cellHasChordEdge(cell)) continue;
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
         const nr = row + dr,
           nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.texture || !roomCells[nr]?.[nc]) continue;
-        if (neighbor.trimClip) continue;
-        if (neighbor.texture === cell.texture) continue;
+        if (!neighbor || !roomCells[nr]?.[nc]) continue;
+        if (cellHasChordEdge(neighbor)) continue;
+        const cellTex = cellTextureOnSide(cell, dir);
+        if (!cellTex) continue;
+        const neighborTex = cellTextureOnSide(neighbor, OPPOSITE[dir]);
+        if (!neighborTex) continue;
+        if (neighborTex === cellTex) continue;
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
-        const currentEntry = catalog.textures[cell.texture];
-        const neighborEntry = catalog.textures[neighbor.texture];
+        const currentEntry = catalog.textures[cellTex];
+        const neighborEntry = catalog.textures[neighborTex];
         if (!currentEntry || !neighborEntry) continue;
         if (!neighborEntry.img.complete || !neighborEntry.img.naturalWidth) continue;
 
@@ -1154,7 +1278,7 @@ function _buildBlendTopologyForRegion(
           col,
           direction: dir,
           neighborEntry,
-          neighborOpacity: neighbor.textureOpacity ?? 1.0,
+          neighborOpacity: cellTextureOpacityOnSide(neighbor, OPPOSITE[dir]) ?? 1.0,
           srcX,
           srcY,
           srcW,
@@ -1170,45 +1294,52 @@ function _buildBlendTopologyForRegion(
   for (let row = minR; row <= maxR; row++) {
     for (let col = minC; col <= maxC; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row]?.[col]) continue;
-      if (cell.trimClip) continue;
-      const currentEntry = catalog.textures[cell.texture];
-      if (!currentEntry) continue;
-      const curH = computeBaseHeight(currentEntry);
+      if (!cell || !roomCells[row]?.[col]) continue;
+      if (cellHasChordEdge(cell)) continue;
 
-      for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {
+      for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2, n1Corner, n2Corner, diagCorner } of CORNER_DIRS) {
+        const cellTex = cellTextureAtCorner(cell, corner);
+        if (!cellTex) continue;
+        const currentEntry = catalog.textures[cellTex];
+        if (!currentEntry) continue;
+        const curH = computeBaseHeight(currentEntry);
+
         const n1r = row + dr1,
           n1c = col + dc1;
         const n2r = row + dr2,
           n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
-        if (n1Cell?.trimClip) continue;
-        if (n2Cell?.trimClip) continue;
+        if (cellHasChordEdge(n1Cell)) continue;
+        if (cellHasChordEdge(n2Cell)) continue;
         if (!isEdgeOpen(cell, n1Cell ?? null, dir1) || !isEdgeOpen(cell, n2Cell ?? null, dir2)) continue;
         const diagR = row + dr1 + dr2,
           diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
         const diagCell = cells[diagR]?.[diagC];
-        if (!diagCell?.texture) continue;
-        if (diagCell.trimClip) continue;
+        if (!diagCell) continue;
+        if (cellHasChordEdge(diagCell)) continue;
+        const diagTex = cellTextureAtCorner(diagCell, diagCorner);
+        if (!diagTex) continue;
 
         let softTexture, softSampleR, softSampleC, softOpacity;
-        if (diagCell.texture === cell.texture) {
-          if (!n1Cell?.texture || !n2Cell?.texture) continue;
-          if (n1Cell.texture === cell.texture || n2Cell.texture === cell.texture) continue;
-          if (n1Cell.texture !== n2Cell.texture) continue;
+        if (diagTex === cellTex) {
+          const n1Tex = cellTextureAtCorner(n1Cell, n1Corner);
+          const n2Tex = cellTextureAtCorner(n2Cell, n2Corner);
+          if (!n1Tex || !n2Tex) continue;
+          if (n1Tex === cellTex || n2Tex === cellTex) continue;
+          if (n1Tex !== n2Tex) continue;
           if (!roomCells[n1r]?.[n1c] || !roomCells[n2r]?.[n2c]) continue;
-          softTexture = n1Cell.texture;
+          softTexture = n1Tex;
           softSampleR = n1r;
           softSampleC = n1c;
-          softOpacity = n1Cell.textureOpacity ?? 1.0;
+          softOpacity = cellTextureOpacityAtCorner(n1Cell, n1Corner) ?? 1.0;
         } else {
           if (!roomCells[diagR]?.[diagC]) continue;
-          softTexture = diagCell.texture;
+          softTexture = diagTex;
           softSampleR = diagR;
           softSampleC = diagC;
-          softOpacity = diagCell.textureOpacity ?? 1.0;
+          softOpacity = cellTextureOpacityAtCorner(diagCell, diagCorner) ?? 1.0;
         }
 
         const adjEntry = catalog.textures[softTexture];

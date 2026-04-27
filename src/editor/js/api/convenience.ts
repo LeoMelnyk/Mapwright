@@ -1,7 +1,7 @@
 // convenience.js — High-level convenience methods: mergeRooms, shiftCells,
 // normalizeMargin, createCorridor, setDoorBetween, placeLightInRoom.
 
-import type { PlaceLightConfig } from '../../../types.js';
+import type { CardinalDirection, PlaceLightConfig } from '../../../types.js';
 import {
   getApi,
   state,
@@ -13,6 +13,7 @@ import {
   toInt,
   withRollback,
   ApiValidationError,
+  deleteEdge,
 } from './_shared.js';
 
 // ── Convenience ───────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
           iCol = toInt(col);
         const cell = state.dungeon.cells[iRow]?.[iCol];
         if (!cell) continue;
-        delete (cell as Record<string, unknown>)[direction];
+        deleteEdge(cell, direction as CardinalDirection);
         setReciprocal(iRow, iCol, direction, null);
       }
     },

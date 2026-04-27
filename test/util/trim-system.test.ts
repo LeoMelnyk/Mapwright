@@ -11,10 +11,6 @@ import {
   computeTrimCrossing,
   computeArcCellData,
 } from '../../src/util/trim-geometry.js';
-import {
-  floodFillRoom,
-  cellKey,
-} from '../../src/util/grid.js';
 // Tests use computeTrimCells directly to avoid editor API initialization issues
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -50,10 +46,22 @@ function makeRoomWithRoundCorners(cells, r1, c1, r2, c2, trimSize, options = {})
     for (let i = 0; i < size; i++) {
       let hr, hc;
       switch (corner) {
-        case 'se': hr = tipR - (size-1) + i; hc = tipC - i; break;
-        case 'nw': hr = tipR + (size-1) - i; hc = tipC + i; break;
-        case 'ne': hr = tipR + (size-1) - i; hc = tipC - i; break;
-        case 'sw': hr = tipR - (size-1) + i; hc = tipC + i; break;
+        case 'se':
+          hr = tipR - (size - 1) + i;
+          hc = tipC - i;
+          break;
+        case 'nw':
+          hr = tipR + (size - 1) - i;
+          hc = tipC + i;
+          break;
+        case 'ne':
+          hr = tipR + (size - 1) - i;
+          hc = tipC - i;
+          break;
+        case 'sw':
+          hr = tipR - (size - 1) + i;
+          hc = tipC + i;
+          break;
       }
       hypotenuse.push({ row: hr, col: hc });
     }
@@ -61,10 +69,22 @@ function makeRoomWithRoundCorners(cells, r1, c1, r2, c2, trimSize, options = {})
       for (let j = 0; j < i; j++) {
         let vr, vc;
         switch (corner) {
-          case 'se': vr = tipR - (size-1) + i; vc = tipC - i + 1 + j; break;
-          case 'nw': vr = tipR + (size-1) - i; vc = tipC + j; break;
-          case 'ne': vr = tipR + (size-1) - i; vc = tipC - i + 1 + j; break;
-          case 'sw': vr = tipR - (size-1) + i; vc = tipC + j; break;
+          case 'se':
+            vr = tipR - (size - 1) + i;
+            vc = tipC - i + 1 + j;
+            break;
+          case 'nw':
+            vr = tipR + (size - 1) - i;
+            vc = tipC + j;
+            break;
+          case 'ne':
+            vr = tipR + (size - 1) - i;
+            vc = tipC - i + 1 + j;
+            break;
+          case 'sw':
+            vr = tipR - (size - 1) + i;
+            vc = tipC + j;
+            break;
         }
         voided.push({ row: vr, col: vc });
       }
@@ -72,10 +92,18 @@ function makeRoomWithRoundCorners(cells, r1, c1, r2, c2, trimSize, options = {})
 
     let arcCenter;
     switch (corner) {
-      case 'nw': arcCenter = { row: Math.min(tipR, extR), col: Math.min(tipC, extC) }; break;
-      case 'ne': arcCenter = { row: Math.min(tipR, extR), col: Math.max(tipC, extC) + 1 }; break;
-      case 'sw': arcCenter = { row: Math.max(tipR, extR) + 1, col: Math.min(tipC, extC) }; break;
-      case 'se': arcCenter = { row: Math.max(tipR, extR) + 1, col: Math.max(tipC, extC) + 1 }; break;
+      case 'nw':
+        arcCenter = { row: Math.min(tipR, extR), col: Math.min(tipC, extC) };
+        break;
+      case 'ne':
+        arcCenter = { row: Math.min(tipR, extR), col: Math.max(tipC, extC) + 1 };
+        break;
+      case 'sw':
+        arcCenter = { row: Math.max(tipR, extR) + 1, col: Math.min(tipC, extC) };
+        break;
+      case 'se':
+        arcCenter = { row: Math.max(tipR, extR) + 1, col: Math.max(tipC, extC) + 1 };
+        break;
     }
 
     const preview = { hypotenuse, voided, insideArc: [], arcCenter, size };
@@ -103,19 +131,39 @@ function makeRoomWithRoundCorners(cells, r1, c1, r2, c2, trimSize, options = {})
 describe('computeTrimCrossing', () => {
   it('wall endpoints on different edges create two sides', () => {
     // Wall from west edge to south edge — splits NW from SE
-    const clip = [[1,0],[1,1],[0,1],[0,0.5],[0.5,1]]; // SE half
-    const wall = [[0,0.5],[0.25,0.75],[0.5,1]];
+    const clip = [
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0.5],
+      [0.5, 1],
+    ]; // SE half
+    const wall = [
+      [0, 0.5],
+      [0.25, 0.75],
+      [0.5, 1],
+    ];
     const c = computeTrimCrossing(clip, wall);
     // All entries should have string values
-    for (const d of ['n','s','e','w']) {
+    for (const d of ['n', 's', 'e', 'w']) {
       expect(typeof c[d]).toBe('string');
     }
   });
 
   it('blocks crossing for a diagonal-like clip (NW void)', () => {
     // Clip covering SE half — NW is void. Wall from west to north.
-    const clip = [[1,0],[1,1],[0,1],[0,0.5],[0.5,0]];
-    const wall = [[0,0.5],[0.25,0.25],[0.5,0]];
+    const clip = [
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0.5],
+      [0.5, 0],
+    ];
+    const wall = [
+      [0, 0.5],
+      [0.25, 0.25],
+      [0.5, 0],
+    ];
     const c = computeTrimCrossing(clip, wall);
     // South entry should NOT reach north
     expect(c.s).not.toContain('n');
@@ -129,8 +177,19 @@ describe('computeTrimCrossing', () => {
   it('void-side entries cannot reach room-side exits', () => {
     // Clip covering SE half — NW corner is void
     // Wall from north edge to west edge
-    const clip = [[0.7,0],[1,0],[1,1],[0,1],[0,0.7],[0.35,0.35]];
-    const wall = [[0,0.7],[0.35,0.35],[0.7,0]];
+    const clip = [
+      [0.7, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0.7],
+      [0.35, 0.35],
+    ];
+    const wall = [
+      [0, 0.7],
+      [0.35, 0.35],
+      [0.7, 0],
+    ];
     const c = computeTrimCrossing(clip, wall);
     // South entry (room side) should reach south+east
     expect(c.s).toContain('s');
@@ -143,11 +202,22 @@ describe('computeTrimCrossing', () => {
 
   it('handles null/undefined/empty inputs without crashing', () => {
     // Null clip → empty (no clip polygon to test)
-    const r1 = computeTrimCrossing(null, [[0,0],[1,0]]);
+    const r1 = computeTrimCrossing(null, [
+      [0, 0],
+      [1, 0],
+    ]);
     expect(r1).toHaveProperty('n');
     // Null wall → all-reachable (no wall to split the cell)
-    const r2 = computeTrimCrossing([[0,0],[1,0],[1,1],[0,1]], null);
-    for (const d of ['n','s','e','w']) expect(typeof r2[d]).toBe('string');
+    const r2 = computeTrimCrossing(
+      [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+      ],
+      null,
+    );
+    for (const d of ['n', 's', 'e', 'w']) expect(typeof r2[d]).toBe('string');
     // Both null
     const r3 = computeTrimCrossing(null, null);
     expect(r3).toHaveProperty('n');
@@ -156,8 +226,20 @@ describe('computeTrimCrossing', () => {
   it('falls back to arc-endpoint grouping for corner-clip cells', () => {
     // A clip that covers almost the entire cell except a tiny NE corner
     // Wall from near-top of east edge to near-right of north edge
-    const clip = [[0.9,0],[1,0],[1,1],[0,1],[0,0],[0.8,0],[0.85,0.05]];
-    const wall = [[0,0.1],[0.05,0.05],[0.1,0]]; // tiny corner clip
+    const clip = [
+      [0.9, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0],
+      [0.8, 0],
+      [0.85, 0.05],
+    ];
+    const wall = [
+      [0, 0.1],
+      [0.05, 0.05],
+      [0.1, 0],
+    ]; // tiny corner clip
     const c = computeTrimCrossing(clip, wall);
     // The arc endpoints are on north and west edges
     // The fallback groups n+w separately from s+e
@@ -167,62 +249,29 @@ describe('computeTrimCrossing', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 2. Closed trim BFS — floodFillRoom blocks at arc walls
-// ═══════════════════════════════════════════════════════════════════════════
-
-describe('floodFillRoom with closed round trims', () => {
-  it('inside fill does not reach voided corner cells', () => {
-    const cells = Array.from({ length: 20 }, () => Array(20).fill(null));
-    makeRoomWithRoundCorners(cells, 2, 2, 17, 17, 4);
-
-    const insideFill = floodFillRoom(cells, 9, 9);
-    let foundVoided = false;
-    for (let r = 2; r <= 5; r++) {
-      for (let c = 2; c <= 5; c++) {
-        if (cells[r][c] === null) {
-          expect(insideFill.has(cellKey(r, c))).toBe(false);
-          foundVoided = true;
-        }
-      }
-    }
-    expect(foundVoided).toBe(true);
-  });
-
-  it('inside fill contains the center cell', () => {
-    const cells = Array.from({ length: 20 }, () => Array(20).fill(null));
-    makeRoomWithRoundCorners(cells, 2, 2, 17, 17, 4);
-
-    const insideFill = floodFillRoom(cells, 9, 9);
-    expect(insideFill.has(cellKey(9, 9))).toBe(true);
-    expect(insideFill.size).toBeGreaterThan(1);
-  });
-
-  it('arc boundary cells are included in inside fill', () => {
-    const cells = Array.from({ length: 20 }, () => Array(20).fill(null));
-    makeRoomWithRoundCorners(cells, 2, 2, 17, 17, 4);
-
-    const insideFill = floodFillRoom(cells, 9, 9);
-    // At least some arc cells should be in the inside fill
-    let arcInFill = 0;
-    for (let r = 0; r < cells.length; r++)
-      for (let c = 0; c < (cells[r]?.length || 0); c++)
-        if (cells[r]?.[c]?.trimWall && insideFill.has(cellKey(r, c))) arcInFill++;
-    expect(arcInFill).toBeGreaterThan(0);
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 3. Inverted trim geometry — void extends beyond triangle
+// 2. Inverted trim geometry — void extends beyond triangle
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('inverted trim geometry', () => {
   it('voids cells inside the arc circle for closed inverted trims', () => {
     const preview = {
-      hypotenuse: [{ row: 7, col: 2 }, { row: 6, col: 3 }, { row: 5, col: 4 }, { row: 4, col: 5 }, { row: 3, col: 6 }],
+      hypotenuse: [
+        { row: 7, col: 2 },
+        { row: 6, col: 3 },
+        { row: 5, col: 4 },
+        { row: 4, col: 5 },
+        { row: 3, col: 6 },
+      ],
       voided: [
-        { row: 3, col: 2 }, { row: 3, col: 3 }, { row: 3, col: 4 }, { row: 3, col: 5 },
-        { row: 4, col: 2 }, { row: 4, col: 3 }, { row: 4, col: 4 },
-        { row: 5, col: 2 }, { row: 5, col: 3 },
+        { row: 3, col: 2 },
+        { row: 3, col: 3 },
+        { row: 3, col: 4 },
+        { row: 3, col: 5 },
+        { row: 4, col: 2 },
+        { row: 4, col: 3 },
+        { row: 4, col: 4 },
+        { row: 5, col: 2 },
+        { row: 5, col: 3 },
         { row: 6, col: 2 },
       ],
       insideArc: [],
@@ -244,16 +293,26 @@ describe('inverted trim geometry', () => {
     const extraVoided = [...result.entries()].filter(([key, val]) => {
       if (val !== null) return false;
       const [r, c] = key.split(',').map(Number);
-      return !preview.voided.some(v => v.row === r && v.col === c)
-        && !preview.hypotenuse.some(h => h.row === r && h.col === c);
+      return (
+        !preview.voided.some((v) => v.row === r && v.col === c) &&
+        !preview.hypotenuse.some((h) => h.row === r && h.col === c)
+      );
     });
     expect(extraVoided.length).toBeGreaterThan(0);
   });
 
   it('keeps cells as interior for open inverted trims', () => {
     const preview = {
-      hypotenuse: [{ row: 5, col: 2 }, { row: 4, col: 3 }, { row: 3, col: 4 }],
-      voided: [{ row: 3, col: 2 }, { row: 3, col: 3 }, { row: 4, col: 2 }],
+      hypotenuse: [
+        { row: 5, col: 2 },
+        { row: 4, col: 3 },
+        { row: 3, col: 4 },
+      ],
+      voided: [
+        { row: 3, col: 2 },
+        { row: 3, col: 3 },
+        { row: 4, col: 2 },
+      ],
       insideArc: [],
       arcCenter: { row: 3, col: 2 },
       size: 3,
@@ -268,8 +327,16 @@ describe('inverted trim geometry', () => {
 
   it('produces arc boundary cells with trimInverted flag', () => {
     const preview = {
-      hypotenuse: [{ row: 5, col: 2 }, { row: 4, col: 3 }, { row: 3, col: 4 }],
-      voided: [{ row: 3, col: 2 }, { row: 3, col: 3 }, { row: 4, col: 2 }],
+      hypotenuse: [
+        { row: 5, col: 2 },
+        { row: 4, col: 3 },
+        { row: 3, col: 4 },
+      ],
+      voided: [
+        { row: 3, col: 2 },
+        { row: 3, col: 3 },
+        { row: 4, col: 2 },
+      ],
       insideArc: [],
       arcCenter: { row: 3, col: 2 },
       size: 3,
@@ -303,7 +370,7 @@ describe('trim cell properties (via computeTrimCells)', () => {
           expect(cell.trimWall.length).toBeGreaterThanOrEqual(3);
           expect(cell.trimClip).toBeDefined();
           expect(cell.trimCrossing).toBeDefined();
-          expect(['nw','ne','sw','se']).toContain(cell.trimCorner);
+          expect(['nw', 'ne', 'sw', 'se']).toContain(cell.trimCorner);
           // No old-format properties
           expect(cell.trimRound).toBeUndefined();
           expect(cell.trimArcCenterRow).toBeUndefined();
@@ -318,7 +385,8 @@ describe('trim cell properties (via computeTrimCells)', () => {
     const cells = Array.from({ length: 20 }, () => Array(20).fill(null));
     makeRoomWithRoundCorners(cells, 2, 2, 17, 17, 3, { open: true });
 
-    let openCount = 0, nullInRoom = 0;
+    let openCount = 0,
+      nullInRoom = 0;
     for (let r = 2; r <= 17; r++) {
       for (let c = 2; c <= 17; c++) {
         if (cells[r][c]?.trimOpen) openCount++;
@@ -334,9 +402,7 @@ describe('trim cell properties (via computeTrimCells)', () => {
     makeRoomWithRoundCorners(cells, 2, 2, 17, 17, 5);
 
     let nullCount = 0;
-    for (let r = 2; r <= 6; r++)
-      for (let c = 2; c <= 6; c++)
-        if (cells[r][c] === null) nullCount++;
+    for (let r = 2; r <= 6; r++) for (let c = 2; c <= 6; c++) if (cells[r][c] === null) nullCount++;
     expect(nullCount).toBeGreaterThan(0);
   });
 
@@ -346,8 +412,7 @@ describe('trim cell properties (via computeTrimCells)', () => {
 
     let invertedCount = 0;
     for (let r = 0; r < cells.length; r++)
-      for (let c = 0; c < (cells[r]?.length || 0); c++)
-        if (cells[r]?.[c]?.trimInverted) invertedCount++;
+      for (let c = 0; c < (cells[r]?.length || 0); c++) if (cells[r]?.[c]?.trimInverted) invertedCount++;
     expect(invertedCount).toBeGreaterThan(0);
   });
 
@@ -381,7 +446,15 @@ describe('migration: old arc format to new per-cell format', () => {
     const { cx, cy } = computeCircleCenter(2, 2, 5, 'nw', false);
     // Try cells along the expected arc path
     let data = null;
-    for (const [r, c] of [[4, 2], [3, 3], [2, 4], [5, 2], [2, 5], [6, 2], [2, 6]]) {
+    for (const [r, c] of [
+      [4, 2],
+      [3, 3],
+      [2, 4],
+      [5, 2],
+      [2, 5],
+      [6, 2],
+      [2, 6],
+    ]) {
       data = computeArcCellData(r, c, cx, cy, 5, 'nw', false);
       if (data) break;
     }
@@ -437,8 +510,7 @@ describe('migration: old arc format to new per-cell format', () => {
     const cornerArc = { nw: 0, ne: 0, sw: 0, se: 0 };
     for (let r = 0; r < 20; r++)
       for (let c = 0; c < 20; c++)
-        if (cells[r]?.[c]?.trimWall && cells[r][c].trimCorner)
-          cornerArc[cells[r][c].trimCorner]++;
+        if (cells[r]?.[c]?.trimWall && cells[r][c].trimCorner) cornerArc[cells[r][c].trimCorner]++;
 
     for (const corner of ['nw', 'ne', 'sw', 'se']) {
       expect(cornerArc[corner]).toBeGreaterThan(0);
@@ -455,7 +527,10 @@ describe('migration: old arc format to new per-cell format', () => {
     for (let r = 3; r <= 8; r++) {
       for (let c = 3; c <= 8; c++) {
         const data = computeArcCellData(r, c, cx, cy, 5, 'nw', true);
-        if (data) { found = true; break; }
+        if (data) {
+          found = true;
+          break;
+        }
       }
       if (found) break;
     }

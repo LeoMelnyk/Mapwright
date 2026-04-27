@@ -3,4 +3,8 @@ export * from './range-geometry.js';
 export * from './trim-geometry.js';
 export * from './polygon.js';
 export * from './cell-halves.js';
+export * from './cell-segments.js';
+export * from './migrate-segments.js';
+export * from './traverse.js';
+export * from './flood-debug.js';
 export * from './log.js';

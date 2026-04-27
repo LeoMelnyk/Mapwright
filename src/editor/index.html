@@ -329,9 +329,25 @@
         <!-- Sub-options rows (contextually visible above tools) -->
         <div id="room-options" class="suboptions-bar">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-room-mode="room" title="Room — Draw a new room">Room</button>
+          <button class="toolbar-btn active" data-room-mode="room" title="Room — Draw a new rectangular room">Room</button>
           <button class="toolbar-btn" data-room-mode="merge" title="Merge — Merge two adjacent rooms into one">Merge</button>
+          <button class="toolbar-btn" data-room-mode="circular" title="Circular — Draw a circular room inscribed in the drag rect (perfect circle for square drags)">Circular</button>
+          <span class="toolbar-separator"></span>
+          <span class="toolbar-label">Walls:</span>
+          <button class="toolbar-btn active" data-wall-type="w" title="Solid — Visible walls that block movement and light">Solid</button>
+          <button class="toolbar-btn" data-wall-type="iw" title="Invisible — Collision walls hidden from players (DM-only boundary)">Invisible</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <!-- Circular tertiary bar (shown when room tool is active and mode === 'circular') -->
+        <div id="circular-options" class="tertiaryoptions-bar" style="display:none;">
+          <div class="trim-option-row" data-tooltip="Closed: cells outside the arc are voided (room shape = circle). Open: cells stay as floor with the arc as a passable curved wall.">
+            <span class="toolbar-label" style="margin:0">Style</span>
+            <div class="trim-toggle">
+              <button class="toolbar-btn active" data-circular-style="closed">Closed</button>
+              <button class="toolbar-btn" data-circular-style="open">Open</button>
+            </div>
+          </div>
         </div>
 
         <div id="paint-options" class="suboptions-bar">
@@ -418,13 +434,6 @@
             <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px" title="Texture opacity — how strongly the texture overlays the floor color">
             <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim)">100%</span>
           </span>
-          <div class="trim-option-row" title="Secondary — paint onto the secondary (accent) floor color slot instead of the primary">
-            <span class="toolbar-label" style="margin:0">Secondary</span>
-            <div class="trim-toggle">
-              <button class="toolbar-btn" data-secondary="true">Yes</button>
-              <button class="toolbar-btn active" data-secondary="false">No</button>
-            </div>
-          </div>
         </div>
 
         <div id="fill-depth-options" class="tertiaryoptions-bar" style="display:none;">

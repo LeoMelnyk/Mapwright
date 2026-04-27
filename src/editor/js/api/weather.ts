@@ -8,42 +8,24 @@
 // walls or arc trims) is delegated to `setCellWeatherHalf` / `getCellHalves`.
 
 import type { CellHalfKey, WeatherGroup, WeatherType } from '../../../types.js';
-import {
-  state,
-  mutate,
-  validateBounds,
-  ensureCell,
-  toInt,
-  ApiValidationError,
-} from './_shared.js';
+import { state, mutate, validateBounds, toInt, ApiValidationError } from './_shared.js';
 import { invalidateLightmap } from '../state.js';
-import {
-  markWeatherFullRebuild,
-  markWeatherCellDirty,
-  hasActiveWeatherLightning,
-} from '../../../render/index.js';
+import { markWeatherFullRebuild, markWeatherCellDirty, hasActiveWeatherLightning } from '../../../render/index.js';
 import {
   cellHasGroup,
   forEachCellWeatherAssignment,
   getCellHalves,
   getCellWeatherHalf,
+  getSegments,
   setCellWeatherHalf,
-  floodFillRoom,
-  parseCellHalfKey,
+  spliceSegments,
+  traverse,
+  halfKeyToSegmentIndex,
 } from '../../../util/index.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const WEATHER_TYPES: readonly WeatherType[] = [
-  'rain',
-  'snow',
-  'ash',
-  'embers',
-  'sandstorm',
-  'fog',
-  'leaves',
-  'cloudy',
-];
+const WEATHER_TYPES: readonly WeatherType[] = ['rain', 'snow', 'ash', 'embers', 'sandstorm', 'fog', 'leaves', 'cloudy'];
 
 const VALID_HALF_KEYS: readonly CellHalfKey[] = ['full', 'ne', 'sw', 'nw', 'se', 'interior', 'exterior'];
 
@@ -108,11 +90,10 @@ function validateColor(name: string, v: unknown, context: Record<string, unknown
 /** Validate `wind.direction` and normalise into [0, 360). */
 function validateWindDirection(v: unknown): number {
   if (typeof v !== 'number' || !Number.isFinite(v)) {
-    throw new ApiValidationError(
-      'INVALID_WEATHER_VALUE',
-      `wind.direction must be a finite number (got ${String(v)})`,
-      { field: 'wind.direction', value: v },
-    );
+    throw new ApiValidationError('INVALID_WEATHER_VALUE', `wind.direction must be a finite number (got ${String(v)})`, {
+      field: 'wind.direction',
+      value: v,
+    });
   }
   return ((v % 360) + 360) % 360;
 }
@@ -202,7 +183,7 @@ export function createWeatherGroup(init: WeatherGroupInit = {}): {
   }
 
   if (init.lightning) {
-    if (init.lightning.enabled !== undefined) validated.lightning.enabled = !!init.lightning.enabled;
+    if (init.lightning.enabled !== undefined) validated.lightning.enabled = init.lightning.enabled;
     if (init.lightning.intensity !== undefined) {
       validated.lightning.intensity = validateUnit('lightning.intensity', init.lightning.intensity);
     }
@@ -219,9 +200,14 @@ export function createWeatherGroup(init: WeatherGroupInit = {}): {
   }
 
   const beforeActive = hasActiveWeatherLightning(state.dungeon.metadata);
-  mutate('Add weather group', [], () => {
-    getGroups().push(validated);
-  }, { metaOnly: true, topic: 'metadata' });
+  mutate(
+    'Add weather group',
+    [],
+    () => {
+      getGroups().push(validated);
+    },
+    { metaOnly: true, topic: 'metadata' },
+  );
   markWeatherFullRebuild();
   if (beforeActive !== hasActiveWeatherLightning(state.dungeon.metadata)) {
     invalidateLightmap();
@@ -252,18 +238,23 @@ export function removeWeatherGroup(id: string): { success: true; removed: { cell
   }
 
   const beforeActive = hasActiveWeatherLightning(state.dungeon.metadata);
-  mutate('Delete weather group', coords, () => {
-    const groups = getGroups();
-    const idx = groups.findIndex((g) => g.id === id);
-    if (idx >= 0) groups.splice(idx, 1);
-    for (const { row, col } of coords) {
-      const cell = cells[row]?.[col];
-      if (!cell) continue;
-      for (const hk of getCellHalves(cell)) {
-        if (getCellWeatherHalf(cell, hk) === id) setCellWeatherHalf(cell, hk, null);
+  mutate(
+    'Delete weather group',
+    coords,
+    () => {
+      const groups = getGroups();
+      const idx = groups.findIndex((g) => g.id === id);
+      if (idx >= 0) groups.splice(idx, 1);
+      for (const { row, col } of coords) {
+        const cell = cells[row]?.[col];
+        if (!cell) continue;
+        for (const hk of getCellHalves(cell)) {
+          if (getCellWeatherHalf(cell, hk) === id) setCellWeatherHalf(cell, hk, null);
+        }
       }
-    }
-  }, { topic: 'cells' });
+    },
+    { topic: 'cells' },
+  );
   for (const { row, col } of coords) markWeatherCellDirty(row, col);
   markWeatherFullRebuild();
   if (beforeActive !== hasActiveWeatherLightning(state.dungeon.metadata)) {
@@ -308,14 +299,8 @@ export function getWeatherGroup(
  * touched — anything omitted keeps its current value. Re-runs lightmap
  * invalidation if the active-lightning state flips as a result.
  */
-export function setWeatherGroup(
-  id: string,
-  patch: Partial<WeatherGroupInit>,
-): { success: true; group: WeatherGroup } {
+export function setWeatherGroup(id: string, patch: Partial<WeatherGroupInit>): { success: true; group: WeatherGroup } {
   const g = requireGroup(id);
-  if (!patch || typeof patch !== 'object') {
-    throw new ApiValidationError('INVALID_WEATHER_PATCH', 'patch must be an object', { id, patch });
-  }
 
   // Validate everything before applying any mutation.
   const next: Partial<WeatherGroup> = {};
@@ -351,7 +336,7 @@ export function setWeatherGroup(
       frequency: g.lightning.frequency,
       color: g.lightning.color,
     };
-    if (patch.lightning.enabled !== undefined) nextLightning.enabled = !!patch.lightning.enabled;
+    if (patch.lightning.enabled !== undefined) nextLightning.enabled = patch.lightning.enabled;
     if (patch.lightning.intensity !== undefined) {
       nextLightning.intensity = validateUnit('lightning.intensity', patch.lightning.intensity);
     }
@@ -371,16 +356,21 @@ export function setWeatherGroup(
   }
 
   const beforeActive = hasActiveWeatherLightning(state.dungeon.metadata);
-  mutate('Edit weather group', [], () => {
-    if (next.name !== undefined) g.name = next.name;
-    if (next.type !== undefined) g.type = next.type;
-    if (next.intensity !== undefined) g.intensity = next.intensity;
-    if (next.hazeDensity !== undefined) g.hazeDensity = next.hazeDensity;
-    if (nextWind) g.wind = nextWind;
-    if (nextLightning) g.lightning = nextLightning;
-    if (particleColorOp?.kind === 'set') g.particleColor = particleColorOp.value;
-    if (particleColorOp?.kind === 'clear') delete g.particleColor;
-  }, { metaOnly: true, topic: 'metadata' });
+  mutate(
+    'Edit weather group',
+    [],
+    () => {
+      if (next.name !== undefined) g.name = next.name;
+      if (next.type !== undefined) g.type = next.type;
+      if (next.intensity !== undefined) g.intensity = next.intensity;
+      if (next.hazeDensity !== undefined) g.hazeDensity = next.hazeDensity;
+      if (nextWind) g.wind = nextWind;
+      if (nextLightning) g.lightning = nextLightning;
+      if (particleColorOp?.kind === 'set') g.particleColor = particleColorOp.value;
+      if (particleColorOp?.kind === 'clear') delete g.particleColor;
+    },
+    { metaOnly: true, topic: 'metadata' },
+  );
   markWeatherFullRebuild();
   if (beforeActive !== hasActiveWeatherLightning(state.dungeon.metadata)) {
     invalidateLightmap();
@@ -411,14 +401,28 @@ export function setWeatherCell(
   const hk = validateHalfKey(halfKey);
   if (groupId !== null) {
     if (typeof groupId !== 'string') {
-      throw new ApiValidationError('INVALID_WEATHER_GROUP_ID', `groupId must be a string or null (got ${typeof groupId})`, {
-        groupId,
-      });
+      throw new ApiValidationError(
+        'INVALID_WEATHER_GROUP_ID',
+        `groupId must be a string or null (got ${typeof groupId})`,
+        {
+          groupId,
+        },
+      );
     }
     requireGroup(groupId);
   }
 
-  const cell = ensureCell(row, col);
+  const cell = state.dungeon.cells[row]?.[col];
+  if (!cell) {
+    throw new ApiValidationError(
+      'CELL_VOID',
+      `Cell (${row}, ${col}) is void — paint or create the cell before assigning weather`,
+      {
+        row,
+        col,
+      },
+    );
+  }
   const halves = getCellHalves(cell);
   const isSplit = halves[0] !== 'full';
 
@@ -447,9 +451,14 @@ export function setWeatherCell(
   // Skip if already in the desired state — preserves clean undo stack.
   if (getCellWeatherHalf(cell, hk) === (groupId ?? undefined)) return { success: true };
 
-  mutate('Set weather cell', [{ row, col }], () => {
-    setCellWeatherHalf(cell, hk, groupId);
-  }, { topic: 'cells' });
+  mutate(
+    'Set weather cell',
+    [{ row, col }],
+    () => {
+      setCellWeatherHalf(cell, hk, groupId);
+    },
+    { topic: 'cells' },
+  );
   markWeatherCellDirty(row, col);
   return { success: true };
 }
@@ -471,9 +480,13 @@ export function setWeatherRect(
   c2 = toInt(c2);
   if (groupId !== null) {
     if (typeof groupId !== 'string') {
-      throw new ApiValidationError('INVALID_WEATHER_GROUP_ID', `groupId must be a string or null (got ${typeof groupId})`, {
-        groupId,
-      });
+      throw new ApiValidationError(
+        'INVALID_WEATHER_GROUP_ID',
+        `groupId must be a string or null (got ${typeof groupId})`,
+        {
+          groupId,
+        },
+      );
     }
     requireGroup(groupId);
   }
@@ -504,13 +517,18 @@ export function setWeatherRect(
   }
   if (coords.length === 0) return { success: true, count: 0 };
 
-  mutate('Set weather rect', coords, () => {
-    for (const { row, col } of coords) {
-      const cell = cells[row]?.[col];
-      if (!cell) continue;
-      for (const hk of getCellHalves(cell)) setCellWeatherHalf(cell, hk, groupId);
-    }
-  }, { topic: 'cells' });
+  mutate(
+    'Set weather rect',
+    coords,
+    () => {
+      for (const { row, col } of coords) {
+        const cell = cells[row]?.[col];
+        if (!cell) continue;
+        for (const hk of getCellHalves(cell)) setCellWeatherHalf(cell, hk, groupId);
+      }
+    },
+    { topic: 'cells' },
+  );
   for (const { row, col } of coords) markWeatherCellDirty(row, col);
   return { success: true, count: coords.length };
 }
@@ -535,9 +553,13 @@ export function floodFillWeather(
   const hk = validateHalfKey(halfKey);
   if (groupId !== null) {
     if (typeof groupId !== 'string') {
-      throw new ApiValidationError('INVALID_WEATHER_GROUP_ID', `groupId must be a string or null (got ${typeof groupId})`, {
-        groupId,
-      });
+      throw new ApiValidationError(
+        'INVALID_WEATHER_GROUP_ID',
+        `groupId must be a string or null (got ${typeof groupId})`,
+        {
+          groupId,
+        },
+      );
     }
     requireGroup(groupId);
   }
@@ -551,39 +573,72 @@ export function floodFillWeather(
     });
   }
   const startHalves = getCellHalves(startCell);
-  if (startHalves[0] !== 'full' && hk === 'full') {
+  const startIsSplit = startHalves[0] !== 'full';
+  if (startIsSplit && hk === 'full') {
     throw new ApiValidationError(
       'WEATHER_HALF_REQUIRED',
       `Start cell (${row}, ${col}) is split — pass halfKey ${JSON.stringify(startHalves)}`,
       { row, col, validHalfKeys: startHalves },
     );
   }
+  if (!startIsSplit && hk !== 'full') {
+    throw new ApiValidationError(
+      'WEATHER_HALF_NOT_APPLICABLE',
+      `Start cell (${row}, ${col}) is not split — halfKey must be omitted or "full"`,
+      { row, col, halfKey: hk },
+    );
+  }
+  if (startIsSplit && !startHalves.includes(hk)) {
+    throw new ApiValidationError(
+      'INVALID_HALF_KEY',
+      `Start cell (${row}, ${col}) does not have half "${hk}" — valid halves are ${JSON.stringify(startHalves)}`,
+      { row, col, halfKey: hk, validHalfKeys: startHalves },
+    );
+  }
 
-  const room = floodFillRoom(cells, row, col, { returnHalves: true, startHalfKey: hk });
-  const writesByCell = new Map<string, { row: number; col: number; halves: CellHalfKey[] }>();
-  for (const key of room) {
-    const { row: r, col: c, halfKey: parsedHk } = parseCellHalfKey(key);
+  // Drive the flood through the unified `traverse()` BFS and write each
+  // visited segment's `weatherGroupId` directly via `spliceSegments`. No
+  // halfKey round-trip — segments are the storage, BFS already gives us the
+  // exact segment indices to write.
+  const startSegmentIndex = halfKeyToSegmentIndex(startCell, hk);
+  const traverseResult = traverse(cells, { row, col, segmentIndex: startSegmentIndex });
+
+  const writesByCell = new Map<string, { row: number; col: number; segIndices: number[] }>();
+  for (const visited of traverseResult.visited) {
+    const parts = visited.split(',');
+    const r = Number(parts[0]);
+    const c = Number(parts[1]);
+    const segIdx = Number(parts[2]);
     const cell = cells[r]?.[c];
     if (!cell) continue;
-    if (getCellWeatherHalf(cell, parsedHk) === (groupId ?? undefined)) continue;
+    const seg = getSegments(cell)[segIdx];
+    if (!seg) continue;
+    if (seg.weatherGroupId === (groupId ?? undefined)) continue;
     const k = `${r},${c}`;
     let entry = writesByCell.get(k);
     if (!entry) {
-      entry = { row: r, col: c, halves: [] };
+      entry = { row: r, col: c, segIndices: [] };
       writesByCell.set(k, entry);
     }
-    entry.halves.push(parsedHk);
+    entry.segIndices.push(segIdx);
   }
   if (writesByCell.size === 0) return { success: true, count: 0 };
 
   const coords = Array.from(writesByCell.values()).map(({ row: r, col: c }) => ({ row: r, col: c }));
-  mutate(groupId === null ? 'Flood-clear weather' : 'Flood-fill weather', coords, () => {
-    for (const entry of writesByCell.values()) {
-      const cell = cells[entry.row]?.[entry.col];
-      if (!cell) continue;
-      for (const h of entry.halves) setCellWeatherHalf(cell, h, groupId);
-    }
-  }, { topic: 'cells' });
+  mutate(
+    groupId === null ? 'Flood-clear weather' : 'Flood-fill weather',
+    coords,
+    () => {
+      for (const entry of writesByCell.values()) {
+        const cell = cells[entry.row]?.[entry.col];
+        if (!cell) continue;
+        for (const segIdx of entry.segIndices) {
+          spliceSegments(cell, { kind: 'setSegmentWeatherGroup', segmentIndex: segIdx, weatherGroupId: groupId });
+        }
+      }
+    },
+    { topic: 'cells' },
+  );
   for (const { row: r, col: c } of coords) markWeatherCellDirty(r, c);
   return { success: true, count: coords.length };
 }
@@ -608,4 +663,3 @@ export function getWeatherCell(
   const halves = getCellHalves(cell);
   return { success: true, assignments, isSplit: halves[0] !== 'full' };
 }
-

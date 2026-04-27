@@ -28,7 +28,8 @@ import {
 import { getCachedText, drawCachedText, getCachedCompass, setFont } from './decoration-cache.js';
 import { showToast } from './toast.js';
 import { toCanvas } from './utils.js';
-import { displayGridSize as _dgs } from '../../util/index.js';
+import { renderFloodRainbowOverlay } from './flood-rainbow-overlay.js';
+import { displayGridSize as _dgs, getSegments } from '../../util/index.js';
 import { updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
 import { flushPendingWheel } from './canvas-view-input.js';
@@ -169,7 +170,11 @@ export function render(): void {
       }
     : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion };
   const lightingEnabled = metadata.lightingEnabled;
-  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door' || state.activeTool === 'window';
+  const showInvisible =
+    state.activeTool === 'wall' ||
+    state.activeTool === 'door' ||
+    state.activeTool === 'window' ||
+    state.activeTool === 'room';
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
 
@@ -592,6 +597,9 @@ export function render(): void {
   // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
   if (cvState.dmFogOverlayFn) cvState.dmFogOverlayFn(ctx, transform, gridSize);
 
+  // Flood Rainbow debug overlay — colors visited cells of every traverse() BFS by depth
+  renderFloodRainbowOverlay(ctx, transform, gridSize);
+
   // Session tool overlays — rendered below door buttons.
   // sessionRangeTool is persistent so player range highlights render in any session sub-mode.
   if (state.sessionToolsActive) {
@@ -873,14 +881,35 @@ function drawEditorDots(
 
 function drawHoverHighlight(ctx: CanvasRenderingContext2D, gridSize: number, transform: RenderTransform) {
   if (!state.hoveredCell) return;
-  const { row, col } = state.hoveredCell;
+  const { row, col, segmentIndex } = state.hoveredCell;
   const cells = state.dungeon.cells;
   if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
 
+  const cell = cells[row]?.[col];
   const p = toCanvas(col * gridSize, row * gridSize, transform);
   const size = gridSize * transform.scale;
-
   ctx.fillStyle = 'rgba(100, 180, 255, 0.15)';
+
+  // For split cells (diagonals, trim arcs, multi-segment): clip the highlight
+  // to the polygon of the segment under the cursor — gives the user a precise
+  // preview of which region a per-segment tool (paint, weather) will affect.
+  // For unsplit cells the segment polygon is the unit square, so the result
+  // is identical to a full-cell rect.
+  if (cell) {
+    const segments = getSegments(cell);
+    const seg = segments[segmentIndex] ?? segments[0];
+    if (seg && segments.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(p.x + seg.polygon[0]![0]! * size, p.y + seg.polygon[0]![1]! * size);
+      for (let i = 1; i < seg.polygon.length; i++) {
+        ctx.lineTo(p.x + seg.polygon[i]![0]! * size, p.y + seg.polygon[i]![1]! * size);
+      }
+      ctx.closePath();
+      ctx.fill();
+      return;
+    }
+  }
+
   ctx.fillRect(p.x, p.y, size, size);
 }
 

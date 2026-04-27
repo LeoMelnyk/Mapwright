@@ -1,4 +1,5 @@
-import { asMultiLevel, type Cell, type CellGrid, type Metadata } from '../types.js';
+import { asMultiLevel, type CardinalDirection, type Cell, type CellGrid, type Metadata } from '../types.js';
+import { getEdge, LEGACY_CELL_FIELDS } from '../util/index.js';
 
 // ── Sub-module imports ─────────────────────────────────────────────────────
 import {
@@ -174,28 +175,36 @@ function detectBorderCollisions(cells: CellGrid) {
       }
 
       // Check nw-se diagonal collision (with cell diagonally below-right)
-      if (row < numRows - 1 && col < numCols - 1 && cell['nw-se']) {
-        const diagCell = cells[row + 1]![col + 1];
-        if (diagCell?.['nw-se'] && cell['nw-se'] !== diagCell['nw-se']) {
-          errors.push(
-            `Diagonal border collision detected:\n` +
-              `  Cell [${row}][${col}] has nw-se: "${cell['nw-se']}" but\n` +
-              `  Cell [${row + 1}][${col + 1}] has nw-se: "${diagCell['nw-se']}"\n` +
-              `  → Conflict: ${getBorderName(cell['nw-se'])} vs ${getBorderName(diagCell['nw-se'])}`,
-          );
+      if (row < numRows - 1 && col < numCols - 1) {
+        const cellNwSe = getEdge(cell, 'nw-se');
+        if (cellNwSe) {
+          const diagCell = cells[row + 1]![col + 1];
+          const diagNwSe = diagCell ? getEdge(diagCell, 'nw-se') : null;
+          if (diagNwSe && cellNwSe !== diagNwSe) {
+            errors.push(
+              `Diagonal border collision detected:\n` +
+                `  Cell [${row}][${col}] has nw-se: "${cellNwSe}" but\n` +
+                `  Cell [${row + 1}][${col + 1}] has nw-se: "${diagNwSe}"\n` +
+                `  → Conflict: ${getBorderName(cellNwSe)} vs ${getBorderName(diagNwSe)}`,
+            );
+          }
         }
       }
 
       // Check ne-sw diagonal collision (with cell diagonally below-left)
-      if (row < numRows - 1 && col > 0 && cell['ne-sw']) {
-        const diagCell = cells[row + 1]![col - 1];
-        if (diagCell?.['ne-sw'] && cell['ne-sw'] !== diagCell['ne-sw']) {
-          errors.push(
-            `Diagonal border collision detected:\n` +
-              `  Cell [${row}][${col}] has ne-sw: "${cell['ne-sw']}" but\n` +
-              `  Cell [${row + 1}][${col - 1}] has ne-sw: "${diagCell['ne-sw']}"\n` +
-              `  → Conflict: ${getBorderName(cell['ne-sw'])} vs ${getBorderName(diagCell['ne-sw'])}`,
-          );
+      if (row < numRows - 1 && col > 0) {
+        const cellNeSw = getEdge(cell, 'ne-sw');
+        if (cellNeSw) {
+          const diagCell = cells[row + 1]![col - 1];
+          const diagNeSw = diagCell ? getEdge(diagCell, 'ne-sw') : null;
+          if (diagNeSw && cellNeSw !== diagNeSw) {
+            errors.push(
+              `Diagonal border collision detected:\n` +
+                `  Cell [${row}][${col}] has ne-sw: "${cellNeSw}" but\n` +
+                `  Cell [${row + 1}][${col - 1}] has ne-sw: "${diagNeSw}"\n` +
+                `  → Conflict: ${getBorderName(cellNeSw)} vs ${getBorderName(diagNeSw)}`,
+            );
+          }
         }
       }
     }
@@ -253,49 +262,36 @@ function validateConfig(config: {
 
 // ── Lightweight load-time validation ────────────────────────────────────────
 
-/** Known Cell property keys (all optional fields from the Cell interface). */
-const KNOWN_CELL_KEYS = new Set([
+/**
+ * Known Cell property keys.
+ *
+ * Validation runs on raw JSON before migration, so the set includes both
+ * the modern segment-authoritative fields and every legacy field that
+ * `migrateCellsToSegments` knows how to convert — otherwise loading an old
+ * save would warn on every cell. Once a cell has been migrated, the legacy
+ * fields are stripped and only the modern keys appear.
+ *
+ * The legacy half of the list is sourced from `LEGACY_CELL_FIELDS` in
+ * `util/migrate-segments.ts` so legacy field names live in exactly one
+ * place in the codebase.
+ */
+const KNOWN_CELL_KEYS = new Set<string>([
+  // Modern (post-migration) fields.
   'north',
   'south',
   'east',
   'west',
-  'nw-se',
-  'ne-sw',
   'fill',
   'fillDepth',
   'hazard',
-  'texture',
-  'textureOpacity',
-  'textureSecondary',
-  'textureSecondaryOpacity',
-  'textureNE',
-  'textureNEOpacity',
-  'textureSW',
-  'textureSWOpacity',
-  'textureNW',
-  'textureNWOpacity',
-  'textureSE',
-  'textureSEOpacity',
-  'trimmed',
-  'trimWall',
-  'trimCorner',
-  'trimRound',
-  'trimInverted',
-  'trimOpen',
-  'trimPassable',
-  'trimClip',
-  'trimCrossing',
-  'trimHideExterior',
-  'trimShowExteriorOnly',
-  'trimInsideArc',
-  'trimArcRadius',
-  'trimArcCenterRow',
-  'trimArcCenterCol',
-  'trimArcInverted',
+  'segments',
+  'interiorEdges',
   'waterDepth',
   'lavaDepth',
   'center',
   'prop',
+  // Legacy fields accepted on input — `migrateCellsToSegments` removes them.
+  ...LEGACY_CELL_FIELDS,
 ]);
 
 const VALID_EDGE_VALUES = new Set<string | null | undefined>(['w', 'd', 's', 'iw', 'id', null, undefined]);
@@ -324,7 +320,7 @@ function validateDungeonStructure(dungeon: { metadata: Metadata; cells: CellGrid
   }
 
   const expectedCols = dungeon.cells[0]?.length ?? 0;
-  const edgeDirs = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
+  const edgeDirs: CardinalDirection[] = ['north', 'south', 'east', 'west'];
 
   // Sample up to 200 cells to avoid slow validation on large maps
   const totalRows = dungeon.cells.length;
@@ -359,7 +355,7 @@ function validateDungeonStructure(dungeon: { metadata: Metadata; cells: CellGrid
 
       // Validate edge values
       for (const dir of edgeDirs) {
-        const val = (cell as Record<string, unknown>)[dir];
+        const val = getEdge(cell, dir);
         if (val !== undefined && !VALID_EDGE_VALUES.has(val as string | null)) {
           warnings.push(`Cell [${r}][${c}].${dir} has invalid edge value "${String(val)}"`);
         }

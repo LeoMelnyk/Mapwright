@@ -6,15 +6,46 @@ import type {
   Metadata,
   PropCatalog,
   RenderTransform,
+  Segment,
   TextureOptions,
   TextureRuntime,
   Theme,
   VisibleBounds,
 } from '../types.js';
-import { getEdge } from '../util/index.js';
+import { cellHasChordEdge, getEdge, getInteriorEdges, getSegments, isChordEdge } from '../util/index.js';
 import { toCanvas } from './bounds.js';
 import { renderTimings, getTimingFrame } from './render-state.js';
-import { getDiagonalTrimCorner } from './floors.js';
+
+/**
+ * Returns the cell's renderable segments — segments that should appear in
+ * the floor pass. Filters out segments with `voided: true`. Migration runs
+ * at load time (`io.ts`), so by the time the renderer sees a cell its void
+ * corners are already explicit `voided: true` segments — no neighbor-state
+ * inference is needed here.
+ */
+function getRenderableSegments(cell: Cell): Segment[] {
+  return getSegments(cell).filter((s) => !s.voided);
+}
+
+/** Does the polygon span the full unit square exactly? Fast path detection. */
+function isFullSquarePolygon(poly: number[][]): boolean {
+  if (poly.length !== 4) return false;
+  const EPS = 1e-9;
+  let nw = 0,
+    ne = 0,
+    se = 0,
+    sw = 0;
+  for (const p of poly) {
+    const [x, y] = p;
+    if (x === undefined || y === undefined) return false;
+    if (Math.abs(x) < EPS && Math.abs(y) < EPS) nw++;
+    else if (Math.abs(x - 1) < EPS && Math.abs(y) < EPS) ne++;
+    else if (Math.abs(x - 1) < EPS && Math.abs(y - 1) < EPS) se++;
+    else if (Math.abs(x) < EPS && Math.abs(y - 1) < EPS) sw++;
+    else return false;
+  }
+  return nw === 1 && ne === 1 && se === 1 && sw === 1;
+}
 import {
   renderBorder,
   getDoubleDoorRole,
@@ -154,7 +185,10 @@ export function renderFloors(
   const floorStartCol = Math.floor(startCol / step) * step;
   for (let row = floorStartRow; row <= endRow; row += step) {
     for (let col = floorStartCol; col <= endCol; col += step) {
-      // Check sub-cells in this display cell
+      // Check sub-cells in this display cell. A sub-cell is "split" when it
+      // has more than one segment (diagonal walls, trim arcs) OR when its
+      // single segment isn't the implicit full-square polygon — both cases
+      // require the per-segment polygon path instead of the fast rect path.
       let floorCount = 0,
         hasTrim = false;
       const totalSub = step * step;
@@ -164,79 +198,48 @@ export function renderFloors(
             sc = col + dc;
           if (!roomCells[sr]?.[sc]) continue;
           const c = cells[sr]?.[sc];
-          if (c?.trimShowExteriorOnly) continue;
-          floorCount++;
-          if (c && (getDiagonalTrimCorner(c, cells, sr, sc) || c.trimClip)) {
+          if (!c) continue;
+          const segs = getSegments(c);
+          if (segs.length > 1 || (segs[0] && !isFullSquarePolygon(segs[0].polygon))) {
             hasTrim = true;
             break;
           }
+          floorCount++;
         }
       }
-      if (!floorCount) continue;
+      if (!floorCount && !hasTrim) continue;
 
       if (!hasTrim && floorCount === totalSub) {
-        // Fast path: all sub-cells are floor, draw one display-cell-sized rect
+        // Fast path: all sub-cells are unsplit floor, draw one display-cell-sized rect.
         const p1 = toCanvas(col * gridSize, row * gridSize, transform);
         ctx.rect(p1.x, p1.y, cellPxDisplay, cellPxDisplay);
       } else {
-        // Slow path: per-sub-cell for trim corners
+        // Slow path: per-sub-cell, trace each renderable segment's polygon.
+        // `getRenderableSegments` filters out voided segments. Unsplit cells
+        // contribute a single full-square rect; split cells contribute their
+        // polygon shapes.
         for (let dr = 0; dr < step; dr++) {
           for (let dc = 0; dc < step; dc++) {
             const sr = row + dr,
               sc = col + dc;
             if (!roomCells[sr]?.[sc]) continue;
             const cell = cells[sr]?.[sc];
-            if (!cell || cell.trimShowExteriorOnly) continue;
+            if (!cell) continue;
+            const renderable = getRenderableSegments(cell);
+            if (renderable.length === 0) continue;
             const x = sc * gridSize,
               y = sr * gridSize;
-            const trimCorner = getDiagonalTrimCorner(cell, cells, sr, sc);
-            if (trimCorner && !cell.trimWall && !cell.trimOpen) {
-              const tl = toCanvas(x, y, transform);
-              const tr = toCanvas(x + gridSize, y, transform);
-              const bl = toCanvas(x, y + gridSize, transform);
-              const br = toCanvas(x + gridSize, y + gridSize, transform);
-              switch (trimCorner) {
-                case 'nw':
-                  ctx.moveTo(tr.x, tr.y);
-                  ctx.lineTo(br.x, br.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  break;
-                case 'ne':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  ctx.lineTo(br.x, br.y);
-                  break;
-                case 'sw':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(tr.x, tr.y);
-                  ctx.lineTo(br.x, br.y);
-                  break;
-                case 'se':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(tr.x, tr.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  break;
-              }
-              ctx.closePath();
-            } else if (cell.trimClip) {
-              if (!cell.trimHideExterior) {
-                // Open trim, both sides visible — draw full cell rect
-                const p1 = toCanvas(x, y, transform);
-                ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
+            const px = toCanvas(x, y, transform);
+            for (const seg of renderable) {
+              if (isFullSquarePolygon(seg.polygon)) {
+                ctx.rect(px.x, px.y, cellPxSub, cellPxSub);
               } else {
-                // Closed trim, room side only
-                const clip = cell.trimClip;
-                const gs = cellPxSub;
-                const px = toCanvas(x, y, transform);
-                ctx.moveTo(px.x + clip[0]![0]! * gs, px.y + clip[0]![1]! * gs);
-                for (let i = 1; i < clip.length; i++) {
-                  ctx.lineTo(px.x + clip[i]![0]! * gs, px.y + clip[i]![1]! * gs);
+                ctx.moveTo(px.x + seg.polygon[0]![0]! * cellPxSub, px.y + seg.polygon[0]![1]! * cellPxSub);
+                for (let i = 1; i < seg.polygon.length; i++) {
+                  ctx.lineTo(px.x + seg.polygon[i]![0]! * cellPxSub, px.y + seg.polygon[i]![1]! * cellPxSub);
                 }
                 ctx.closePath();
               }
-            } else {
-              const p1 = toCanvas(x, y, transform);
-              ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
             }
           }
         }
@@ -272,10 +275,20 @@ export function renderFloors(
 
   if (canBatch) {
     // ── Collect phase ──────────────────────────────────────────────────────
-    // straightBatches: simple rect cells grouped by (texId, opacity) — one fill call per group.
-    // clippedWork:     cells needing a triangular fill (trim corners, half-texture diagonals).
-    const straightBatches = new Map(); // `${texId}\x00${texOp}` → { entry, texOp, rects[] }
-    const clippedWork = []; // { entry, texOp, clipType, tl, tr, bl, br }
+    // Per-segment iteration: every renderable segment with a texture either
+    // joins the straight-batch fast path (unsplit cells with full-square
+    // polygon — same texture group means one ctx.fill() for many cells) or
+    // becomes a clippedWork entry that fills its polygon outline.
+    //
+    // straightBatches: { texId+texOp → { entry, texOp, rects[] } }
+    // clippedWork:     { entry, texOp, polygon, tl }  (polygon is in cell-local [0..1] coords)
+    const straightBatches = new Map();
+    const clippedWork: Array<{
+      entry: TextureRuntime;
+      texOp: number;
+      polygon: number[][];
+      tl: { x: number; y: number };
+    }> = [];
 
     const catalog = textureOptions?.catalog;
     for (let row = startRow; row <= endRow; row++) {
@@ -283,133 +296,33 @@ export function renderFloors(
         if (!roomCells[row]?.[col]) continue;
         const cell = cells[row]![col];
         if (!cell) continue;
-        if (cell.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
+
+        const renderable = getRenderableSegments(cell);
+        if (renderable.length === 0) continue;
+
         const x = col * gridSize;
         const y = row * gridSize;
-        const trimCorner = getDiagonalTrimCorner(cell, cells, row, col);
-        const p1 = toCanvas(x, y, transform);
-        const tl = p1;
-        const tr = toCanvas(x + gridSize, y, transform);
-        const bl = toCanvas(x, y + gridSize, transform);
-        const br = toCanvas(x + gridSize, y + gridSize, transform);
+        const tl = toCanvas(x, y, transform);
 
-        const hasNWSE = !!cell['nw-se'];
-        const hasNESW = !!cell['ne-sw'];
-        const hasHalfTex = !trimCorner && (hasNWSE || hasNESW) && !!cell.textureSecondary;
+        for (const seg of renderable) {
+          const texId = seg.texture;
+          if (!texId) continue;
+          const entry = catalog?.textures[texId];
+          if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
+          const texOp = seg.textureOpacity ?? 1.0;
+          hasTexturedCells = true;
 
-        if (hasHalfTex) {
-          const halves = hasNWSE
-            ? [
-                { clipType: 'sw', key: 'texture', opKey: 'textureOpacity' },
-                { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
-              ]
-            : [
-                { clipType: 'se', key: 'texture', opKey: 'textureOpacity' },
-                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
-              ];
-          for (const { clipType, key, opKey } of halves) {
-            const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
-            if (!tid) continue;
-            const entry = catalog?.textures[tid];
-            if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
-            clippedWork.push({
-              entry,
-              texOp: (cell as Record<string, unknown>)[opKey] as number,
-              clipType,
-              tl,
-              tr,
-              bl,
-              br,
-            });
-            hasTexturedCells = true;
-          }
-          continue;
-        }
-
-        let texId = cell.texture;
-        let texOp = cell.textureOpacity ?? 1.0;
-        if (trimCorner && !cell.trimOpen) {
-          if ((hasNWSE && trimCorner === 'sw') || (hasNESW && trimCorner === 'se')) {
-            texId = cell.textureSecondary ?? texId;
-            texOp = cell.textureSecondaryOpacity ?? texOp;
-          }
-        }
-        const texEntry = texId ? catalog?.textures[texId] : null;
-        const secId = cell.textureSecondary;
-        const secEntry = secId ? catalog?.textures[secId] : null;
-        const hasPrimary = texEntry?.img?.complete && texEntry.img.naturalWidth;
-        const hasSecondary = secEntry?.img?.complete && secEntry.img.naturalWidth;
-        if (!hasPrimary && !hasSecondary) continue;
-        hasTexturedCells = true;
-
-        if (trimCorner && !cell.trimWall && !cell.trimOpen) {
-          // Straight diagonal trim
-          if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: trimCorner, tl, tr, bl, br });
-        } else if (cell.trimClip) {
-          // Arc cell: if both textures exist, split at the arc curve.
-          // For open trims with only one texture, draw as full rect.
-          const showExterior = !cell.trimHideExterior;
-          if (hasPrimary && hasSecondary) {
-            clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
-            if (showExterior)
-              clippedWork.push({
-                entry: secEntry,
-                texOp: cell.textureSecondaryOpacity ?? 1.0,
-                clipType: 'trimClipInvert',
-                trimClip: cell.trimClip,
-                tl,
-                tr,
-                bl,
-                br,
-              });
+          if (isFullSquarePolygon(seg.polygon)) {
+            const batchKey = `${texId}\x00${texOp}`;
+            let batch = straightBatches.get(batchKey);
+            if (!batch) {
+              batch = { entry, texOp, rects: [] };
+              straightBatches.set(batchKey, batch);
+            }
+            batch.rects.push(tl.x, tl.y);
           } else {
-            // Closed trim: clip to room side only
-            if (hasPrimary)
-              clippedWork.push({
-                entry: texEntry,
-                texOp,
-                clipType: 'trimClip',
-                trimClip: cell.trimClip,
-                tl,
-                tr,
-                bl,
-                br,
-              });
-            if (hasSecondary && showExterior)
-              clippedWork.push({
-                entry: secEntry,
-                texOp: cell.textureSecondaryOpacity ?? 1.0,
-                clipType: 'trimClipInvert',
-                trimClip: cell.trimClip,
-                tl,
-                tr,
-                bl,
-                br,
-              });
+            clippedWork.push({ entry, texOp, polygon: seg.polygon, tl });
           }
-        } else if (cell.trimWall && cell.trimCorner && (hasPrimary || hasSecondary)) {
-          // Fallback for arc cells missing trimClip (old format or pre-reload): triangle approximation
-          const voidCorner = cell.trimCorner;
-          const roomCorner = { nw: 'se', ne: 'sw', sw: 'ne', se: 'nw' }[voidCorner];
-          if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: roomCorner, tl, tr, bl, br });
-          if (hasSecondary)
-            clippedWork.push({
-              entry: secEntry,
-              texOp: cell.textureSecondaryOpacity ?? 1.0,
-              clipType: voidCorner,
-              tl,
-              tr,
-              bl,
-              br,
-            });
-        } else if (hasPrimary) {
-          const batchKey = `${texId}\x00${texOp}`;
-          let batch = straightBatches.get(batchKey);
-          if (!batch) {
-            batch = { entry: texEntry, texOp, rects: [] };
-            straightBatches.set(batchKey, batch);
-          }
-          batch.rects.push(tl.x, tl.y);
         }
       }
     }
@@ -425,62 +338,20 @@ export function renderFloors(
       ctx.fill();
     }
 
-    // ── Clipped cells: triangular pattern fill, no save/restore needed ─────
-    // ctx.fill() on the triangle path naturally restricts the pattern to the
-    // triangle shape — no ctx.clip() required, so no save/restore overhead.
+    // ── Clipped cells: polygon pattern fill ────────────────────────────────
+    // Each entry's polygon is in cell-local [0..1] coords; trace it onto the
+    // canvas at the cell's top-left position. ctx.fill() on the polygon path
+    // naturally clips the pattern — no ctx.clip()/save/restore needed.
     for (const item of clippedWork) {
-      const { entry, texOp, clipType, tl, tr, bl, br } = item;
+      const { entry, texOp, polygon, tl } = item;
       const pattern = _getTexPattern(ctx, entry);
       _applyPatternTransform(pattern, entry, cellPx, transform, resolution);
       ctx.globalAlpha = texOp;
       ctx.fillStyle = pattern;
       ctx.beginPath();
-      if (clipType === 'trimClip') {
-        const clip = item.trimClip;
-        const gs = cellPx;
-        ctx.moveTo(tl.x + clip![0]![0]! * gs, tl.y + clip![0]![1]! * gs);
-        for (let i = 1; i < clip!.length; i++) {
-          ctx.lineTo(tl.x + clip![i]![0]! * gs, tl.y + clip![i]![1]! * gs);
-        }
-      } else if (clipType === 'trimClipInvert') {
-        // Void side: cell rect minus trimClip polygon (using evenodd)
-        const clip = item.trimClip;
-        const gs = cellPx;
-        ctx.rect(tl.x, tl.y, gs, gs);
-        ctx.moveTo(tl.x + clip![0]![0]! * gs, tl.y + clip![0]![1]! * gs);
-        for (let i = 1; i < clip!.length; i++) {
-          ctx.lineTo(tl.x + clip![i]![0]! * gs, tl.y + clip![i]![1]! * gs);
-        }
-        ctx.closePath();
-        ctx.fill('evenodd');
-        ctx.beginPath(); // reset — skip the normal fill below
-        continue;
-      } else {
-        switch (clipType) {
-          case 'nw':
-            ctx.moveTo(tr.x, tr.y);
-            ctx.lineTo(br.x, br.y);
-            ctx.lineTo(bl.x, bl.y);
-            break;
-          case 'ne':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(bl.x, bl.y);
-            ctx.lineTo(br.x, br.y);
-            break;
-          case 'sw':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(tr.x, tr.y);
-            ctx.lineTo(br.x, br.y);
-            break;
-          case 'se':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(tr.x, tr.y);
-            ctx.lineTo(bl.x, bl.y);
-            break;
-          case undefined:
-          default:
-            break;
-        }
+      ctx.moveTo(tl.x + polygon[0]![0]! * cellPx, tl.y + polygon[0]![1]! * cellPx);
+      for (let i = 1; i < polygon.length; i++) {
+        ctx.lineTo(tl.x + polygon[i]![0]! * cellPx, tl.y + polygon[i]![1]! * cellPx);
       }
       ctx.closePath();
       ctx.fill();
@@ -488,154 +359,44 @@ export function renderFloors(
 
     ctx.globalAlpha = 1.0;
   } else {
-    // ── Fallback: original per-cell drawImage (Node.js PDF renderer) ───────
+    // ── Fallback: per-cell drawImage (PDF renderer / no DOMMatrix) ─────────
+    // Same per-segment iteration as the batched path. For each renderable
+    // segment with a texture, clip to its polygon and drawImage the source.
+    const catalog = textureOptions?.catalog;
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
         if (!roomCells[row]![col]) continue;
         const cell = cells[row]![col];
         if (!cell) continue;
-        if (cell.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
+
+        const renderable = getRenderableSegments(cell);
+        if (renderable.length === 0) continue;
+
         const x = col * gridSize;
         const y = row * gridSize;
-        const trimCorner = getDiagonalTrimCorner(cell, cells, row, col);
-        const catalog = textureOptions?.catalog;
         const p1 = toCanvas(x, y, transform);
-        const tl = p1;
-        const tr = toCanvas(x + gridSize, y, transform);
-        const bl = toCanvas(x, y + gridSize, transform);
-        const br = toCanvas(x + gridSize, y + gridSize, transform);
 
-        const hasNWSE = !!cell['nw-se'];
-        const hasNESW = !!cell['ne-sw'];
-        const hasHalfTex = !trimCorner && (hasNWSE || hasNESW) && !!cell.textureSecondary;
-
-        if (hasHalfTex) {
-          const halves = hasNWSE
-            ? [
-                { clipType: 'sw', key: 'texture', opKey: 'textureOpacity' },
-                { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
-              ]
-            : [
-                { clipType: 'se', key: 'texture', opKey: 'textureOpacity' },
-                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
-              ];
-          for (const { clipType, key, opKey } of halves) {
-            const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
-            if (!tid) continue;
-            const entry = catalog?.textures[tid];
-            if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
-            const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
-            ctx.save();
+        for (const seg of renderable) {
+          const texId = seg.texture;
+          if (!texId) continue;
+          const entry = catalog?.textures[texId];
+          if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
+          const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
+          const texOp = seg.textureOpacity ?? 1.0;
+          ctx.save();
+          ctx.globalAlpha = texOp;
+          if (!isFullSquarePolygon(seg.polygon)) {
             ctx.beginPath();
-            switch (clipType) {
-              case 'ne':
-                ctx.moveTo(tl.x, tl.y);
-                ctx.lineTo(bl.x, bl.y);
-                ctx.lineTo(br.x, br.y);
-                break;
-              case 'sw':
-                ctx.moveTo(tl.x, tl.y);
-                ctx.lineTo(tr.x, tr.y);
-                ctx.lineTo(br.x, br.y);
-                break;
-              case 'se':
-                ctx.moveTo(tl.x, tl.y);
-                ctx.lineTo(tr.x, tr.y);
-                ctx.lineTo(bl.x, bl.y);
-                break;
-              case 'nw':
-                ctx.moveTo(tr.x, tr.y);
-                ctx.lineTo(br.x, br.y);
-                ctx.lineTo(bl.x, bl.y);
-                break;
+            ctx.moveTo(p1.x + seg.polygon[0]![0]! * cellPx, p1.y + seg.polygon[0]![1]! * cellPx);
+            for (let i = 1; i < seg.polygon.length; i++) {
+              ctx.lineTo(p1.x + seg.polygon[i]![0]! * cellPx, p1.y + seg.polygon[i]![1]! * cellPx);
             }
             ctx.closePath();
             ctx.clip();
-            ctx.globalAlpha = (cell as Record<string, unknown>)[opKey] as number;
-            ctx.drawImage(entry.img, srcX, srcY, srcW, srcH, p1.x, p1.y, cellPx, cellPx);
-            ctx.restore();
-            hasTexturedCells = true;
           }
-        } else {
-          let texId = cell.texture;
-          let texOp = cell.textureOpacity ?? 1.0;
-          if (trimCorner && !cell.trimOpen) {
-            if ((hasNWSE && trimCorner === 'sw') || (hasNESW && trimCorner === 'se')) {
-              texId = cell.textureSecondary ?? texId;
-              texOp = cell.textureSecondaryOpacity ?? texOp;
-            }
-          }
-          const texEntry = texId ? catalog?.textures[texId] : null;
-          if (texEntry?.img?.complete && texEntry.img.naturalWidth) {
-            const { srcX, srcY, srcW, srcH } = getTexChunk(texEntry, row, col);
-            ctx.save();
-            ctx.globalAlpha = texOp;
-            if (cell.trimClip) {
-              const clip = cell.trimClip;
-              const gs = cellPx;
-              ctx.beginPath();
-              ctx.moveTo(p1.x + clip[0]![0]! * gs, p1.y + clip[0]![1]! * gs);
-              for (let i = 1; i < clip.length; i++) {
-                ctx.lineTo(p1.x + clip[i]![0]! * gs, p1.y + clip[i]![1]! * gs);
-              }
-              ctx.closePath();
-              ctx.clip();
-            } else if (trimCorner && !cell.trimWall) {
-              ctx.beginPath();
-              switch (trimCorner) {
-                case 'nw':
-                  ctx.moveTo(tr.x, tr.y);
-                  ctx.lineTo(br.x, br.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  break;
-                case 'ne':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  ctx.lineTo(br.x, br.y);
-                  break;
-                case 'sw':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(tr.x, tr.y);
-                  ctx.lineTo(br.x, br.y);
-                  break;
-                case 'se':
-                  ctx.moveTo(tl.x, tl.y);
-                  ctx.lineTo(tr.x, tr.y);
-                  ctx.lineTo(bl.x, bl.y);
-                  break;
-              }
-              ctx.closePath();
-              ctx.clip();
-            }
-            ctx.drawImage(texEntry.img, srcX, srcY, srcW, srcH, p1.x, p1.y, cellPx, cellPx);
-            ctx.restore();
-            hasTexturedCells = true;
-          }
-
-          // Secondary (exterior) pass for arc cells — draws textureSecondary in
-          // the void side of the arc clip. Matches the batched path's
-          // 'trimClipInvert' item (see line ~331).
-          if (cell.trimClip && cell.textureSecondary && !cell.trimHideExterior) {
-            const secEntry = catalog?.textures[cell.textureSecondary];
-            if (secEntry?.img?.complete && secEntry.img.naturalWidth) {
-              const { srcX: sx2, srcY: sy2, srcW: sw2, srcH: sh2 } = getTexChunk(secEntry, row, col);
-              const clip = cell.trimClip;
-              const gs = cellPx;
-              ctx.save();
-              ctx.globalAlpha = cell.textureSecondaryOpacity ?? 1.0;
-              ctx.beginPath();
-              ctx.rect(p1.x, p1.y, gs, gs);
-              ctx.moveTo(p1.x + clip[0]![0]! * gs, p1.y + clip[0]![1]! * gs);
-              for (let i = 1; i < clip.length; i++) {
-                ctx.lineTo(p1.x + clip[i]![0]! * gs, p1.y + clip[i]![1]! * gs);
-              }
-              ctx.closePath();
-              ctx.clip('evenodd');
-              ctx.drawImage(secEntry.img, sx2, sy2, sw2, sh2, p1.x, p1.y, gs, gs);
-              ctx.restore();
-              hasTexturedCells = true;
-            }
-          }
+          ctx.drawImage(entry.img, srcX, srcY, srcW, srcH, p1.x, p1.y, cellPx, cellPx);
+          ctx.restore();
+          hasTexturedCells = true;
         }
       }
     }
@@ -982,7 +743,7 @@ export function renderWallsAndBorders(
         ['west', col, row, col, row + 1, 'vertical'],
       ];
       for (const [dir, x1, y1, x2, y2, orient] of borders) {
-        const bt = (cell as Record<string, unknown>)[dir] as string;
+        const bt = getEdge(cell, dir as Direction) as string;
         if (!bt) continue;
         if (bt === 'd' || bt === 's') {
           const role = getDoubleDoorRole(cells, row, col, dir, _res);
@@ -1037,11 +798,13 @@ export function renderWallsAndBorders(
         }
       }
 
-      // Diagonal borders — collect doors for deferred rendering, walls handled below
-      for (const diag of ['nw-se', 'ne-sw']) {
-        const bt = (cell as Record<string, unknown>)[diag];
+      // Diagonal borders — collect doors for deferred rendering, walls handled below.
+      // Skip cells whose interior edge is a chord (the chord-stroke pass
+      // owns those — they're not straight corner-to-corner diagonals).
+      if (cellHasChordEdge(cell)) continue;
+      for (const diag of ['nw-se', 'ne-sw'] as const) {
+        const bt = getEdge(cell, diag);
         if (!bt) continue;
-        if (cell.trimWall) continue;
         if (bt === 'd' || bt === 's') {
           const role = getDoubleDoorDiagonalRole(cells, row, col, diag, _res);
           if (role === 'partner') continue;
@@ -1063,10 +826,13 @@ export function renderWallsAndBorders(
   const diagSeen = new Set();
   for (let row = startRow; row <= endRow; row++) {
     for (let col = startCol; col <= endCol; col++) {
-      for (const diag of ['nw-se', 'ne-sw']) {
+      for (const diag of ['nw-se', 'ne-sw'] as const) {
         const cell = cells[row]?.[col];
-        const bt = cell ? getEdge(cell, diag as Direction) : undefined;
-        if (!bt || cell!.trimWall) continue;
+        if (!cell) continue;
+        // Skip chord-bearing cells — those are drawn by the chord-stroke pass.
+        if (cellHasChordEdge(cell)) continue;
+        const bt = getEdge(cell, diag);
+        if (!bt) continue;
         if (bt !== 'w' && bt !== 'd' && bt !== 's') continue;
         const key = `${row},${col},${diag}`;
         if (diagSeen.has(key)) continue;
@@ -1078,8 +844,11 @@ export function renderWallsAndBorders(
         let r = row,
           c = col;
         while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-          const v = cells[r]?.[c]?.[diag as keyof Cell];
-          if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimWall) break;
+          const cc = cells[r]?.[c];
+          if (!cc) break;
+          if (cellHasChordEdge(cc)) break;
+          const v = getEdge(cc, diag);
+          if (v !== 'w' && v !== 'd' && v !== 's') break;
           diagSeen.add(`${r},${c},${diag}`);
           runLen++;
           r += dr;
@@ -1142,12 +911,23 @@ export function renderWallsAndBorders(
     }
   }
 
-  // Per-cell arc walls
+  // Per-cell chord walls — stroke the polyline `cell.interiorEdges[0].vertices`
+  // for any chord-shaped interior edge. The chord is drawn unconditionally
+  // for visible walls (`wall === 'w'` or `null`); `wall` otherwise controls
+  // connectivity (can a token cross), not visual presence. Open trims
+  // (`wall == null`) still render the architectural outline — they're just
+  // passable. Invisible chord walls (`wall === 'iw'`) skip the stroke entirely
+  // so they're hidden from view (matching cardinal `iw` semantics). Straight
+  // corner-to-corner diagonals are handled by the diagonal merge pass above
+  // and rejected here by `isChordEdge`.
   for (let row = startRow; row <= endRow; row++) {
     for (let col = startCol; col <= endCol; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.trimWall) continue;
-      const wall = cell.trimWall;
+      if (!cell) continue;
+      const ie = getInteriorEdges(cell)[0];
+      if (!ie || !isChordEdge(ie)) continue;
+      if (ie.wall === 'iw') continue;
+      const wall = ie.vertices;
       const cx = col * gridSize,
         cy = row * gridSize;
       const s = scaleFactor(transform);
@@ -1215,7 +995,7 @@ export function renderWallsAndBorders(
         const cell = cells[row]?.[col];
         if (!cell) continue;
         for (const { dir, dr, dc } of winDirs) {
-          if ((cell as Record<string, unknown>)[dir] !== 'win') continue;
+          if (getEdge(cell, dir) !== 'win') continue;
           const key = `${dir}|${row}|${col}`;
           if (windowSeen.has(key)) continue;
           // Walk backward to find the run start (stops at non-win or missing cell).
@@ -1225,7 +1005,7 @@ export function renderWallsAndBorders(
             const pr = sr - dr;
             const pc = sc - dc;
             const prev = cells[pr]?.[pc];
-            if (!prev || (prev as Record<string, unknown>)[dir] !== 'win') break;
+            if (!prev || getEdge(prev, dir) !== 'win') break;
             sr = pr;
             sc = pc;
           }
@@ -1235,7 +1015,7 @@ export function renderWallsAndBorders(
           let ec = sc;
           for (;;) {
             const c = cells[er]?.[ec];
-            if (!c || (c as Record<string, unknown>)[dir] !== 'win') break;
+            if (!c || getEdge(c, dir) !== 'win') break;
             windowSeen.add(`${dir}|${er}|${ec}`);
             runLen++;
             er += dr;

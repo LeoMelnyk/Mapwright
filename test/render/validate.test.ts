@@ -4,11 +4,9 @@
  * Tests validateMatrixFormat, validateCell, and validateConfig.
  */
 import { describe, it, expect, vi } from 'vitest';
-import {
-  validateCell,
-  validateMatrixFormat,
-  validateConfig,
-} from '../../src/render/validate.js';
+import { validateCell, validateMatrixFormat, validateConfig } from '../../src/render/validate.js';
+import { setDiagonalEdge } from '../../src/util/index.js';
+import type { Cell } from '../../src/types.js';
 
 // Suppress console output from validation functions
 vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -61,7 +59,9 @@ describe('validateCell', () => {
 
   it('rejects center label with diagonal border', () => {
     const errors = [];
-    validateCell({ 'nw-se': 'w', center: { label: 'A1' } }, null, 0, 0, errors);
+    const cell: Cell = { center: { label: 'A1' } };
+    setDiagonalEdge(cell, 'nw-se', 'w');
+    validateCell(cell, null, 0, 0, errors);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[0]).toContain('diagonal');
   });
@@ -82,8 +82,14 @@ describe('validateMatrixFormat', () => {
     const config = {
       metadata: { dungeonName: 'Test', gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 2 }] },
       cells: [
-        [{ north: 'w', west: 'w' }, { north: 'w', east: 'w' }],
-        [{ south: 'w', west: 'w' }, { south: 'w', east: 'w' }],
+        [
+          { north: 'w', west: 'w' },
+          { north: 'w', east: 'w' },
+        ],
+        [
+          { south: 'w', west: 'w' },
+          { south: 'w', east: 'w' },
+        ],
       ],
     };
     // Should not throw
@@ -123,9 +129,7 @@ describe('validateMatrixFormat', () => {
   it('throws for invalid cell edge values', () => {
     const config = {
       metadata: { dungeonName: 'Test', gridSize: 5 },
-      cells: [
-        [{ north: 'invalid' }],
-      ],
+      cells: [[{ north: 'invalid' }]],
     };
     expect(() => validateMatrixFormat(config)).toThrow();
   });
@@ -161,18 +165,22 @@ describe('validateConfig', () => {
   });
 
   it('throws for duplicate room IDs', () => {
-    expect(() => validateConfig({
-      dungeonName: 'Test',
-      gridSize: 5,
-      rooms: [{ id: 'r1' }, { id: 'r1' }],
-    })).toThrow('Duplicate');
+    expect(() =>
+      validateConfig({
+        dungeonName: 'Test',
+        gridSize: 5,
+        rooms: [{ id: 'r1' }, { id: 'r1' }],
+      }),
+    ).toThrow('Duplicate');
   });
 
   it('does not throw for a valid config', () => {
-    expect(() => validateConfig({
-      dungeonName: 'Test',
-      gridSize: 5,
-      rooms: [{ id: 'r1' }, { id: 'r2' }],
-    })).not.toThrow();
+    expect(() =>
+      validateConfig({
+        dungeonName: 'Test',
+        gridSize: 5,
+        rooms: [{ id: 'r1' }, { id: 'r2' }],
+      }),
+    ).not.toThrow();
   });
 });

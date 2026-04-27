@@ -1,5 +1,5 @@
 // Door tool: click on cell edges to place/toggle doors (normal or secret)
-import type { Direction, EdgeValue } from '../../../types.js';
+import type { EdgeValue } from '../../../types.js';
 import { Tool, type EdgeInfo } from './tool-base.js';
 import state, { mutate } from '../state.js';
 import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge, CARDINAL_OFFSETS } from '../../../util/index.js';
@@ -32,7 +32,7 @@ export class DoorTool extends Tool {
 
     if (!isInBounds(cells, er, ec)) return;
     if (!cells[er]?.[ec]) return;
-    if (!getEdge(cells[er][ec], direction as Direction)) return; // nothing to clear
+    if (!getEdge(cells[er][ec], direction)) return; // nothing to clear
 
     const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
     const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as
@@ -61,7 +61,7 @@ export class DoorTool extends Tool {
 
     const cell = cells[er]![ec] ?? {};
     const doorType = state.doorType || 'd';
-    const isToggleOff = (cell as Record<string, unknown>)[direction] === doorType;
+    const isToggleOff = getEdge(cell, direction) === doorType;
     const label = isToggleOff ? 'Remove door' : doorType === 's' ? 'Secret door' : 'Add door';
 
     const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];

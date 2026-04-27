@@ -7,9 +7,20 @@
 //
 // All transforms are single mutate() steps so they're undone atomically.
 
-import type { Cell, EdgeValue } from '../../../types.js';
-import { state, mutate, getApi, ApiValidationError, toInt, toDisp, parseCellKey, CARDINAL_DIRS } from './_shared.js';
+import type { CardinalDirection, Cell, EdgeValue } from '../../../types.js';
+import {
+  state,
+  mutate,
+  getApi,
+  ApiValidationError,
+  toInt,
+  toDisp,
+  parseCellKey,
+  CARDINAL_DIRS,
+  getEdge,
+} from './_shared.js';
 import { normalizeRect } from './_rect-utils.js';
+import { getSegments, writeSegmentTexture } from '../../../util/index.js';
 
 // ─── helpers ──────────────────────────────────────────────────────────────
 
@@ -258,17 +269,28 @@ export function replaceTexture(
       for (let c = Math.max(0, c1); c <= Math.min((cells[0]?.length ?? 0) - 1, c2); c++) {
         const cell = cells[r]?.[c];
         if (!cell) continue;
-        if (cell.texture === oldId) {
-          cell.texture = newId;
-          replaced++;
-          coords.push({ row: r, col: c });
+        // Walk every segment; replace any whose texture matches `oldId`.
+        const segs = getSegments(cell);
+        let cellChanged = false;
+        for (let i = 0; i < segs.length; i++) {
+          const seg = segs[i]!;
+          if (seg.texture === oldId) {
+            writeSegmentTexture(cell, i, newId, seg.textureOpacity);
+            cellChanged = true;
+          }
         }
-        // Also handle corner textures
+        // Corner blend textures (NE/SW/NW/SE) are render-time auto-output
+        // from blend topology, not authored data — but the API has historically
+        // touched them too for completeness. Keep the legacy behavior.
         for (const k of ['textureNE', 'textureSW', 'textureNW', 'textureSE'] as const) {
           if (cell[k] === oldId) {
             cell[k] = newId;
-            replaced++;
+            cellChanged = true;
           }
+        }
+        if (cellChanged) {
+          replaced++;
+          coords.push({ row: r, col: c });
         }
       }
     }
@@ -293,7 +315,7 @@ function rebuildCellEdges(cell: Cell, mapping: Record<string, string>): Cell {
   // Save edges, clear, then reassign under new keys.
   const original: Record<string, EdgeValue> = {};
   for (const dir of CARDINAL_DIRS) {
-    const v = (cell as Record<string, unknown>)[dir];
+    const v = getEdge(cell, dir as CardinalDirection);
     if (v != null) original[dir] = v as EdgeValue;
     delete rec[dir];
   }

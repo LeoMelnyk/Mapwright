@@ -41,10 +41,17 @@ import {
   parseCellKey,
   isInBounds,
   roomBoundsFromKeys,
-  floodFillRoom,
   toInternalCoord,
   toDisplayCoord,
   CARDINAL_OFFSETS,
+  traverse,
+  migrateCellsToSegments,
+  getEdge,
+  setEdge,
+  deleteEdge,
+  type TraverseOptions,
+  type TraverseResult,
+  type TraverseStart,
 } from '../../../util/index.js';
 
 // ─── Structured API Error ───────────────────────────────────────────────────
@@ -119,9 +126,7 @@ interface EditorApiMap {
     propType: string,
     facing?: number,
   ): { success: boolean; spanRows?: number; spanCols?: number; cells?: [number, number][]; error?: string };
-  getPropsForRoomType(
-    roomType: string,
-  ): {
+  getPropsForRoomType(roomType: string): {
     success: boolean;
     error?: string;
     props: {
@@ -141,9 +146,7 @@ interface EditorApiMap {
     propType: string,
     facing: number,
   ): { success: boolean; positions?: [number, number][] };
-  listRoomCells(
-    label: string,
-  ): { success: boolean; cells?: [number, number][]; error?: string };
+  listRoomCells(label: string): { success: boolean; cells?: [number, number][]; error?: string };
   listRooms(): {
     success: true;
     rooms: { label: string; r1: number; c1: number; r2: number; c2: number; center: { row: number; col: number } }[];
@@ -157,9 +160,7 @@ interface EditorApiMap {
   ): { success: boolean; warnings?: string[]; lightsAdded?: Array<{ id: number; preset: string }> };
   setDoor(row: number, col: number, direction: string, type?: string): { success: boolean };
   setLabel(row: number, col: number, text: string): { success: boolean };
-  validateConnectivity(
-    entranceLabel: string,
-  ): {
+  validateConnectivity(entranceLabel: string): {
     success: true;
     connected: boolean;
     reachable: string[];
@@ -386,10 +387,16 @@ export {
   parseCellKey,
   isInBounds,
   roomBoundsFromKeys,
-  floodFillRoom,
+  traverse,
+  migrateCellsToSegments,
+  getEdge,
+  setEdge,
+  deleteEdge,
 
   // Resolution helpers
   getResolution,
   toInt,
   toDisp,
 };
+
+export type { TraverseOptions, TraverseResult, TraverseStart };

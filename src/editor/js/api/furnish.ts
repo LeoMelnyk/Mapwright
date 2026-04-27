@@ -12,7 +12,7 @@
 //  - Light-emitting-prop count capped to avoid blow-out
 //  - Door approach cells are excluded from candidate positions
 
-import { state, getApi, ApiValidationError, parseCellKey, cellKey, OFFSETS, toDisp } from './_shared.js';
+import { state, getApi, ApiValidationError, parseCellKey, cellKey, OFFSETS, toDisp, getEdge } from './_shared.js';
 
 type Density = 'sparse' | 'normal' | 'dense';
 type PlanRole = 'primary' | 'secondary' | 'flank' | 'scatter' | 'lit-fixture';
@@ -100,7 +100,7 @@ function nonDoorApproachCells(roomCells: Set<string>): Set<string> {
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of ['north', 'south', 'east', 'west'] as const) {
-      const v = (cell as Record<string, unknown>)[dir];
+      const v = getEdge(cell, dir);
       if (v === 'd' || v === 's' || v === 'id') {
         blocked.add(key);
         const [dr, dc] = OFFSETS[dir]!;
@@ -247,7 +247,7 @@ export function proposeFurnishing(
     const flankCandidates = candidates.filter(
       (p) =>
         p.name !== primaryProp.name &&
-        (p.clustersWith?.includes(primaryProp.name) ||
+        ((p.clustersWith?.includes(primaryProp.name) ?? false) ||
           ['pillar', 'brazier', 'candelabra', 'statue', 'torch-sconce'].includes(p.name)),
     );
     const flank = pickRandom(flankCandidates);

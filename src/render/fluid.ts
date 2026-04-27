@@ -26,7 +26,7 @@
 
 import type { CellGrid, Cell, Direction, Theme } from '../types.js';
 import { WATER_TILE_SIZE, WATER_PATTERNS, WATER_SPATIAL } from './patterns.js';
-import { getEdge, log } from '../util/index.js';
+import { getEdge, log, getSegments, getInteriorEdges, isChordEdge, traverse } from '../util/index.js';
 
 // ── Variant taxonomy ──────────────────────────────────────────────────────
 
@@ -283,6 +283,42 @@ function getCachedFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: 
   return _fluidCellsCache[fillType];
 }
 
+/**
+ * Flood-fill a connected component of pit cells starting at (row, col).
+ * Mutates `visited` (packed-key set) and returns the cells in the component.
+ * Walls are ignored: connectivity is purely "next cell is in pitSet".
+ */
+function floodPitGroup(
+  cells: CellGrid,
+  row: number,
+  col: number,
+  pitSet: Set<number>,
+  visited: Set<number>,
+  numCols: number,
+): [number, number][] {
+  const group: [number, number][] = [];
+  const result = traverse(
+    cells,
+    { row, col },
+    {
+      ignoreWalls: true,
+      voidedSegmentsBlock: false,
+      acceptNeighbor: (ctx) => pitSet.has(ctx.row * numCols + ctx.col),
+    },
+  );
+  for (const segKey of result.visited) {
+    const comma1 = segKey.indexOf(',');
+    const comma2 = segKey.indexOf(',', comma1 + 1);
+    const r2 = Number(segKey.slice(0, comma1));
+    const c2 = Number(segKey.slice(comma1 + 1, comma2));
+    const k = r2 * numCols + c2;
+    if (visited.has(k)) continue;
+    visited.add(k);
+    group.push([r2, c2]);
+  }
+  return group;
+}
+
 function getCachedPitData(cells: CellGrid, roomCells: boolean[][]): PitData {
   if (_pitDataCache.cells === cells) return _pitDataCache;
   const numRows = cells.length;
@@ -298,36 +334,15 @@ function getCachedPitData(cells: CellGrid, roomCells: boolean[][]): PitData {
       }
     }
   }
-  // BFS for connected pit groups (used for vignette rendering)
+  // Connected pit groups (used for vignette rendering). Wall-agnostic flood:
+  // adjacency is purely "next cell is also in pitSet".
   const visited = new Set<number>();
   const groups: [number, number][][] = [];
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const key = row * numCols + col;
       if (visited.has(key) || !pitSet.has(key)) continue;
-      const group: [number, number][] = [];
-      const queue: [number, number][] = [[row, col]];
-      visited.add(key);
-      while (queue.length > 0) {
-        const [r2, c2] = queue.shift()!;
-        group.push([r2, c2]);
-        for (const [dr, dc] of [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-        ] as const) {
-          const nr = r2 + dr,
-            nc = c2 + dc;
-          if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
-          const nkey = nr * numCols + nc;
-          if (!visited.has(nkey) && pitSet.has(nkey)) {
-            visited.add(nkey);
-            queue.push([nr, nc]);
-          }
-        }
-      }
-      groups.push(group);
+      groups.push(floodPitGroup(cells, row, col, pitSet, visited, numCols));
     }
   }
   _pitDataCache = { cells, pitSet, pitCells, groups, numCols, numRows };
@@ -610,13 +625,21 @@ function buildVariantClip(
     return cell.fill === meta.fillType;
   };
 
+  // True if `c` has a closed chord/arc trim (interior segment is bounded by
+  // a chord that's a wall). Straight diagonals don't count — fluid pre-refactor
+  // only specialized clipping for arc cells.
+  const isClosedArcCell = (c: Cell): boolean => {
+    const ie = getInteriorEdges(c)[0];
+    return ie?.wall != null && isChordEdge(ie);
+  };
+
   for (const [row, col] of variantCells) {
     const cell = cells[row]![col]!;
     // Own cell: trim-aware
-    if (cell.trimClip && !cell.trimOpen) {
+    if (isClosedArcCell(cell)) {
       const ox = col * gridSize;
       const oy = row * gridSize;
-      const poly = cell.trimClip;
+      const poly = getSegments(cell)[0]!.polygon;
       extentClip.moveTo(ox + poly[0]![0]! * gridSize, oy + poly[0]![1]! * gridSize);
       for (let i = 1; i < poly.length; i++) {
         extentClip.lineTo(ox + poly[i]![0]! * gridSize, oy + poly[i]![1]! * gridSize);
@@ -639,14 +662,14 @@ function buildVariantClip(
       if (!neighbor) continue;
       const isSameFamily = cellIsSameFamily(nr, nc);
       if (!isSameFamily) {
-        if (neighbor.trimClip && !neighbor.trimOpen) continue;
+        if (isClosedArcCell(neighbor)) continue;
         extentClip.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
       } else {
         // Same-family different-depth neighbor: include for organic depth transitions.
-        if (neighbor.trimClip && !neighbor.trimOpen) {
+        if (isClosedArcCell(neighbor)) {
           const ox = nc * gridSize;
           const oy = nr * gridSize;
-          const poly = neighbor.trimClip;
+          const poly = getSegments(neighbor)[0]!.polygon;
           extentClip.moveTo(ox + poly[0]![0]! * gridSize, oy + poly[0]![1]! * gridSize);
           for (let i = 1; i < poly.length; i++) {
             extentClip.lineTo(ox + poly[i]![0]! * gridSize, oy + poly[i]![1]! * gridSize);
@@ -1070,7 +1093,7 @@ export function patchFluidRegion(
       }
     }
     if (pitTopologyChanged) {
-      // Rebuild pitCells + group BFS from the updated set.
+      // Rebuild pitCells + group flood from the updated set.
       const pd = _pitDataCache;
       const pitCells: [number, number][] = _rebuildFluidCellsArrayFromSet(pitSet, numCols);
       const visited = new Set<number>();
@@ -1078,29 +1101,7 @@ export function patchFluidRegion(
       for (const [row, col] of pitCells) {
         const startKey = row * numCols + col;
         if (visited.has(startKey)) continue;
-        const group: [number, number][] = [];
-        const queue: [number, number][] = [[row, col]];
-        visited.add(startKey);
-        while (queue.length > 0) {
-          const [r2, c2] = queue.shift()!;
-          group.push([r2, c2]);
-          for (const [dr, dc] of [
-            [-1, 0],
-            [1, 0],
-            [0, -1],
-            [0, 1],
-          ] as const) {
-            const nr = r2 + dr;
-            const nc = c2 + dc;
-            if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
-            const nkey = nr * numCols + nc;
-            if (!visited.has(nkey) && pitSet.has(nkey)) {
-              visited.add(nkey);
-              queue.push([nr, nc]);
-            }
-          }
-        }
-        groups.push(group);
+        groups.push(floodPitGroup(cells, row, col, pitSet, visited, numCols));
       }
       pd.pitCells = pitCells;
       pd.groups = groups;

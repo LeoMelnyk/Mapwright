@@ -7,7 +7,7 @@ export default [
     ignores: ['node_modules/**', 'dist/**', 'tools/rock-patterns/*-output.js'],
   },
   // TypeScript-specific config (parser + recommended rules)
-  ...tseslint.configs.recommended.map(config => ({
+  ...tseslint.configs.recommended.map((config) => ({
     ...config,
     files: ['src/**/*.ts'],
     languageOptions: {
@@ -25,16 +25,22 @@ export default [
       '@typescript-eslint/no-unsafe-function-type': 'error',
       '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/ban-ts-comment': ['error', {
-        'ts-expect-error': true,
-        'ts-ignore': true,
-        'ts-nocheck': true,
-      }],
-      '@typescript-eslint/consistent-type-imports': ['error', {
-        disallowTypeAnnotations: true,
-        fixStyle: 'separate-type-imports',
-        prefer: 'type-imports',
-      }],
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-expect-error': true,
+          'ts-ignore': true,
+          'ts-nocheck': true,
+        },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          disallowTypeAnnotations: true,
+          fixStyle: 'separate-type-imports',
+          prefer: 'type-imports',
+        },
+      ],
       '@typescript-eslint/prefer-as-const': 'error',
       '@typescript-eslint/no-unnecessary-type-constraint': 'error',
       '@typescript-eslint/no-confusing-non-null-assertion': 'error',
@@ -59,6 +65,34 @@ export default [
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'error',
+      // Ban writing or deleting Cell-like objects through `as Record<string, unknown>`
+      // casts. Such casts bypass the type system and have produced silent-failure
+      // bugs (paint tool writing dead `cell.texture` fields after the segments
+      // storage flip). Use a typed helper (`setEdge` / `deleteEdge` from
+      // `util/grid.ts`, `writeCellTexture` etc) or extend the proper type.
+      //
+      // The rule matches the assertion subject by identifier name (`cell`,
+      // `neighborCell`, `nb`, `c`, `prev`, etc.) — heuristic, but precisely
+      // targets the bug class without forcing churn on legitimate dynamic-dict
+      // writes elsewhere (theme editor, light editor, debug panels). If you
+      // hit a false positive on a non-Cell variable, either rename the local
+      // or add `// eslint-disable-next-line no-restricted-syntax` with a
+      // justification.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "AssignmentExpression[left.type='MemberExpression'][left.object.type='TSAsExpression'][left.object.expression.type='Identifier'][left.object.expression.name=/^(cell|neighborCell|neighbor|nb|prev|c|cc)$/][left.object.typeAnnotation.type='TSTypeReference'][left.object.typeAnnotation.typeName.name='Record']",
+          message:
+            'Do not write Cell-like objects through `as Record<string, unknown>` casts. Use a typed helper (setEdge/deleteEdge from util/grid.ts, writeCellTexture from util/cell-segments.ts) or extend the Cell type.',
+        },
+        {
+          selector:
+            "UnaryExpression[operator='delete'][argument.type='MemberExpression'][argument.object.type='TSAsExpression'][argument.object.expression.type='Identifier'][argument.object.expression.name=/^(cell|neighborCell|neighbor|nb|prev|c|cc)$/][argument.object.typeAnnotation.type='TSTypeReference'][argument.object.typeAnnotation.typeName.name='Record']",
+          message:
+            'Do not delete from Cell-like objects through `as Record<string, unknown>` casts. Use a typed helper (deleteEdge from util/grid.ts) or extend the Cell type.',
+        },
+      ],
     },
   })),
   // Shared rules for JS and TS
@@ -72,14 +106,17 @@ export default [
     },
     rules: {
       'unused-imports/no-unused-imports': 'error',
-      'unused-imports/no-unused-vars': ['error', {
-        vars: 'all',
-        args: 'after-used',
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      'unused-imports/no-unused-vars': [
+        'error',
+        {
+          vars: 'all',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       'no-undef': 'off',
-      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
       'prefer-const': 'error',
       'no-var': 'error',
       'no-throw-literal': 'error',

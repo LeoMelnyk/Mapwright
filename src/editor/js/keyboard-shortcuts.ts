@@ -21,6 +21,7 @@ import {
   togglePanel,
   deselectCell,
   selectLevel,
+  isToolbarDisabled,
 } from './panels/index.js';
 import type { Tool } from './tools/tool-base.js';
 /**
@@ -365,6 +366,15 @@ export function initKeyboardShortcuts(
         return;
       }
       if ((toolKeys as Record<string, unknown>)[e.key]) return;
+    }
+
+    // When the toolbar is disabled (e.g. weather group cell-assignment, future
+    // modal flows), tool-switching keys and sub-mode cycling must be inert —
+    // the visually-dimmed toolbar shouldn't accept input by any path. Esc and
+    // editing shortcuts (undo/redo/save) remain active.
+    if (isToolbarDisabled() && ((toolKeys as Record<string, unknown>)[e.key] || e.key === 'Tab')) {
+      if (e.key === 'Tab') e.preventDefault();
+      return;
     }
 
     // Number keys for tools + L for light

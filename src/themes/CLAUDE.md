@@ -1,8 +1,18 @@
-# Theme & Light File Formats
+# Theme, Light, and Gobo File Formats
 
-## Theme Files (`.theme`)
+This directory owns the documentation for the three lighting/visual asset file formats used by the editor:
 
-Theme files are JSON files in `src/themes/` that control the visual appearance of dungeon maps.
+- **`.theme` files** — `src/themes/` — visual style of dungeon maps (colors, hatching, shadow, texture blending).
+- **`.light` files** — `src/lights/` — reusable light presets (torch, brazier, daylight…).
+- **`.gobo` files** — `src/gobos/` — procedural light projection patterns (window mullions, prison bars, caustics…).
+
+All three load via the same one-shot bundle pattern: editor fetches `bundle.json` (every file's body keyed by id, plus a content-hash version) on startup. PNGs / per-file fetches are fallbacks.
+
+---
+
+## `.theme` files
+
+JSON files in `src/themes/` controlling the visual appearance of dungeon maps.
 
 ### Schema
 
@@ -32,60 +42,52 @@ Theme files are JSON files in `src/themes/` that control the visual appearance o
 }
 ```
 
-### Field Reference
+### Field reference
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `displayName` | string | Name shown in the editor theme picker |
-| `background` | hex color | Canvas background / void area color |
-| `gridLine` | hex color | Grid line color |
-| `gridStyle` | string | Grid style: `"lines"`, `"dotted"`, `"corners-x"`, `"corners-dot"` |
-| `gridLineWidth` | number | Grid line/dot width in pixels (1-8) |
-| `gridOpacity` | 0-1 | Grid overlay opacity |
+| `background` | hex | Canvas background / void area color |
+| `gridLine` | hex | Grid line color |
+| `gridStyle` | string | `"lines"`, `"dotted"`, `"corners-x"`, `"corners-dot"` |
+| `gridLineWidth` | number | Grid line/dot width in pixels (1–8) |
+| `gridOpacity` | 0–1 | Grid overlay opacity |
 | `gridCornerLength` | number | Cross arm length as fraction of cell size (corners-x only) |
-| `gridNoise` | 0-1 | Wobble amount for hand-drawn feel (lines/dotted only) |
-| `wallStroke` | hex color | Wall line color |
-| `wallFill` | hex color | Room floor background color |
-| `textColor` | hex color | Room label text color |
-| `borderColor` | hex color | Map border decoration color |
-| `doorFill` | hex color | Door gap fill color |
-| `doorStroke` | hex color | Door symbol stroke color |
-| `trapColor` | hex color | Trap marker color |
-| `secretDoorColor` | hex color | Secret door symbol color |
-| `compassRoseFill` | hex color | Compass rose fill |
-| `compassRoseStroke` | hex color | Compass rose outline |
-| `wallRoughness` | 0-1 | Jitter amount for rough wall lines (0 = clean) |
-| `wallShadow` | object | Drop shadow behind walls |
-| `wallShadow.color` | rgba | Shadow color with alpha |
-| `wallShadow.blur` | number | Shadow blur radius in pixels |
-| `wallShadow.offsetX/Y` | number | Shadow offset |
-| `hatchColor` | hex color | Cross-hatching line color for void areas |
-| `hatchSize` | number | Hatching line density |
-| `hatchOpacity` | 0-1 | Hatching opacity (0 = no hatching) |
-| `bufferShadingOpacity` | 0-1 | Dark gradient opacity at wall-adjacent floor edges |
-| `outerShading` | object | Colored blob wrapping around room exterior |
-| `outerShading.color` | hex color | Shading color |
-| `outerShading.size` | number | Shading spread in pixels |
-| `outerShading.roughness` | 0-1 | Edge noise |
-| `textureBlendWidth` | number | Texture splatting blend zone width (fraction of cell) |
+| `gridNoise` | 0–1 | Wobble amount for hand-drawn feel (lines/dotted only) |
+| `wallStroke` | hex | Wall line color |
+| `wallFill` | hex | Room floor background color |
+| `textColor` | hex | Room label text color |
+| `borderColor` | hex | Map border decoration color |
+| `doorFill` | hex | Door gap fill color |
+| `doorStroke` | hex | Door symbol stroke color |
+| `trapColor` | hex | Trap marker color |
+| `secretDoorColor` | hex | Secret door symbol color |
+| `compassRoseFill` / `compassRoseStroke` | hex | Compass rose colors |
+| `wallRoughness` | 0–1 | Jitter amount for rough wall lines (0 = clean) |
+| `wallShadow` | object | `{ color: rgba, blur, offsetX, offsetY }` — drop shadow behind walls |
+| `hatchColor` / `hatchSize` / `hatchOpacity` | — | Cross-hatching for void areas (opacity 0 = no hatching) |
+| `bufferShadingOpacity` | 0–1 | Dark gradient at wall-adjacent floor edges |
+| `outerShading` | object | `{ color, size, roughness }` — colored blob wrapping room exteriors |
+| `textureBlendWidth` | 0–1 | Texture splatting blend zone width (fraction of cell) |
 
-### Available Themes (16)
+### Available themes (16)
 
-`blue-parchment`, `sepia-parchment`, `grasslands`, `desert`, `swamp`, `snow-tundra`, `stone-dungeon`, `earth-cave`, `ice-cave`, `water-temple`, `dirt`, `crypt`, `volcanic`, `arcane`, `underdark`, `alien`
+`alien`, `arcane`, `blue-parchment`, `crypt`, `desert`, `dirt`, `earth-cave`, `grasslands`, `ice-cave`, `sepia-parchment`, `snow-tundra`, `stone-dungeon`, `swamp`, `underdark`, `volcanic`, `water-temple`.
 
-### Adding a New Theme
+(Authoritative list: `src/themes/manifest.json`. Use `listThemes()` from the editor API at runtime.)
 
-1. Create `your-theme.theme` in `src/themes/`
-2. Include all required color fields (see schema above)
-3. Run `node mapwright/tools/update-themes-manifest.js` — regenerates both `manifest.json` (sorted key list) and `bundle.json` (one-shot client load with all theme bodies + content-hash version).
+### Adding a new theme
 
-**The editor will serve stale themes until you run this script.** The client fetches `bundle.json` first and falls back to per-file fetches if the bundle is missing. User-created themes (stored under `MAPWRIGHT_THEME_PATH`) are not part of the bundle — they always load dynamically.
+1. Create `your-theme.theme` in `src/themes/` with all fields from the schema.
+2. Run `node mapwright/tools/update-themes-manifest.js` — regenerates `manifest.json` (sorted key list) and `bundle.json` (one-shot client load with all theme bodies + content-hash version).
+
+**The editor serves stale themes until the manifest tool runs.** The client fetches `bundle.json` first and falls back to per-file fetches if it's missing. User-created themes (under `MAPWRIGHT_THEME_PATH`) are not part of the bundle — they always load dynamically.
 
 ---
 
-## Light Files (`.light`)
+## `.light` files
 
-Light preset files are JSON files in `src/lights/` that define reusable light configurations.
+JSON files in `src/lights/` defining reusable light presets.
 
 ### Schema
 
@@ -97,38 +99,136 @@ Light preset files are JSON files in `src/lights/` that define reusable light co
   "type": "point",
   "color": "#ff8833",
   "radius": 20,
+  "dimRadius": 40,
   "intensity": 1.0,
-  "falloff": "smooth"
+  "falloff": "smooth",
+  "z": 7,
+  "animation": { "type": "flicker", "speed": 1.5, "amplitude": 0.25, "radiusVariation": 0 }
 }
 ```
 
-### Field Reference
+### Field reference
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `displayName` | string | Name shown in the editor light picker |
-| `category` | string | Grouping category (Fire & Flame, Magical, etc.) |
-| `description` | string | Brief description of the light source |
-| `type` | `"point"` or `"directional"` | Light emission type |
-| `color` | hex color | Light color |
-| `radius` | number | Light range in feet |
-| `intensity` | 0-1+ | Brightness multiplier |
-| `falloff` | string | Attenuation curve: `"smooth"`, `"quadratic"`, `"linear"` |
-| `angle` | number | (directional only) Cone direction in degrees |
-| `spread` | number | (directional only) Cone width in degrees |
+| `displayName` | string | Name shown in the picker |
+| `category` | string | Grouping (`Fire & Flame`, `Magical`, `Natural`, `Utility`) |
+| `description` | string | Brief description |
+| `type` | `"point"` \| `"directional"` | Emission type |
+| `color` | hex | Light color |
+| `radius` | number (feet) | Bright radius |
+| `dimRadius` | number (feet) | Optional dim falloff radius |
+| `intensity` | number | Brightness multiplier (0..2 typical) |
+| `falloff` | string | `smooth` \| `linear` \| `sharp` \| `step` \| `quadratic` \| `inverse-square` |
+| `z` | number | Source height in feet (used for prop / window shadow projection) |
+| `angle` | number (deg) | Directional only — cone direction (0 = north, CW) |
+| `spread` | number (deg) | Directional only — cone width |
+| `animation` | object | Optional. `{ type: "flicker"\|"pulse"\|"strike", speed, amplitude, radiusVariation }` |
 
-### Available Presets (32)
+### Available presets (47)
 
-**Fire & Flame:** `candle`, `oil-lamp`, `lantern`, `torch`, `wall-sconce`, `campfire`, `fireplace`, `brazier`, `bonfire`, `forge`
+**Fire & Flame:** `candle`, `oil-lamp`, `lantern`, `torch`, `wall-sconce`, `campfire`, `fireplace`, `brazier`, `bonfire`, `forge`, `ember`, `windblown-torch`, `dying-candle`.
 
-**Magical:** `light-cantrip`, `dancing-lights`, `continual-flame`, `faerie-fire`, `moonbeam`, `daylight`, `eldritch-glow`, `divine-radiance`, `infernal-flame`, `necrotic`
+**Magical:** `light-cantrip`, `dancing-lights`, `continual-flame`, `faerie-fire`, `moonbeam`, `daylight`, `eldritch-glow`, `divine-radiance`, `infernal-flame`, `necrotic`, `arcane-blue`, `astral`, `silvery`, `faerzress`, `magical-ward`, `malfunctioning-portal`, `arcing-crystal`, `summoning-sigil`.
 
-**Natural:** `moonlight`, `starlight`, `bioluminescence`, `lava-glow`, `phosphorescent-fungi`, `sunbeam`
+**Natural:** `moonlight`, `starlight`, `bioluminescence`, `lava-glow`, `phosphorescent-fungi`, `sunbeam`, `lighthouse-beam`.
 
-**Utility:** `dim`, `bright`, `spotlight`, `ambient-glow`
+**Utility:** `dim`, `bright`, `spotlight`, `ambient-glow`, `nervous-lantern`, `stained-glass-window`, `prison-bars-light`, `canopy-dapple`, `water-caustics`.
 
-### Adding a New Light Preset
+(Authoritative list: `src/lights/manifest.json`. Use `listLightPresets()` from the editor API at runtime — never hardcode preset names in tooling code.)
 
-1. Create `your-light.light` in `src/lights/`
-2. Add `"your-light"` to `src/lights/manifest.json`
-3. Include all required fields (displayName, category, type, color, radius, intensity, falloff)
+### Picking a preset
+
+The preset controls color, falloff, animation (flicker/pulse), and source z-height. Match concept to preset, then use inline overrides at placement time to tune `radius` / `intensity`. Quick guide:
+
+- Small burning thing → `candle` (r=10), `oil-lamp` (r=15), `ember` (r=5, dim red)
+- Wall torch → `torch` (r=20), `wall-sconce` (r=15)
+- Coals / fire bowl → `brazier` (r=25)
+- Hearth → `fireplace` (r=25)
+- Outdoor fire → `campfire` (r=30), `bonfire` (r=40)
+- Forge / smelter → `forge` (r=20, intense)
+- Hot metal / molten → `ember` or `lava-glow`
+- Daylight pool (window, grate) → `daylight` (r=60, point)
+- Angled shaft → `sunbeam` (directional)
+- Crystals / motes → `arcane-blue`, `astral`, `silvery`, `eldritch-glow`, `faerie-fire`
+- Fungal → `phosphorescent-fungi`, `bioluminescence`
+- Divine → `divine-radiance`. Infernal → `infernal-flame`. Drow → `faerzress`. Undead → `necrotic`.
+
+**Wrong-preset traps:** `candle` for daylight (too orange); `torch` for a bonfire (too small); `sunbeam` for floor pools (use `daylight`).
+
+### Adding a new light preset
+
+1. Create `your-light.light` in `src/lights/`.
+2. Add `"your-light"` to `src/lights/manifest.json`.
+3. Restart server (or call `clearCaches()` from the editor API).
+
+---
+
+## `.gobo` files
+
+YAML-headered files in `src/gobos/` declaring procedural projection patterns. A gobo is a "shape that gets multiplied into a light" — used for window mullions, prison bars, caustics, summoning sigils, etc.
+
+### When to use a gobo (vs cookie)
+
+- **Cookie** — pattern is part of the LIGHT, always visible at the source. Use for floor-level effects (water caustics, tree dapple, runic sigils, stained-glass pools).
+- **Gobo** — pattern is part of a PROP or WINDOW, projected only when a light hits it from the correct side. Use for physical occluders (prison bars, lattices, barred windows seen from inside when a torch is behind them, mullioned windows).
+
+Cookies are declared inline on a light's `cookie:` field; gobos are referenced by id from a prop's `gobos:` field or a window's `goboId`.
+
+### Schema
+
+```yaml
+name: Window Mullions
+description: Six-pane window grid cast by a mullioned wall window.
+pattern: grid
+density: 6
+```
+
+```yaml
+name: Horizontal Slats
+description: Horizontal blinds, louvered shutters, ladder rungs.
+pattern: slats
+density: 6
+orientation: horizontal
+```
+
+```yaml
+name: Cathedral Glass
+description: Stained-glass cathedral window with primary jewel tones.
+pattern: stained-glass
+density: 4
+colors: #cc2233, #2266cc, #cce033, #5b3aa0
+```
+
+### Field reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Display name |
+| `description` | string | Brief description |
+| `pattern` | enum | `plain`, `grid`, `slats`, `slot`, `mosaic`, `sigil`, `caustics`, `dapple`, `stained-glass`, `diamond`, `cross`. Unknown values fall back to `grid`. |
+| `density` | number | Pattern divisions / band count. Default 6. Lower = sparser; higher = denser |
+| `orientation` | `vertical` \| `horizontal` | Optional. Only meaningful for `slats` / `slot` patterns |
+| `colors` | comma-list of hex | Optional. Only meaningful for `stained-glass` / `mosaic` patterns. Cycled across the cells |
+
+### Available gobos (16)
+
+Window-style: `arrow-slit`, `cathedral-glass`, `cruciform`, `diamond-lattice`, `double-hung`, `horizontal-clerestory`, `leaded-grid`, `narrow-casement`, `none` (clear aperture, no tracery), `portcullis-window`, `rose-window`, `tall-lancet`, `window-mullions`.
+
+Occluder-style (used by gobo-prop occluders, not windows): `vertical-bars`, `horizontal-slats`, `ceiling-grate`.
+
+(Authoritative list: `src/gobos/manifest.json`.)
+
+### Adding a new gobo
+
+1. Drop a `.gobo` file into `src/gobos/` with `name`, `description`, `pattern`, `density`, optional `orientation` / `colors`.
+2. Run `node mapwright/tools/update-gobo-manifest.js` — regenerates `manifest.json` and `bundle.json`.
+3. Reload the editor (or call `clearCaches()`).
+
+---
+
+## See also
+
+- [`src/props/CLAUDE.md`](../props/CLAUDE.md) — `.prop` file format, including how props use `lights:` (cookies) and `gobos:` (segment occluders).
+- [`mapwright/CLAUDE.md`](../../CLAUDE.md) — Lighting domain routing and pipeline overview.
+- [`src/editor/CLAUDE.md`](../editor/CLAUDE.md) — Editor API for placing lights, windows, and querying the catalogs at runtime.

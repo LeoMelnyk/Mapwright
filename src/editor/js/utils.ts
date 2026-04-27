@@ -1,5 +1,5 @@
 // Grid math and coordinate helpers
-import type { Dungeon, RenderTransform } from '../../types.js';
+import type { Direction, Dungeon, RenderTransform } from '../../types.js';
 import { CURRENT_FORMAT_VERSION } from './migrations.js';
 import { RESOLUTION_DEFAULT, fromCanvas } from '../../util/index.js';
 
@@ -24,7 +24,7 @@ export function nearestEdge(
   transform: RenderTransform,
   gridSize: number,
   edgeMarginRatio: number = 0.25,
-): { direction: string; row: number; col: number } | null {
+): { direction: Direction; row: number; col: number } | null {
   const feet = fromCanvas(px, py, transform);
   const col = Math.floor(feet.x / gridSize);
   const row = Math.floor(feet.y / gridSize);
@@ -34,7 +34,7 @@ export function nearestEdge(
 
   const margin = edgeMarginRatio;
 
-  const candidates = [];
+  const candidates: Array<{ direction: Direction; dist: number }> = [];
 
   if (relY < margin) candidates.push({ direction: 'north', dist: relY });
   if (relY > 1 - margin) candidates.push({ direction: 'south', dist: 1 - relY });

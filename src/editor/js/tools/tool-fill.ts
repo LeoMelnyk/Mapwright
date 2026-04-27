@@ -107,8 +107,8 @@ export class FillTool extends Tool {
     const cells = state.dungeon.cells;
     const { r1, r2, c1, c2 } = this._getBoxBounds();
     const isFluid = mode === 'water' || mode === 'lava';
-    const depthKey = mode + 'Depth';
-    const depth = isFluid ? (state[depthKey] ?? 1) : undefined;
+    const depthKey: 'waterDepth' | 'lavaDepth' = mode === 'water' ? 'waterDepth' : 'lavaDepth';
+    const depth = isFluid ? state[depthKey] : undefined;
 
     // Collect coords that will actually be mutated
     const coords: Array<{ row: number; col: number }> = [];
@@ -126,7 +126,7 @@ export class FillTool extends Tool {
           cell!.hazard = true;
         } else {
           cell!.fill = mode as FillType;
-          if (isFluid) (cell as Record<string, unknown>)[depthKey] = depth;
+          if (isFluid) cell![depthKey] = depth;
           if (mode !== 'water') delete cell!.waterDepth;
           if (mode !== 'lava') delete cell!.lavaDepth;
         }

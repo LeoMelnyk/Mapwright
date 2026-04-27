@@ -4,7 +4,15 @@
 import { renderCells, drawHatching, drawRockShading, drawOuterShading } from '../render/index.js';
 import { classifyAllTrimFog } from './fog.js';
 import playerState from './player-state.js';
-import { cellKey, CARDINAL_OFFSETS } from '../util/index.js';
+import {
+  cellKey,
+  CARDINAL_OFFSETS,
+  cellHasChordEdge,
+  getEdge,
+  getInteriorEdges,
+  getSegments,
+  isChordEdge,
+} from '../util/index.js';
 import { S, getMapCache, getMapPxPerFoot, resolveTheme, type OffscreenLayer } from './player-canvas-state.js';
 import { _openDiagFogHalf, _traceDiagVoidTriangle } from './player-canvas-fog.js';
 import type { Cell, CellGrid, RenderTransform, Theme, VisibleBounds } from '../types.js';
@@ -107,9 +115,12 @@ function _wallsCellForPlayer(cell: Cell | null, r: number, c: number): Cell | nu
   }
 
   // Open diagonal trims: strip walls on the unrevealed side
-  const hasNWSE = !!pc['nw-se'];
-  const hasNESW = !!pc['ne-sw'];
-  if ((hasNWSE || hasNESW) && !pc.trimCorner && !pc.trimClip) {
+  const hasNWSE = !!getEdge(cell, 'nw-se');
+  const hasNESW = !!getEdge(cell, 'ne-sw');
+  const segs = getSegments(cell);
+  const hasChord = cellHasChordEdge(cell);
+  const hasVoidedSegment = segs.some((s) => s.voided);
+  if ((hasNWSE || hasNESW) && !hasChord && !hasVoidedSegment) {
     const revealed = playerState.revealedCells;
     let sideARevealed: boolean, sideBRevealed: boolean;
     if (hasNWSE) {
@@ -256,8 +267,10 @@ export function revealWallsCells(cellKeys: string[]): void {
       if (!S._wallsCells[nr]?.[nc]) continue;
       const src = cells[nr]?.[nc];
       if (!src) continue;
-      const srcAny = src as Record<string, unknown>;
-      if ((srcAny['nw-se'] || srcAny['ne-sw']) && !srcAny.trimCorner && !srcAny.trimClip) {
+      const srcSegs = getSegments(src);
+      const isOpenDiagonal =
+        (getEdge(src, 'nw-se') ?? getEdge(src, 'ne-sw')) && !cellHasChordEdge(src) && !srcSegs.some((s) => s.voided);
+      if (isOpenDiagonal) {
         S._wallsCells[nr][nc] = _wallsCellForPlayer(src, nr, nc);
       }
     }
@@ -341,13 +354,15 @@ function applyFogEdgeMask(
   // Paint hatching/shading BACK over the unrevealed side of trim cells
   const cells = playerState.dungeon?.cells;
   maskCtx.globalCompositeOperation = 'source-over';
-  // Arc trims (trimClip cells)
+  // Arc trims (cells with arc interiorEdge)
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells!);
   for (const [key, side] of trimSides) {
     if ((side as string) === 'both' || (side as string) === 'neither') continue;
     const [r, c] = key.split(',').map(Number) as [number, number];
-    const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
-    const clip = cell?.trimClip as [number, number][];
+    const cell = cells?.[r]?.[c];
+    if (!cell) continue;
+    const clip = getSegments(cell)[0]?.polygon as [number, number][] | undefined;
+    if (!clip) continue;
     const px = c * cellPx,
       py = r * cellPx;
     if (side === 'roomOnly') {
@@ -376,16 +391,27 @@ function applyFogEdgeMask(
     }
   }
 
-  // Diagonal trims (trimCorner without trimClip) — paint shading back over void triangle
+  // Diagonal trims with a void-corner cut — paint shading back over the void
+  // segment polygon.
   for (const key of playerState.revealedCells) {
     const [r, c] = key.split(',').map(Number) as [number, number];
-    const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
-    if (!cell?.trimCorner || cell.trimClip) continue;
+    const cell = cells?.[r]?.[c];
+    if (!cell) continue;
+    const ie = getInteriorEdges(cell)[0];
+    if (!ie || isChordEdge(ie)) continue;
+    const segs = getSegments(cell);
+    const voidedIdx = segs.findIndex((s) => s.voided);
+    if (voidedIdx < 0) continue;
+    const voidPoly = segs[voidedIdx]!.polygon;
     const px = c * cellPx,
       py = r * cellPx;
     maskCtx.save();
     maskCtx.beginPath();
-    _traceDiagVoidTriangle(maskCtx, cell.trimCorner as string, px, py, cellPx);
+    maskCtx.moveTo(px + voidPoly[0]![0]! * cellPx, py + voidPoly[0]![1]! * cellPx);
+    for (let i = 1; i < voidPoly.length; i++) {
+      maskCtx.lineTo(px + voidPoly[i]![0]! * cellPx, py + voidPoly[i]![1]! * cellPx);
+    }
+    maskCtx.closePath();
     maskCtx.clip();
     maskCtx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
     maskCtx.restore();
@@ -394,8 +420,12 @@ function applyFogEdgeMask(
   // Open diagonal trims — paint shading back over the unrevealed half
   for (const key of playerState.revealedCells) {
     const [r, c] = key.split(',').map(Number) as [number, number];
-    const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
-    if (!cell || cell.trimCorner || cell.trimClip) continue;
+    const cell = cells?.[r]?.[c];
+    if (!cell) continue;
+    const ie = getInteriorEdges(cell)[0];
+    if (!ie || isChordEdge(ie)) continue;
+    const segs = getSegments(cell);
+    if (segs.some((s) => s.voided)) continue;
     const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);
     if (!fogHalf) continue;
     const px = c * cellPx,

@@ -1003,7 +1003,7 @@ export function scatterProps(
         const cell = cells[dr]?.[dc];
         if (!cell) continue;
         for (const dir of CARDINAL_DIRS) {
-          const v = (cell as Record<string, unknown>)[dir];
+          const v = getEdge(cell, dir as CardinalDirection);
           if (v === 'd' || v === 's' || v === 'id') {
             doorCells.add(key);
             const [odr, odc] = offsets[dir]!;

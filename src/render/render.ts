@@ -22,8 +22,6 @@ export {
   invalidateFluidCache,
   patchBlendForDirtyRegion,
   patchFluidForDirtyRegion,
-  collectRoundedCorners,
-  traceArcWedge,
 } from './render-cache.js';
 export { renderLabels } from './render-phases.js';
 export { renderCells } from './render-cells.js';

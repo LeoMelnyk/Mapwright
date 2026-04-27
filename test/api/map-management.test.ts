@@ -41,7 +41,8 @@ function addDoor(r, c, direction) {
   const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
   cells[r][c][direction] = 'd';
   const [dr, dc] = OFFSETS[direction];
-  const nr = r + dr, nc = c + dc;
+  const nr = r + dr,
+    nc = c + dc;
   if (cells[nr]?.[nc]) {
     cells[nr][nc][OPPOSITE[direction]] = 'd';
   }
@@ -164,8 +165,34 @@ describe('getMapInfo', () => {
 
   it('collects texture IDs', () => {
     const cells = state.dungeon.cells;
-    cells[3][3] = { texture: 'cobblestone' };
-    cells[4][4] = { texture: 'dirt' };
+    cells[3][3] = {
+      segments: [
+        {
+          id: 's0',
+          polygon: [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+          ],
+          texture: 'cobblestone',
+        },
+      ],
+    };
+    cells[4][4] = {
+      segments: [
+        {
+          id: 's0',
+          polygon: [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+          ],
+          texture: 'dirt',
+        },
+      ],
+    };
     const info = getMapInfo();
     expect(info.textureIds).toContain('cobblestone');
     expect(info.textureIds).toContain('dirt');
@@ -181,7 +208,7 @@ describe('getFullMapInfo', () => {
     const info = getFullMapInfo();
     expect(info.success).toBe(true);
     expect(info.rooms.length).toBe(2);
-    const a1 = info.rooms.find(r => r.label === 'A1');
+    const a1 = info.rooms.find((r) => r.label === 'A1');
     expect(a1).toBeDefined();
     expect(a1.bounds.r1).toBe(2);
     expect(a1.bounds.r2).toBe(4);
@@ -189,9 +216,7 @@ describe('getFullMapInfo', () => {
 
   it('includes props with their metadata', () => {
     const gs = state.dungeon.metadata.gridSize || 5;
-    state.dungeon.metadata.props = [
-      { id: 1, type: 'chair', x: 5 * gs, y: 5 * gs, rotation: 90 },
-    ];
+    state.dungeon.metadata.props = [{ id: 1, type: 'chair', x: 5 * gs, y: 5 * gs, rotation: 90 }];
     const info = getFullMapInfo();
     expect(info.props.length).toBe(1);
     expect(info.props[0]).toEqual({ row: 5, col: 5, type: 'chair', facing: 90, id: 1 });
@@ -208,11 +233,11 @@ describe('getFullMapInfo', () => {
     addDoor(3, 4, 'east');
     const info = getFullMapInfo();
     // Door should appear once (not both sides)
-    const door = info.doors.find(d => d.row === 3 && d.col === 4 && d.direction === 'east');
+    const door = info.doors.find((d) => d.row === 3 && d.col === 4 && d.direction === 'east');
     expect(door).toBeDefined();
     expect(door.type).toBe('d');
     // Should not have duplicate from reciprocal
-    const reciprocal = info.doors.filter(d => d.row === 3 && d.col === 5 && d.direction === 'west');
+    const reciprocal = info.doors.filter((d) => d.row === 3 && d.col === 5 && d.direction === 'west');
     expect(reciprocal.length).toBe(0);
   });
 
@@ -224,8 +249,25 @@ describe('getFullMapInfo', () => {
   });
 
   it('includes stairs and bridges data', () => {
-    state.dungeon.metadata.stairs = [{ id: 1, points: [[1, 1], [2, 2], [3, 3]] }];
-    state.dungeon.metadata.bridges = [{ id: 1, points: [[4, 4], [5, 5]] }];
+    state.dungeon.metadata.stairs = [
+      {
+        id: 1,
+        points: [
+          [1, 1],
+          [2, 2],
+          [3, 3],
+        ],
+      },
+    ];
+    state.dungeon.metadata.bridges = [
+      {
+        id: 1,
+        points: [
+          [4, 4],
+          [5, 5],
+        ],
+      },
+    ];
     const info = getFullMapInfo();
     expect(info.stairs.length).toBe(1);
     expect(info.bridges.length).toBe(1);

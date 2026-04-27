@@ -395,6 +395,7 @@ app.post('/api/export-dd2vtt', async (req, res) => {
     const renderOptions = {
       bakeLighting: exportOptions?.bakeLighting !== false,
       bakeWeather: exportOptions?.bakeWeather !== false,
+      skipLabels: true,
     };
 
     await ensureTexturesForConfig(textureCatalog, config, propCatalog);

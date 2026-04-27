@@ -7,6 +7,8 @@ export {
   cycleSubMode,
   getToolCursor,
   updateToolButtons,
+  setToolbarDisabled,
+  isToolbarDisabled,
 } from './toolbar.js';
 export { init as initSidebar, setPanelChangeCallback, getActivePanel, togglePanel } from './sidebar.js';
 export { init as initProperties, setSelectPropCallback, deselectCell } from './properties.js';

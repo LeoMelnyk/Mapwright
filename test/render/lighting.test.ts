@@ -14,7 +14,8 @@ import {
   renderLightmap,
   invalidateVisibilityCache,
 } from '../../src/render/lighting.js';
-import type { Light, CellGrid } from '../../src/types.js';
+import type { Cell, Light, CellGrid } from '../../src/types.js';
+import { setDiagonalEdge } from '../../src/util/index.js';
 import { createCanvas } from '@napi-rs/canvas';
 
 // ---------------------------------------------------------------------------
@@ -106,7 +107,9 @@ describe('extractWallSegments', () => {
   });
 
   it('diagonal walls produce segments', () => {
-    const cells = [[{ 'nw-se': 'w' }]];
+    const diagCell: Cell = {};
+    setDiagonalEdge(diagCell, 'nw-se', 'w');
+    const cells = [[diagCell]];
     const gridSize = 10;
     const segments = extractWallSegments(cells, gridSize, null);
 

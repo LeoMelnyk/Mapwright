@@ -22,6 +22,7 @@ import {
 } from '../../src/editor/js/api/weather.js';
 import { undo, redo } from '../../src/editor/js/state.js';
 import { ApiValidationError } from '../../src/editor/js/api/errors.js';
+import { getCellWeatherHalf, setEdge } from '../../src/util/index.js';
 
 /** Run `fn` and return the ApiValidationError it threw, or fail the test. */
 function expectApiError(fn: () => unknown, code: string): ApiValidationError {
@@ -50,11 +51,7 @@ vi.mock('../../src/render/index.js', async () => {
   };
 });
 
-import {
-  markWeatherFullRebuild,
-  markWeatherCellDirty,
-  hasActiveWeatherLightning,
-} from '../../src/render/index.js';
+import { markWeatherFullRebuild, markWeatherCellDirty, hasActiveWeatherLightning } from '../../src/render/index.js';
 
 function paintFloor(r1: number, c1: number, r2: number, c2: number) {
   for (let r = r1; r <= r2; r++) {
@@ -205,10 +202,7 @@ describe('setWeatherGroup', () => {
 
   it('does not partially apply on a validation error', () => {
     const { id } = createWeatherGroup({ name: 'A', intensity: 0.5 });
-    expectApiError(
-      () => setWeatherGroup(id, { intensity: 0.7, type: 'invalid' as never }),
-      'INVALID_WEATHER_TYPE',
-    );
+    expectApiError(() => setWeatherGroup(id, { intensity: 0.7, type: 'invalid' as never }), 'INVALID_WEATHER_TYPE');
     const g = state.dungeon.metadata.weatherGroups![0]!;
     expect(g.intensity).toBe(0.5); // not advanced past the failed validation
   });
@@ -239,13 +233,13 @@ describe('removeWeatherGroup', () => {
     const { id } = createWeatherGroup();
     setWeatherCell(2, 2, id);
     setWeatherCell(3, 3, id);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
     const result = removeWeatherGroup(id);
     expect(result.success).toBe(true);
     expect(result.removed.cells).toBe(2);
     expect(state.dungeon.metadata.weatherGroups).toHaveLength(0);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
-    expect(state.dungeon.cells[3][3].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[3][3], 'full')).toBeUndefined();
   });
 
   it('does not touch cells assigned to other groups', () => {
@@ -255,8 +249,8 @@ describe('removeWeatherGroup', () => {
     setWeatherCell(2, 2, id1);
     setWeatherCell(3, 3, id2);
     removeWeatherGroup(id1);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
-    expect(state.dungeon.cells[3][3].weatherGroupId).toBe(id2);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[3][3], 'full')).toBe(id2);
   });
 });
 
@@ -267,7 +261,7 @@ describe('setWeatherCell', () => {
     paintFloor(2, 2, 2, 2);
     const { id } = createWeatherGroup();
     setWeatherCell(2, 2, id);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
     expect(markWeatherCellDirty).toHaveBeenCalledWith(2, 2);
   });
 
@@ -276,7 +270,7 @@ describe('setWeatherCell', () => {
     const { id } = createWeatherGroup();
     setWeatherCell(2, 2, id);
     setWeatherCell(2, 2, null);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
   });
 
   it('throws for unknown groupId', () => {
@@ -298,24 +292,24 @@ describe('setWeatherCell', () => {
 
   it('requires explicit halfKey on a diagonal-split cell', () => {
     paintFloor(2, 2, 2, 2);
-    state.dungeon.cells[2][2]['nw-se'] = 'w'; // splits cell into NE + SW halves
+    setEdge(state.dungeon.cells[2][2]!, 'nw-se', 'w'); // splits cell into NE + SW halves
     const { id } = createWeatherGroup();
     expectApiError(() => setWeatherCell(2, 2, id), 'WEATHER_HALF_REQUIRED');
   });
 
   it('writes per-half on a diagonal-split cell', () => {
     paintFloor(2, 2, 2, 2);
-    state.dungeon.cells[2][2]['nw-se'] = 'w';
+    setEdge(state.dungeon.cells[2][2]!, 'nw-se', 'w');
     const { id } = createWeatherGroup();
     setWeatherCell(2, 2, id, 'ne');
     const cell = state.dungeon.cells[2][2];
-    expect(cell.weatherHalves).toEqual({ ne: id });
-    expect(cell.weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(cell, 'ne')).toBe(id);
+    expect(getCellWeatherHalf(cell, 'sw')).toBeUndefined();
   });
 
   it('rejects invalid half name on a split cell', () => {
     paintFloor(2, 2, 2, 2);
-    state.dungeon.cells[2][2]['nw-se'] = 'w'; // halves are 'ne' / 'sw'
+    setEdge(state.dungeon.cells[2][2]!, 'nw-se', 'w'); // halves are 'ne' / 'sw'
     const { id } = createWeatherGroup();
     expectApiError(() => setWeatherCell(2, 2, id, 'interior'), 'INVALID_HALF_KEY');
   });
@@ -341,7 +335,7 @@ describe('setWeatherRect', () => {
     expect(result.count).toBe(9); // 3×3 = 9 cells
     for (let r = 2; r <= 4; r++) {
       for (let c = 2; c <= 4; c++) {
-        expect(state.dungeon.cells[r][c].weatherGroupId).toBe(id);
+        expect(getCellWeatherHalf(state.dungeon.cells[r][c], 'full')).toBe(id);
       }
     }
   });
@@ -361,7 +355,7 @@ describe('setWeatherRect', () => {
     setWeatherRect(2, 2, 4, 4, id);
     const result = setWeatherRect(2, 2, 4, 4, null);
     expect(result.count).toBe(9);
-    expect(state.dungeon.cells[3][3].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[3][3], 'full')).toBeUndefined();
   });
 
   it('returns count=0 when nothing changes', () => {
@@ -394,8 +388,8 @@ describe('floodFillWeather', () => {
     const result = floodFillWeather(3, 3, id);
     expect(result.success).toBe(true);
     expect(result.count).toBe(9);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
-    expect(state.dungeon.cells[4][4].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[4][4], 'full')).toBe(id);
   });
 
   it('stops at walls', () => {
@@ -411,8 +405,8 @@ describe('floodFillWeather', () => {
     const result = floodFillWeather(3, 3, id);
     // Only cells in cols 2..3 (3 rows × 2 cols = 6) should be filled
     expect(result.count).toBe(6);
-    expect(state.dungeon.cells[3][3].weatherGroupId).toBe(id);
-    expect(state.dungeon.cells[3][4].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[3][3], 'full')).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[3][4], 'full')).toBeUndefined();
   });
 
   it('clears every cell when groupId is null', () => {
@@ -421,7 +415,7 @@ describe('floodFillWeather', () => {
     setWeatherRect(2, 2, 4, 4, id);
     const result = floodFillWeather(3, 3, null);
     expect(result.count).toBe(9);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
   });
 
   it('throws when the start cell is void', () => {
@@ -459,7 +453,7 @@ describe('getWeatherCell', () => {
 
   it('reports both halves on a diagonally split cell', () => {
     paintFloor(2, 2, 2, 2);
-    state.dungeon.cells[2][2]['nw-se'] = 'w';
+    setEdge(state.dungeon.cells[2][2]!, 'nw-se', 'w');
     const { id: id1 } = createWeatherGroup();
     const { id: id2 } = createWeatherGroup();
     setWeatherCell(2, 2, id1, 'ne');
@@ -481,11 +475,11 @@ describe('undo / redo', () => {
     paintFloor(2, 2, 2, 2);
     const { id } = createWeatherGroup();
     setWeatherCell(2, 2, id);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
     undo();
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
     redo();
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
   });
 
   it('round-trips a removeWeatherGroup that touched cells', () => {
@@ -494,9 +488,9 @@ describe('undo / redo', () => {
     setWeatherRect(2, 2, 4, 4, id);
     removeWeatherGroup(id);
     expect(state.dungeon.metadata.weatherGroups).toHaveLength(0);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBeUndefined();
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBeUndefined();
     undo();
     expect(state.dungeon.metadata.weatherGroups).toHaveLength(1);
-    expect(state.dungeon.cells[2][2].weatherGroupId).toBe(id);
+    expect(getCellWeatherHalf(state.dungeon.cells[2][2], 'full')).toBe(id);
   });
 });

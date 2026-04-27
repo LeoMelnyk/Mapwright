@@ -1,4 +1,4 @@
-import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
+import type { TextureCatalog, TextureRuntime } from '../../types.js';
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
 // Metadata comes from /textures/bundle.json in one request (HTTP cached via ETag);
 // PNG images stay per-file and load lazily through the browser's Image element.

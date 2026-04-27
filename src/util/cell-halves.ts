@@ -1,43 +1,60 @@
 // Half-cell geometry and weather-assignment helpers.
 //
-// A cell may be split into two independently-addressable halves by either a
-// diagonal wall (nw-se / ne-sw) or an arc trim (trimClip). Weather (and
-// potentially future per-half features) needs to address each half
-// separately. This module is the single source of truth for:
-//   - enumerating a cell's halves
-//   - hit-testing a point to a half
-//   - tracing a half's clip polygon onto a 2D canvas context
-//   - reading / writing the per-half weatherGroupId with the correct invariant
+// A cell's "halves" are an alias on top of segments: every segment in a
+// split cell maps to a stable half-key (`'ne'`/`'sw'`/`'nw'`/`'se'` for
+// diagonals, `'interior'`/`'exterior'` for arc trims). The half-key
+// vocabulary is preserved so the editor API surface that targets halves
+// (weather assignments, hit-testing during paint) keeps the same shape;
+// internally everything routes through `getSegments` / `spliceSegments`.
+//
+// Storage rule: per-segment `weatherGroupId` lives on `cell.segments[i]`.
+// There is no `cell.weatherGroupId` or `cell.weatherHalves` anymore.
 //
 // Coordinate conventions:
 //   - hitTestHalf uses cell-local [0..1] coords: (lx=col-axis, ly=row-axis).
-//   - trimClip vertices are stored as [x, y] = [col-axis, row-axis], both in
-//     [0..1]. The ray-casting PIP algorithm is orientation-symmetric, so we
-//     can pass trimClip directly and feed (lx, ly) into pointInPolygon's
-//     (py, px) params — the math is consistent as long as we use the same
-//     convention for both point and polygon vertices.
+//   - All polygons are stored as [x, y] = [col-axis, row-axis], both in [0..1].
 
 import type { Cell, CellHalfKey } from '../types.js';
-import { pointInPolygon } from './polygon.js';
+import {
+  getInteriorEdges,
+  getSegmentIndexAt,
+  getSegments,
+  halfKeyToSegmentIndex,
+  isChordEdge,
+  segmentIndexToHalfKey,
+  spliceSegments,
+  traceSegment,
+} from './cell-segments.js';
+
+const EPS = 1e-9;
+
+/** Detect whether an interior-edge polyline is a diagonal chord and which one. */
+function diagonalDirOfEdge(verts: number[][]): 'nw-se' | 'ne-sw' | null {
+  if (verts.length < 2) return null;
+  const a = verts[0]!;
+  const b = verts[verts.length - 1]!;
+  const matchPair = (p: number[], q: number[], px: number, py: number, qx: number, qy: number): boolean =>
+    Math.abs(p[0]! - px) < EPS &&
+    Math.abs(p[1]! - py) < EPS &&
+    Math.abs(q[0]! - qx) < EPS &&
+    Math.abs(q[1]! - qy) < EPS;
+  if (matchPair(a, b, 0, 0, 1, 1) || matchPair(b, a, 0, 0, 1, 1)) return 'nw-se';
+  if (matchPair(a, b, 1, 0, 0, 1) || matchPair(b, a, 1, 0, 0, 1)) return 'ne-sw';
+  return null;
+}
 
 /** Returns the ordered list of half-keys that exist for this cell. */
 export function getCellHalves(cell: Cell | null | undefined): CellHalfKey[] {
   if (!cell) return [];
-  if (cell['nw-se']) return ['ne', 'sw'];
-  if (cell['ne-sw']) return ['nw', 'se'];
-  if (cell.trimClip && cell.trimClip.length >= 3) return ['interior', 'exterior'];
+  const edges = getInteriorEdges(cell);
+  if (edges.length === 0) return ['full'];
+  const ie = edges[0]!;
+  const diag = diagonalDirOfEdge(ie.vertices);
+  if (diag === 'nw-se') return ['ne', 'sw'];
+  if (diag === 'ne-sw') return ['nw', 'se'];
+  // Chord/arc trim — anything that isn't a recognized straight diagonal.
+  if (isChordEdge(ie)) return ['interior', 'exterior'];
   return ['full'];
-}
-
-/**
- * Returns true if the cell is split (has more than one addressable half).
- * Equivalent to `getCellHalves(cell).length > 1` without the array alloc.
- */
-export function isCellSplit(cell: Cell | null | undefined): boolean {
-  if (!cell) return false;
-  if (cell['nw-se'] || cell['ne-sw']) return true;
-  if (cell.trimClip && cell.trimClip.length >= 3) return true;
-  return false;
 }
 
 /**
@@ -46,21 +63,9 @@ export function isCellSplit(cell: Cell | null | undefined): boolean {
  */
 export function hitTestHalf(cell: Cell | null | undefined, lx: number, ly: number): CellHalfKey {
   if (!cell) return 'full';
-  if (cell['nw-se']) {
-    // nw-se line goes from (0,0) to (1,1) → y = x.
-    // NE half: above/right of line (lx > ly). SW half: below/left (lx <= ly).
-    return lx > ly ? 'ne' : 'sw';
-  }
-  if (cell['ne-sw']) {
-    // ne-sw line goes from (1,0) to (0,1) → y = 1 - x, i.e. x + y = 1.
-    // NW half: upper-left (lx + ly < 1). SE half: lower-right.
-    return lx + ly < 1 ? 'nw' : 'se';
-  }
-  if (cell.trimClip && cell.trimClip.length >= 3) {
-    // Orientation-symmetric PIP: pass (lx, ly) against polygon stored as [x, y].
-    return pointInPolygon(lx, ly, cell.trimClip) ? 'interior' : 'exterior';
-  }
-  return 'full';
+  const segIdx = getSegmentIndexAt(cell, lx, ly);
+  if (segIdx < 0) return 'full';
+  return segmentIndexToHalfKey(cell, segIdx);
 }
 
 /**
@@ -80,34 +85,20 @@ export function halfClip(
   cellPx: number,
 ): 'nonzero' | 'evenodd' {
   if (halfKey === 'full') {
-    // Unsplit cell. If it happens to have a trimClip (legacy — shouldn't
-    // normally co-occur since getCellHalves would have split it), fall back
-    // to the trimClip polygon to preserve old rendering behavior.
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      tracePolygon(ctx, cell.trimClip, px, py, cellPx);
-      return 'nonzero';
-    }
+    // Unsplit cell — draw the full square.
     ctx.rect(px, py, cellPx, cellPx);
     return 'nonzero';
   }
-  if (halfKey === 'interior') {
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      tracePolygon(ctx, cell.trimClip, px, py, cellPx);
-    }
+  const segments = getSegments(cell);
+  const idx = halfKeyToSegmentIndex(cell, halfKey);
+  const seg = segments[idx];
+  if (!seg) {
+    // Half-key didn't apply — fall through to a full-cell rect so the caller
+    // doesn't end up with an empty path that produces unexpected fills.
+    ctx.rect(px, py, cellPx, cellPx);
     return 'nonzero';
   }
-  if (halfKey === 'exterior') {
-    // Rect + trimClip as a hole (via evenodd rule at fill/clip time).
-    ctx.rect(px, py, cellPx, cellPx);
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      tracePolygon(ctx, cell.trimClip, px, py, cellPx);
-    }
-    return 'evenodd';
-  }
-  // Diagonal halves: the half-key ('ne'/'sw'/'nw'/'se') directly names the
-  // corner contained by the solid triangle — traceCornerTriangle draws the
-  // right triangle whose three vertices include that corner.
-  traceCornerTriangle(ctx, halfKey, px, py, cellPx);
+  traceSegment(ctx, seg, px, py, cellPx);
   return 'nonzero';
 }
 
@@ -166,7 +157,13 @@ export function traceCornerTriangle(
   ctx.closePath();
 }
 
-function tracePolygon(ctx: CanvasRenderingContext2D, poly: number[][], px: number, py: number, cellPx: number): void {
+export function tracePolygon(
+  ctx: CanvasRenderingContext2D,
+  poly: number[][],
+  px: number,
+  py: number,
+  cellPx: number,
+): void {
   ctx.moveTo(px + poly[0]![0]! * cellPx, py + poly[0]![1]! * cellPx);
   for (let i = 1; i < poly.length; i++) {
     ctx.lineTo(px + poly[i]![0]! * cellPx, py + poly[i]![1]! * cellPx);
@@ -177,134 +174,76 @@ function tracePolygon(ctx: CanvasRenderingContext2D, poly: number[][], px: numbe
 // ── Weather assignment read/write ──────────────────────────────────────────
 
 /**
- * Reads the weather group assigned to a specific half of a cell. Handles
- * legacy cells that have `weatherGroupId` set on a split cell (pre-refactor
- * maps): trim cells fall back to `weatherGroupId` as the interior-half
- * assignment (matching how the old renderer clipped to `trimClip`), and
- * diagonal-split cells fall back to `weatherGroupId` for both halves.
+ * Reads the weather group assigned to a specific half of a cell. Returns
+ * `undefined` when no group is assigned. Routes through segments —
+ * `weatherGroupId` lives on `cell.segments[i]`.
  */
 export function getCellWeatherHalf(cell: Cell | null | undefined, halfKey: CellHalfKey): string | undefined {
   if (!cell) return undefined;
-  if (halfKey === 'full') return cell.weatherGroupId;
-  const halves = cell.weatherHalves;
-  if (halves?.[halfKey]) return halves[halfKey];
-  // Legacy fallback: split cell with only weatherGroupId set.
-  if (cell.weatherGroupId) {
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      // Old trim cells had weather clipped to interior only.
-      return halfKey === 'interior' ? cell.weatherGroupId : undefined;
-    }
-    if (cell['nw-se'] || cell['ne-sw']) {
-      // Diagonal cells had no half distinction before — both halves inherit.
-      return cell.weatherGroupId;
-    }
+  const segs = getSegments(cell);
+  if (halfKey === 'full') {
+    // For unsplit cells we report segment 0's group. For split cells the
+    // 'full' key isn't a valid storage target — return undefined.
+    if (segs.length === 1) return segs[0]?.weatherGroupId;
+    return undefined;
   }
-  return undefined;
+  const idx = halfKeyToSegmentIndex(cell, halfKey);
+  return segs[idx]?.weatherGroupId;
 }
 
 /**
  * Writes the weather group for a specific half. Pass `null` to clear.
  *
- * Storage rules:
- *   - Unsplit cell: always stores into `weatherGroupId`, ignoring `halfKey`.
- *   - Split cell: stores into `weatherHalves[halfKey]`. Any legacy
- *     `weatherGroupId` on the cell is migrated onto the halves on first
- *     touch. `weatherHalves` stays populated even when both halves share
- *     the same group — the two slots are independently addressable so
- *     "same group on both halves" remains a persistent, queryable state
- *     instead of collapsing back to the ambiguous single-scalar form.
+ * Storage rule: stores `weatherGroupId` on the matching `cell.segments[i]`
+ * via `spliceSegments`. Unsplit cells write to segment 0; split cells map
+ * the half-key to its segment index. Writes to `'full'` on a split cell
+ * are dropped (no canonical storage location).
  */
 export function setCellWeatherHalf(cell: Cell, halfKey: CellHalfKey, groupId: string | null): void {
   const halves = getCellHalves(cell);
   const isSplit = halves[0] !== 'full';
 
   if (!isSplit) {
-    // Unsplit cell: always the single weatherGroupId.
-    if (groupId) cell.weatherGroupId = groupId;
-    else delete cell.weatherGroupId;
-    delete cell.weatherHalves;
+    spliceSegments(cell, { kind: 'setSegmentWeatherGroup', segmentIndex: 0, weatherGroupId: groupId });
     return;
   }
 
-  // Split cell. Clamp halfKey to a valid one; drop writes to 'full'.
+  // Split cell. Drop writes to 'full' or to a half-key that doesn't exist.
   if (halfKey === 'full' || !halves.includes(halfKey)) return;
 
-  // Migrate legacy weatherGroupId onto halves before writing.
-  if (cell.weatherGroupId !== undefined && !cell.weatherHalves) {
-    const legacy = cell.weatherGroupId;
-    delete cell.weatherGroupId;
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      // Old trim assignment only covered the interior.
-      cell.weatherHalves = { interior: legacy };
-    } else {
-      cell.weatherHalves = Object.fromEntries(halves.map((h) => [h, legacy])) as Partial<Record<CellHalfKey, string>>;
-    }
-  } else if (cell.weatherGroupId !== undefined) {
-    // Invariant violation (both set): drop the legacy scalar.
-    delete cell.weatherGroupId;
-  }
-
-  cell.weatherHalves ??= {};
-  if (groupId) cell.weatherHalves[halfKey] = groupId;
-  else delete cell.weatherHalves[halfKey];
-
-  // Drop the map entirely when no halves remain. Do NOT collapse equal
-  // halves back to weatherGroupId — on a split cell, the scalar form is
-  // ambiguous with legacy data and the read helpers treat it as
-  // interior-only for trim cells. Keeping halves always preserves the
-  // user's "both halves same group" as a first-class state.
-  if (Object.keys(cell.weatherHalves).length === 0) {
-    delete cell.weatherHalves;
-  }
+  const idx = halfKeyToSegmentIndex(cell, halfKey);
+  spliceSegments(cell, { kind: 'setSegmentWeatherGroup', segmentIndex: idx, weatherGroupId: groupId });
 }
 
 /**
- * Iterate over every weather assignment on a cell, yielding each half-key and
- * its group id. Handles the three cases uniformly:
- *   - Unsplit cell with weatherGroupId → yields ('full', gid).
- *   - Split cell with weatherHalves    → yields each ('hk', gid) entry.
- *   - Split cell with legacy weatherGroupId (no weatherHalves) → expands per
- *     the same fallback rules as {@link getCellWeatherHalf}.
+ * Iterate over every weather assignment on a cell. Yields the half-key (for
+ * callers that work in halfKey vocabulary), the group id, AND the segment
+ * index — the segment index is the authoritative identifier for downstream
+ * clipping / drawing. Callers should prefer the segment index for any path
+ * that round-trips back to a polygon, to avoid `halfKey → segIdx`
+ * translation drops on ambiguous split-types.
  */
 export function forEachCellWeatherAssignment(
   cell: Cell | null | undefined,
-  fn: (halfKey: CellHalfKey, groupId: string) => void,
+  fn: (halfKey: CellHalfKey, groupId: string, segmentIndex: number) => void,
 ): void {
   if (!cell) return;
-  const halves = getCellHalves(cell);
-  if (halves[0] === 'full') {
-    if (cell.weatherGroupId) fn('full', cell.weatherGroupId);
-    return;
-  }
-  if (cell.weatherHalves) {
-    for (const k of Object.keys(cell.weatherHalves) as CellHalfKey[]) {
-      const gid = cell.weatherHalves[k];
-      if (gid) fn(k, gid);
-    }
-    return;
-  }
-  if (cell.weatherGroupId) {
-    const legacy = cell.weatherGroupId;
-    if (cell.trimClip && cell.trimClip.length >= 3) {
-      fn('interior', legacy);
-    } else {
-      for (const h of halves) fn(h, legacy);
-    }
+  const segs = getSegments(cell);
+  for (let i = 0; i < segs.length; i++) {
+    const gid = segs[i]?.weatherGroupId;
+    if (!gid) continue;
+    fn(segmentIndexToHalfKey(cell, i), gid, i);
   }
 }
 
 /**
- * True if the cell has any weather assignment matching `groupId`, across
- * unsplit, split, or legacy forms. Used by lightning strike eligibility and
- * similar "is this cell in the group at all" checks.
+ * True if the cell has any segment assigned to `groupId`. Used by lightning
+ * strike eligibility and similar "is this cell in the group at all" checks.
  */
 export function cellHasGroup(cell: Cell | null | undefined, groupId: string): boolean {
   if (!cell) return false;
-  if (cell.weatherGroupId === groupId) return true;
-  if (cell.weatherHalves) {
-    for (const k of Object.keys(cell.weatherHalves) as CellHalfKey[]) {
-      if (cell.weatherHalves[k] === groupId) return true;
-    }
+  for (const seg of getSegments(cell)) {
+    if (seg.weatherGroupId === groupId) return true;
   }
   return false;
 }

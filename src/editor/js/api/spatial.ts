@@ -7,13 +7,14 @@ import {
   setReciprocal,
   cellKey,
   parseCellKey,
-  floodFillRoom,
   roomBoundsFromKeys,
   toInt,
   toDisp,
+  traverse,
   ApiValidationError,
+  getEdge,
 } from './_shared.js';
-import type { EdgeValue, PartitionRoomOptions } from '../../../types.js';
+import type { CardinalDirection, EdgeValue, PartitionRoomOptions } from '../../../types.js';
 import { isPropAt } from '../prop-spatial.js';
 
 // ── Spatial Queries ───────────────────────────────────────────────────────
@@ -44,11 +45,22 @@ export function findCellByLabel(label: string | number): {
  * BFS from a label cell, stopping at walls, doors, secret doors, and diagonal walls.
  * @param {string} label - Room label
  * @returns {Set<string>|null} Set of "row,col" cell keys, or null if label not found
+ *
+ * Uses the unified `traverse()` segment BFS internally and collapses its
+ * `(row, col, segmentIndex)` keys to plain `(row, col)` keys for backward
+ * compatibility with all downstream callers (props, inspect, operational,
+ * transforms, validation, furnish).
  */
 export function _collectRoomCells(label: string): Set<string> | null {
   const start = getApi().findCellByLabel(label);
   if (!start.success) return null;
-  return floodFillRoom(state.dungeon.cells, start.row!, start.col!);
+  const result = traverse(state.dungeon.cells, { row: start.row!, col: start.col! });
+  const cells = new Set<string>();
+  for (const k of result.visited) {
+    const parts = k.split(',');
+    cells.add(`${parts[0]},${parts[1]}`);
+  }
+  return cells;
 }
 
 /**
@@ -144,7 +156,7 @@ export function findWallBetween(
         row: toDisp(r),
         col: toDisp(c),
         direction: dir,
-        type: ((cell as Record<string, unknown>)[dir] as string) || 'w',
+        type: (getEdge(cell, dir as CardinalDirection) as string) || 'w',
       });
     }
   }
@@ -436,8 +448,8 @@ export function placeFlanking(
   }
 
   const fp = api.getPropFootprint(anchorPropType, anchor.facing);
-  const spanRows = fp.spanRows || 1;
-  const spanCols = fp.spanCols || 1;
+  const spanRows = fp.spanRows ?? 1;
+  const spanCols = fp.spanCols ?? 1;
 
   // Flank perpendicular to facing axis. facing N(0)/S(180) → flank E/W.
   // facing E(90)/W(270) → flank N/S. Default to E/W if facing is 0.

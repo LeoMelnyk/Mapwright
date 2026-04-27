@@ -4,13 +4,26 @@
 
 ### Fixed
 
+- **Weather animates on maps without animated lights** — particles (rain, snow, embers, etc.) used to freeze on any map that didn't also have an animated light source. The animation loop was gated on lighting being enabled, so the per-frame clock that drives particle motion stopped advancing as soon as the loop ticked once. Weather now animates on its own.
 - **Redo now actually re-applies your edit** — every edit that went through the compact-patch undo path (paint, walls, doors, fills, lights, props — basically everything you do in the editor) could be undone, but Ctrl+Y / Redo silently restored the *pre-mutation* state instead of re-applying the change. Existing snapshot-only paths (e.g. theme rename via metadata panel) were unaffected, which is why the bug went unnoticed. Redo now restores the post-mutation state correctly.
 - **`placeLightInRoom` lands inside L- and U-shaped rooms** — the API used to drop the light at the bounding-box center of the room, which falls in void for any non-rectangular room. It now picks the floor cell closest to the room's true centroid, so lights placed by Claude or via the Puppeteer bridge always end up on actual floor.
 - **Editor no longer crashes if the saved active tool no longer exists** — opening a map (or restoring an autosave) whose `activeTool` referred to a tool that has since been renamed or removed used to throw on init. The tool switcher now skips the missing tool's deactivate step instead of crashing.
+- **Tool keybinds stay inert while assigning weather cells** — selecting a weather group dims the main toolbar to signal it's locked, but the number/letter shortcuts (1–6, Q, E, S, B, T, A, L, W) and Tab cycling were still firing in the background, so a stray keystroke would yank you out of cell-assign mode and into another tool mid-paint. The shortcuts now respect the dimmed state — Esc still exits assign mode, and undo/redo/save still work.
+- **Shift+right-click on a weather group only clears its own cells** — flood-clearing one weather group used to walk through any open doorway and strip cells out of the *other* groups it reached. The flood now stops at borders to other groups, so removing a patch of rain from the courtyard never erases the fog you painted in the next room over.
+- **Lightning strikes never originate inside a curved wall** — chord trim cells (rounded corners, arc cuts) were eligible strike targets, so a bolt could spawn inside a curved wall and flood the room on the other side with the flash. Strikes now treat chord walls the same as cardinal walls and only fire in fully-open cells of the weather group.
+- **Texture blending respects diagonal walls** — a cell split by a diagonal wall used to bleed its primary half's texture across the wall to every cardinal neighbor, so a red NE half would visibly seep into the south and west neighbors that only border the yellow SW half. Each cardinal edge and corner now blends from the segment that actually faces it, so the diagonal wall reads as a real boundary instead of a transparent seam.
 
 ### New API methods
 
 - **Weather is now scriptable from the Puppeteer bridge** — nine new methods cover the full Weather panel surface: `createWeatherGroup`, `removeWeatherGroup`, `listWeatherGroups`, `getWeatherGroup`, `setWeatherGroup`, `setWeatherCell`, `setWeatherRect`, `floodFillWeather`, `getWeatherCell`. Half-cell aware (diagonal-split and arc-trim cells) and routes through the same cache invalidation paths as the panel, so live editor previews stay in sync with API-driven edits. See the **Weather** section in `src/editor/CLAUDE.md` for details.
+
+### Curves and trim walls
+
+- **Cells now use a polygon-segment model** — each cell is a set of polygon sub-regions instead of a fixed rectangle with corner/diagonal flags. Curved walls (chord arcs, rounded corners, full circular rooms) are first-class boundaries that the rest of the editor reasons about directly.
+- **Every flood-fill respects curves** — paint bucket, weather flood, fog reveal, room queries, and connectivity checks all walk the same shared traversal across the new model. Drop a circular room or a corner trim and every tool stops cleanly at the curve, with the weather/group highlight tracing the curve to match.
+- **Open and closed trims behave identically for tools** — the only difference between them is cosmetic: closed voids the cut-off corner, open keeps it as floor. Both block flood-fill at the chord, so pick whichever visually fits the map.
+- **Chord polylines stitch across cells** — adjacent trim cells whose chord endpoints meet at a shared border (within a couple of pixels) join into one continuous sealed wall. A circle assembled from many trim cells acts as a single polyline.
+- **Foundation for free-form curves** — the new model supports polyline walls anywhere inside a cell, not just at corners. A future update will let you draw curved walls directly on the map.
 
 ## v0.12.0
 

@@ -37,6 +37,25 @@ export function activateTool(name: string): void {
   if (onToolChange) onToolChange(name);
 }
 
+// ── Toolbar disable lock ─────────────────────────────────────────────────
+// Multiple unrelated features (weather assign mode, future modal flows, etc.)
+// may want to disable the toolbar concurrently. A reason-keyed Set lets each
+// caller add/remove its own lock without clobbering another's. The toolbar
+// is considered disabled whenever any lock is held; the body class drives
+// the CSS dim and the keyboard shortcut handler queries `isToolbarDisabled()`
+// to suppress tool-switching keybinds.
+const toolbarDisablers = new Set<string>();
+
+export function setToolbarDisabled(reason: string, disabled: boolean): void {
+  if (disabled) toolbarDisablers.add(reason);
+  else toolbarDisablers.delete(reason);
+  document.body.classList.toggle('toolbar-disabled', toolbarDisablers.size > 0);
+}
+
+export function isToolbarDisabled(): boolean {
+  return toolbarDisablers.size > 0;
+}
+
 /** Open a named sidebar panel (by panel ID) and activate its icon button. */
 function openSidebarPanel(panelId: string) {
   const btn = document.querySelector<HTMLElement>(`.icon-btn[data-panel="${panelId}"]`);
@@ -68,12 +87,20 @@ const toolOptions: Record<string, ToolOption | undefined> = {
   room: {
     key: 'roomMode',
     attr: 'data-room-mode',
-    values: ['room', 'merge'],
+    values: ['room', 'merge', 'circular'],
     onApply: (v: string) => {
-      state.statusInstruction =
-        v === 'merge'
-          ? 'Drag over adjacent rooms to merge them into one'
-          : 'Drag to draw room · Shift for square · Right-click to void';
+      const invisible = state.wallType === 'iw';
+      const wallSuffix = invisible ? ' with invisible walls' : '';
+      if (v === 'merge') {
+        state.statusInstruction = 'Drag over adjacent rooms to merge them into one';
+      } else if (v === 'circular') {
+        state.statusInstruction = `Drag to draw circular room${wallSuffix} · Shift for square (perfect circle)`;
+      } else {
+        state.statusInstruction = `Drag to draw room${wallSuffix} · Shift for square · Right-click to void`;
+      }
+      // Show/hide the circular tertiary bar.
+      const bar = getEl('circular-options');
+      bar.style.display = v === 'circular' ? 'flex' : 'none';
     },
   },
   paint: {
@@ -83,7 +110,7 @@ const toolOptions: Record<string, ToolOption | undefined> = {
     cursor: (v: string) => (v === 'syringe' ? SYRINGE_CURSOR : 'crosshair'),
     onApply: (v: string) => {
       const bar = getEl('paint-texture-options');
-      bar.style.display = v === 'texture' || v === 'clear-texture' ? 'flex' : 'none';
+      bar.style.display = v === 'texture' ? 'flex' : 'none';
       const r = getEl('texture-opacity-row');
       r.style.display = v === 'texture' ? 'flex' : 'none';
       if (v === 'texture' || v === 'clear-texture' || v === 'syringe') openSidebarPanel('textures');
@@ -125,10 +152,20 @@ const toolOptions: Record<string, ToolOption | undefined> = {
     attr: 'data-wall-type',
     values: ['w', 'iw'],
     onApply: (v: string) => {
-      state.statusInstruction =
-        v === 'iw'
-          ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
-          : 'Click or drag edge to place wall · Right-click to remove';
+      // Wall type is shared between the wall tool and the room tool; pick a
+      // status message that matches whichever tool is currently active so the
+      // hint doesn't lie about what the next click will do.
+      if (state.activeTool === 'room') {
+        // Defer to the room tool's onApply so mode + walls compose into one
+        // status string. (Re-entering setSubMode would be circular; reading
+        // the registry entry directly keeps the message in one place.)
+        toolOptions.room?.onApply?.(state.roomMode || 'room');
+      } else {
+        state.statusInstruction =
+          v === 'iw'
+            ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
+            : 'Click or drag edge to place wall · Right-click to remove';
+      }
     },
   },
   door: {
@@ -593,17 +630,6 @@ export function init(): void {
     opacityValue.textContent = `${(opacitySlider as HTMLInputElement).value}%`;
   });
 
-  // Secondary texture Yes/No buttons
-  document.querySelectorAll<HTMLElement>('#paint-texture-options [data-secondary]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const val = btn.dataset.secondary === 'true';
-      state.paintSecondary = val;
-      document.querySelectorAll<HTMLElement>('#paint-texture-options [data-secondary]').forEach((b) => {
-        b.classList.toggle('active', b.dataset.secondary === String(val));
-      });
-    });
-  });
-
   // Prop tool Yes/No toggles (Random Rotation)
   document.querySelectorAll<HTMLElement>('#prop-options [data-prop-option]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -613,6 +639,19 @@ export function init(): void {
       state[stateKey] = val;
       document.querySelectorAll<HTMLElement>(`#prop-options [data-prop-option="${prop}"]`).forEach((b) => {
         b.classList.toggle('active', b.dataset.val === String(val));
+      });
+    });
+  });
+
+  // Circular style buttons (Closed/Open) — only visible when Room tool's mode
+  // is 'circular'. Closed voids cells outside the arc; Open keeps them as floor
+  // with a passable curved chord.
+  document.querySelectorAll<HTMLElement>('#circular-options [data-circular-style]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const style = btn.dataset.circularStyle!;
+      state.circularStyle = style;
+      document.querySelectorAll<HTMLElement>('#circular-options [data-circular-style]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.circularStyle === style);
       });
     });
   });
@@ -639,6 +678,10 @@ export function init(): void {
       btn.classList.toggle('active', btn.getAttribute(opts.attr) === (state[opts.key] ?? opts.values[0]));
     });
   }
+  // Circular style buttons (manual since they live in their own tertiary bar)
+  document.querySelectorAll<HTMLElement>('#circular-options [data-circular-style]').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.circularStyle === (state.circularStyle || 'closed'));
+  });
   // Apply side effects for the restored active tool (e.g. show depth selector for water/lava)
   applyToolSideEffects(state.activeTool);
 
@@ -706,6 +749,11 @@ export function updateToolButtons(): void {
   // Trim has no sub-mode bar (only tertiary shape bar)
   const trimShapeBar = getEl('trim-shape-options');
   trimShapeBar.style.display = !state.sessionToolsActive && state.activeTool === 'trim' ? 'flex' : 'none';
+
+  // Circular tertiary bar — visible only when Room tool is active AND in 'circular' mode.
+  const circularBar = getEl('circular-options');
+  circularBar.style.display =
+    !state.sessionToolsActive && state.activeTool === 'room' && state.roomMode === 'circular' ? 'flex' : 'none';
 
   // Prop tool has no sub-mode bar, only a tertiary options bar
   const propOptionsBar = getEl('prop-options');

@@ -23,7 +23,7 @@ function cloneCell(cell: Cell | null): Cell | null {
 export class WallTool extends Tool {
   dragging: boolean = false;
   cancelled: boolean = false;
-  lockedDir: string | null = null;
+  lockedDir: Direction | null = null;
   startRow: number = 0;
   startCol: number = 0;
 
@@ -124,7 +124,7 @@ export class WallTool extends Tool {
 
     if (!isInBounds(cells, er, ec)) return;
     if (!cells[er]?.[ec]) return;
-    if (!getEdge(cells[er][ec], direction as Direction)) return; // nothing to clear
+    if (!getEdge(cells[er][ec], direction)) return; // nothing to clear
 
     // Capture before-states for cell + reciprocal
     const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
@@ -235,13 +235,9 @@ export class WallTool extends Tool {
     if (!isInBounds(cells, row, col)) return;
     if (!cells[row]![col]) return;
     const existing = cells[row]![col];
-    if ((existing as Record<string, unknown>)[direction] === wallType) return;
-    if (
-      (existing as Record<string, unknown>)[direction] === 'd' ||
-      (existing as Record<string, unknown>)[direction] === 's' ||
-      (existing as Record<string, unknown>)[direction] === 'id'
-    )
-      return;
+    const existingEdge = getEdge(existing, direction);
+    if (existingEdge === wallType) return;
+    if (existingEdge === 'd' || existingEdge === 's' || existingEdge === 'id') return;
 
     // Capture before-states for this cell and its reciprocal neighbor
     this._captureBefore(cells, row, col);

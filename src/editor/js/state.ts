@@ -19,7 +19,7 @@ import {
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
-import { log } from '../../util/index.js';
+import { getSegments, log } from '../../util/index.js';
 
 // ── Notify topics ─────────────────────────────────────────────────────────
 export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui';
@@ -36,7 +36,8 @@ const state: EditorState = {
   currentLevel: 0,
   selectedCells: [],
   activeTool: 'paint',
-  roomMode: 'room', // 'room' (wall boundaries) or 'merge' (only wall void edges)
+  roomMode: 'room', // 'room' (wall boundaries), 'merge' (only wall void edges), or 'circular' (inscribe a circle via 4 corner arcs)
+  circularStyle: 'closed', // 'closed' (void cells outside arc) or 'open' (cells stay floor, arc is passable curve)
   paintMode: 'texture', // 'texture', 'syringe', 'room', 'clear-texture'
   fillMode: 'water', // 'water', 'pit', 'difficult-terrain', 'clear-fill'
   waterDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
@@ -71,7 +72,6 @@ const state: EditorState = {
   selectedPropIds: [], // array of overlay prop IDs for selected props (new system)
   activeTexture: null, // string — texture ID from catalog (e.g. 'cobblestone')
   textureOpacity: 1.0, // 0–1 — opacity applied when painting a texture
-  paintSecondary: false, // when true, texture paints write to textureSecondary slot
   textureCatalog: null, // TextureCatalog object, loaded at init (runtime only, not serialized)
   texturesVersion: 0, // incremented when texture images finish loading; invalidates blend cache
   lightCatalog: null, // LightCatalog object, loaded at init (runtime only, not serialized)
@@ -113,6 +113,8 @@ const state: EditorState = {
   showWeatherOverlay: false, // force-on while a group is selected; otherwise user-toggled
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
   debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
+  debugFloodRainbow: false, // when true, every traverse() BFS colors cells by depth
+  floodRainbowCells: new Map<string, number>(), // most recent BFS: "row,col" → depth
   _lastPushUndoMs: null,
 };
 
@@ -358,8 +360,7 @@ export function undo(): void {
             waterDepth: null,
             lavaDepth: null,
             hazard: false,
-            texture: null,
-            textureSecondary: null,
+            segmentTextures: [],
           };
         return {
           row,
@@ -369,8 +370,7 @@ export function undo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
-          texture: (cell.texture as string | null) ?? null,
-          textureSecondary: (cell.textureSecondary as string | null) ?? null,
+          segmentTextures: getSegments(cell).map((s) => s.texture ?? null),
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -423,8 +423,7 @@ export function redo(): void {
             waterDepth: null,
             lavaDepth: null,
             hazard: false,
-            texture: null,
-            textureSecondary: null,
+            segmentTextures: [],
           };
         return {
           row,
@@ -434,8 +433,7 @@ export function redo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
-          texture: (cell.texture as string | null) ?? null,
-          textureSecondary: (cell.textureSecondary as string | null) ?? null,
+          segmentTextures: getSegments(cell).map((s) => s.texture ?? null),
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);

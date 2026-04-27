@@ -10,6 +10,25 @@ import {
   removeTextureRect,
   floodFillTexture,
 } from '../../src/editor/js/api/textures.js';
+import { getSegments } from '../../src/util/index.js';
+
+// Helpers to read the cell's primary texture / opacity from segments
+// (replaces direct `cell.texture` / `cell.textureOpacity` reads after the
+// segments storage flip).
+function cellTexture(cell) {
+  if (!cell) return undefined;
+  for (const seg of getSegments(cell)) {
+    if (seg.texture && !seg.voided) return seg.texture;
+  }
+  return undefined;
+}
+function cellTextureOpacity(cell) {
+  if (!cell) return undefined;
+  for (const seg of getSegments(cell)) {
+    if (seg.texture && !seg.voided) return seg.textureOpacity;
+  }
+  return undefined;
+}
 
 // ── Setup ────────────────────────────────────────────────────────────────────
 
@@ -30,31 +49,31 @@ describe('setTexture', () => {
   it('sets texture ID on a cell', () => {
     const result = setTexture(5, 5, 'cobblestone');
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5].texture).toBe('cobblestone');
+    expect(cellTexture(state.dungeon.cells[5][5])).toBe('cobblestone');
   });
 
   it('sets texture opacity on the cell', () => {
     setTexture(5, 5, 'cobblestone', 0.7);
-    expect(state.dungeon.cells[5][5].textureOpacity).toBe(0.7);
+    expect(cellTextureOpacity(state.dungeon.cells[5][5])).toBe(0.7);
   });
 
   it('defaults opacity to 1.0', () => {
     setTexture(5, 5, 'cobblestone');
-    expect(state.dungeon.cells[5][5].textureOpacity).toBe(1.0);
+    expect(cellTextureOpacity(state.dungeon.cells[5][5])).toBe(1.0);
   });
 
   it('clamps opacity to [0, 1] range', () => {
     setTexture(5, 5, 'cobblestone', 1.5);
-    expect(state.dungeon.cells[5][5].textureOpacity).toBe(1);
+    expect(cellTextureOpacity(state.dungeon.cells[5][5])).toBe(1);
     setTexture(6, 6, 'cobblestone', -0.5);
-    expect(state.dungeon.cells[6][6].textureOpacity).toBe(0);
+    expect(cellTextureOpacity(state.dungeon.cells[6][6])).toBe(0);
   });
 
   it('creates a cell if it was null', () => {
     expect(state.dungeon.cells[3][3]).toBeNull();
     setTexture(3, 3, 'stone');
     expect(state.dungeon.cells[3][3]).not.toBeNull();
-    expect(state.dungeon.cells[3][3].texture).toBe('stone');
+    expect(cellTexture(state.dungeon.cells[3][3])).toBe('stone');
   });
 
   it('pushes to undo stack', () => {
@@ -75,8 +94,8 @@ describe('removeTexture', () => {
   it('removes texture from a cell', () => {
     setTexture(5, 5, 'cobblestone', 0.8);
     removeTexture(5, 5);
-    expect(state.dungeon.cells[5][5].texture).toBeUndefined();
-    expect(state.dungeon.cells[5][5].textureOpacity).toBeUndefined();
+    expect(cellTexture(state.dungeon.cells[5][5])).toBeUndefined();
+    expect(cellTextureOpacity(state.dungeon.cells[5][5])).toBeUndefined();
   });
 
   it('returns success even if cell has no texture', () => {
@@ -129,7 +148,7 @@ describe('setTextureRect', () => {
     expect(result.success).toBe(true);
     for (let r = 2; r <= 4; r++) {
       for (let c = 3; c <= 6; c++) {
-        expect(state.dungeon.cells[r][c]?.texture).toBe('wood');
+        expect(cellTexture(state.dungeon.cells[r][c])).toBe('wood');
       }
     }
   });
@@ -137,21 +156,21 @@ describe('setTextureRect', () => {
   it('handles reversed corner coordinates', () => {
     populateCells(2, 3, 4, 6);
     setTextureRect(4, 6, 2, 3, 'wood');
-    expect(state.dungeon.cells[2][3]?.texture).toBe('wood');
-    expect(state.dungeon.cells[4][6]?.texture).toBe('wood');
+    expect(cellTexture(state.dungeon.cells[2][3])).toBe('wood');
+    expect(cellTexture(state.dungeon.cells[4][6])).toBe('wood');
   });
 
   it('applies opacity to all cells', () => {
     populateCells(2, 3, 3, 4);
     setTextureRect(2, 3, 3, 4, 'stone', 0.5);
-    expect(state.dungeon.cells[2][3]?.textureOpacity).toBe(0.5);
-    expect(state.dungeon.cells[3][4]?.textureOpacity).toBe(0.5);
+    expect(cellTextureOpacity(state.dungeon.cells[2][3])).toBe(0.5);
+    expect(cellTextureOpacity(state.dungeon.cells[3][4])).toBe(0.5);
   });
 
   it('clamps opacity to [0, 1]', () => {
     populateCells(2, 3, 2, 3);
     setTextureRect(2, 3, 2, 3, 'stone', 2.0);
-    expect(state.dungeon.cells[2][3]?.textureOpacity).toBe(1);
+    expect(cellTextureOpacity(state.dungeon.cells[2][3])).toBe(1);
   });
 
   it('pushes exactly one undo entry for the whole rectangle', () => {
@@ -174,7 +193,7 @@ describe('removeTextureRect', () => {
     removeTextureRect(2, 3, 4, 6);
     for (let r = 2; r <= 4; r++) {
       for (let c = 3; c <= 6; c++) {
-        expect(state.dungeon.cells[r][c]?.texture).toBeUndefined();
+        expect(cellTexture(state.dungeon.cells[r][c])).toBeUndefined();
       }
     }
   });
@@ -182,8 +201,8 @@ describe('removeTextureRect', () => {
   it('handles reversed corner coordinates', () => {
     setTextureRect(2, 3, 4, 6, 'wood');
     removeTextureRect(4, 6, 2, 3);
-    expect(state.dungeon.cells[2][3]?.texture).toBeUndefined();
-    expect(state.dungeon.cells[4][6]?.texture).toBeUndefined();
+    expect(cellTexture(state.dungeon.cells[2][3])).toBeUndefined();
+    expect(cellTexture(state.dungeon.cells[4][6])).toBeUndefined();
   });
 
   it('returns success even if cells have no texture', () => {
