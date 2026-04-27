@@ -33,13 +33,3 @@ export function normalizeRect(r1: number, c1: number, r2: number, c2: number): N
   return { minR, maxR, minC, maxC };
 }
 
-/**
- * Iterate over every cell in a normalized rect.
- */
-export function forEachInRect(rect: NormalizedRect, fn: (row: number, col: number) => void): void {
-  for (let r = rect.minR; r <= rect.maxR; r++) {
-    for (let c = rect.minC; c <= rect.maxC; c++) {
-      fn(r, c);
-    }
-  }
-}

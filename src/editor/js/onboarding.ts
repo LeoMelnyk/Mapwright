@@ -8,10 +8,11 @@
 // First-use hints: shows a tip toast the first time each tool is activated.
 // Tutorial: spotlight overlay that walks through creating a basic dungeon.
 
-import type { EditorState } from '../../types.js';
+import type { CardinalDirection, EditorState } from '../../types.js';
 import state, { subscribe, notify } from './state.js';
 import { showToast } from './toast.js';
 import { loadDungeonJSON } from './io.js';
+import { getEdge, traverse } from '../../util/index.js';
 
 const STORAGE_KEY = 'mw-onboarding-done';
 const HINTS_KEY = 'mw-hints-seen';
@@ -230,41 +231,15 @@ class Tutorial {
   _countRooms() {
     let count = 0;
     const cells = state.dungeon.cells;
-    const visited = new Set();
+    const visited = new Set<string>();
     for (let r = 0; r < cells.length; r++) {
       for (let c = 0; c < (cells[0]?.length ?? 0); c++) {
         if (!cells[r]![c] || visited.has(`${r},${c}`)) continue;
         count++;
-        // BFS to mark connected cells
-        const queue: [number, number][] = [[r, c]];
-        while (queue.length) {
-          const [cr, cc] = queue.pop()!;
-          const key = `${cr},${cc}`;
-          if (visited.has(key)) continue;
-          visited.add(key);
-          const cell = cells[cr]?.[cc];
-          if (!cell) continue;
-          const dirs: [number, number, string][] = [
-            [-1, 0, 'north'],
-            [1, 0, 'south'],
-            [0, -1, 'west'],
-            [0, 1, 'east'],
-          ];
-          for (const [dr, dc, dir] of dirs) {
-            const nr = cr + dr,
-              nc = cc + dc;
-            if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length ?? 0)) continue;
-            if (!cells[nr]![nc]) continue;
-            // Connected if no wall between them
-            if (
-              !(cell as Record<string, unknown>)[dir] ||
-              (cell as Record<string, unknown>)[dir] === 'd' ||
-              (cell as Record<string, unknown>)[dir] === 's' ||
-              (cell as Record<string, unknown>)[dir] === 'id'
-            ) {
-              queue.push([nr, nc]);
-            }
-          }
+        const result = traverse(cells, { row: r, col: c }, { doorsBlock: false, voidedSegmentsBlock: false });
+        for (const segKey of result.visited) {
+          const [rs, cs] = segKey.split(',');
+          visited.add(`${rs},${cs}`);
         }
       }
     }
@@ -277,13 +252,9 @@ class Tutorial {
     for (const row of cells) {
       for (const cell of row) {
         if (!cell) continue;
-        for (const dir of ['north', 'south', 'east', 'west']) {
-          if (
-            (cell as Record<string, unknown>)[dir] === 'd' ||
-            (cell as Record<string, unknown>)[dir] === 's' ||
-            (cell as Record<string, unknown>)[dir] === 'id'
-          )
-            count++;
+        for (const dir of ['north', 'south', 'east', 'west'] as CardinalDirection[]) {
+          const edge = getEdge(cell, dir);
+          if (edge === 'd' || edge === 's' || edge === 'id') count++;
         }
       }
     }

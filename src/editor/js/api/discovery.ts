@@ -36,6 +36,7 @@ type Category =
   | 'catalog'
   | 'discovery'
   | 'vocab'
+  | 'weather'
   | 'operational';
 
 interface MethodInfo {
@@ -346,6 +347,25 @@ const REGISTRY: MethodInfo[] = [
     category: 'vocab',
     intent: 'Fuzzy reverse-lookup: prose description → ranked room type suggestions',
   },
+
+  // ── weather ─────────────────────────────────────────
+  { name: 'createWeatherGroup', category: 'weather', intent: 'Create a new weather group on metadata.weatherGroups' },
+  { name: 'removeWeatherGroup', category: 'weather', intent: 'Delete a weather group and clear all cells assigned to it' },
+  { name: 'listWeatherGroups', category: 'weather', intent: 'List every weather group with cellCount summaries' },
+  { name: 'getWeatherGroup', category: 'weather', intent: 'Fetch a single weather group by id (no throw on missing)' },
+  { name: 'setWeatherGroup', category: 'weather', intent: 'Patch fields on an existing weather group' },
+  {
+    name: 'setWeatherCell',
+    category: 'weather',
+    intent: 'Assign or clear weather on a single cell (halfKey for split cells)',
+  },
+  { name: 'setWeatherRect', category: 'weather', intent: 'Assign or clear every cell in a rectangle (one undo step)' },
+  {
+    name: 'floodFillWeather',
+    category: 'weather',
+    intent: 'Flood-fill weather assignment from a starting cell, respecting walls and half boundaries',
+  },
+  { name: 'getWeatherCell', category: 'weather', intent: 'Read every weather assignment on a cell (handles split halves)' },
 ];
 
 const BY_NAME = new Map<string, MethodInfo>(REGISTRY.map((m) => [m.name, m]));

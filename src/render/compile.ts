@@ -216,10 +216,11 @@ export function renderDungeonToCanvas(
   propCatalog: PropCatalog | null = null,
   textureCatalog: TextureCatalog | null = null,
   bgImageEl: HTMLImageElement | null = null,
-  renderOptions: { bakeLighting?: boolean; bakeWeather?: boolean } = {},
+  renderOptions: { bakeLighting?: boolean; bakeWeather?: boolean; skipLabels?: boolean } = {},
 ): void {
   const bakeLightingOpt = renderOptions.bakeLighting !== false;
   const bakeWeatherOpt = renderOptions.bakeWeather !== false;
+  const skipLabelsOpt = renderOptions.skipLabels === true;
   const gridSize = config.metadata.gridSize;
   const dungeonName = config.metadata.dungeonName;
   const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides ?? null);
@@ -280,7 +281,7 @@ export function renderDungeonToCanvas(
         propCatalog,
         textureOptions: levelTexOpts,
         metadata: config.metadata,
-        skipLabels: levelLightingEnabled,
+        skipLabels: skipLabelsOpt || levelLightingEnabled,
         bgImageEl: null,
         bgImgConfig: null,
         skipPhases: { ...FLUID_TOP_SKIP },
@@ -325,7 +326,9 @@ export function renderDungeonToCanvas(
           config.metadata,
         );
         // Draw labels after lightmap so they are unaffected by the multiply overlay
-        renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
+        if (!skipLabelsOpt) {
+          renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
+        }
       }
 
       // Weather (static snapshot — haze + frozen particles). Matches the
@@ -389,7 +392,7 @@ export function renderDungeonToCanvas(
       propCatalog,
       textureOptions: texOpts,
       metadata: config.metadata,
-      skipLabels: singleLevelLightingEnabled,
+      skipLabels: skipLabelsOpt || singleLevelLightingEnabled,
       bgImageEl: null,
       bgImgConfig: null,
       skipPhases: { ...FLUID_TOP_SKIP },
@@ -424,7 +427,9 @@ export function renderDungeonToCanvas(
         config.metadata,
       );
       // Draw labels after lightmap so they are unaffected by the multiply overlay
-      renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);
+      if (!skipLabelsOpt) {
+        renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);
+      }
     }
 
     // Weather (static snapshot — haze + frozen particles). Matches the

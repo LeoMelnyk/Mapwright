@@ -12,7 +12,7 @@
 import type { CellGrid, Dd2vttFormat, Dd2vttLight, Dd2vttPortal, Direction, Light, Metadata } from '../types.js';
 import { GRID_SCALE, MARGIN } from './constants.js';
 import { calculateBoundsFromCells } from './bounds.js';
-import { getEdge } from '../util/index.js';
+import { getEdge, getInteriorEdges, isChordEdge } from '../util/index.js';
 
 /**
  * Convert mapwright dungeon data to dd2vtt JSON format.
@@ -51,13 +51,7 @@ export function buildDd2vtt(
 
   // Extract walls (line_of_sight), windows (objects_line_of_sight), and doors
   // (portals) from the cell grid
-  const { walls, objectWalls, portals } = extractWallsAndPortals(
-    cells,
-    gridSize,
-    offsetX,
-    offsetY,
-    pixelsPerGrid,
-  );
+  const { walls, objectWalls, portals } = extractWallsAndPortals(cells, gridSize, offsetX, offsetY, pixelsPerGrid);
 
   // Extract lights
   const lights = extractLights(metadata, displayGridSize, offsetX, offsetY, pixelsPerGrid);
@@ -184,15 +178,18 @@ function extractWallsAndPortals(
   mergeDoorRuns(horizontalDoors, 'horizontal', portals, gridSize, offsetX, offsetY, pixelsPerGrid);
   mergeDoorRuns(verticalDoors, 'vertical', portals, gridSize, offsetX, offsetY, pixelsPerGrid);
 
-  // Arc-trim wall polylines — stored per-cell in `trimWall` as fractional
-  // cell-local coords. Same extraction the lighting engine uses (see
-  // lighting-geometry.ts#extractWallSegments) so VTT LOS matches the
-  // rendered shape of rounded corners and diagonal cuts.
+  // Chord-trim wall polylines — stored per-cell on `interiorEdges[0].vertices`
+  // as fractional cell-local coords. Same extraction the lighting engine uses
+  // (see lighting-geometry.ts#extractWallSegments) so VTT LOS matches the
+  // rendered shape of rounded corners and chord cuts.
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.trimWall || typeof cell.trimWall === 'string') continue;
-      const wall = cell.trimWall;
+      if (!cell) continue;
+      const interiorEdge = getInteriorEdges(cell)[0];
+      if (!interiorEdge || !isChordEdge(interiorEdge)) continue;
+      const wall = interiorEdge.vertices;
+      if (wall.length < 2) continue;
       for (let i = 0; i < wall.length - 1; i++) {
         const seg = cellToPixelSegment(
           {

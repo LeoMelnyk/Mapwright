@@ -19,8 +19,6 @@ export {
   markDirtyFullRebuild,
   patchBlendForDirtyRegion,
   patchFluidForDirtyRegion,
-  traceArcWedge,
-  collectRoundedCorners,
   getBroadcastDirtyRegion,
   consumeBroadcastDirtyRegion,
 } from './render.js';

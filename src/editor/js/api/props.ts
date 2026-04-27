@@ -601,7 +601,17 @@ export function listProps(): {
 export function getPropsForRoomType(roomType: string): {
   success: boolean;
   error?: string;
-  props: { name: string; category: string; footprint: [number, number] }[];
+  props: {
+    name: string;
+    displayName?: string;
+    category: string;
+    footprint: [number, number];
+    facing?: boolean;
+    placement?: string | null;
+    typicalCount?: string | null;
+    clustersWith?: string[];
+    notes?: string | null;
+  }[];
 } {
   const catalog = state.propCatalog;
   if (!catalog) return { success: false, error: 'Prop catalog not loaded', props: [] };
@@ -993,7 +1003,7 @@ export function scatterProps(
         const cell = cells[dr]?.[dc];
         if (!cell) continue;
         for (const dir of CARDINAL_DIRS) {
-          const v = (cell as Record<string, unknown>)[dir];
+          const v = getEdge(cell, dir as CardinalDirection);
           if (v === 'd' || v === 's' || v === 'id') {
             doorCells.add(key);
             const [odr, odc] = offsets[dir]!;

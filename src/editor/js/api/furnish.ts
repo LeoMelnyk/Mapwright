@@ -12,7 +12,7 @@
 //  - Light-emitting-prop count capped to avoid blow-out
 //  - Door approach cells are excluded from candidate positions
 
-import { state, getApi, ApiValidationError, parseCellKey, cellKey, OFFSETS, toDisp } from './_shared.js';
+import { state, getApi, ApiValidationError, parseCellKey, cellKey, OFFSETS, toDisp, getEdge } from './_shared.js';
 
 type Density = 'sparse' | 'normal' | 'dense';
 type PlanRole = 'primary' | 'secondary' | 'flank' | 'scatter' | 'lit-fixture';
@@ -44,12 +44,11 @@ interface PropMeta {
   name: string;
   category: string;
   footprint: [number, number];
-  facing: boolean;
-  placement: string | null;
-  roomTypes: string[];
-  typicalCount: string | null;
-  clustersWith: string[];
-  notes: string | null;
+  facing?: boolean;
+  placement?: string | null;
+  typicalCount?: string | null;
+  clustersWith?: string[];
+  notes?: string | null;
   lights?: unknown[];
 }
 
@@ -101,7 +100,7 @@ function nonDoorApproachCells(roomCells: Set<string>): Set<string> {
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of ['north', 'south', 'east', 'west'] as const) {
-      const v = (cell as Record<string, unknown>)[dir];
+      const v = getEdge(cell, dir);
       if (v === 'd' || v === 's' || v === 'id') {
         blocked.add(key);
         const [dr, dc] = OFFSETS[dir]!;
@@ -168,12 +167,7 @@ export function proposeFurnishing(
   }
   const lightCap = options.lightCap ?? 2;
 
-  const api = getApi() as unknown as {
-    _collectRoomCells: (l: string) => Set<string> | null;
-    getPropsForRoomType: (rt: string) => { success: boolean; props: PropMeta[] };
-    getValidPropPositions: (l: string, t: string, f?: number) => { success: boolean; positions: [number, number][] };
-    getRoomBounds: (l: string) => { success: boolean; r1: number; c1: number; r2: number; c2: number };
-  };
+  const api = getApi();
 
   const roomCells = api._collectRoomCells(label);
   if (!roomCells?.size) {
@@ -253,7 +247,7 @@ export function proposeFurnishing(
     const flankCandidates = candidates.filter(
       (p) =>
         p.name !== primaryProp.name &&
-        (p.clustersWith.includes(primaryProp.name) ||
+        ((p.clustersWith?.includes(primaryProp.name) ?? false) ||
           ['pillar', 'brazier', 'candelabra', 'statue', 'torch-sconce'].includes(p.name)),
     );
     const flank = pickRandom(flankCandidates);
@@ -303,8 +297,8 @@ export function proposeFurnishing(
   );
   // Sort: clustersWith primary first
   secondaryPool.sort((a, b) => {
-    const aClust = primaryProp && a.clustersWith.includes(primaryProp.name) ? 0 : 1;
-    const bClust = primaryProp && b.clustersWith.includes(primaryProp.name) ? 0 : 1;
+    const aClust = primaryProp && a.clustersWith?.includes(primaryProp.name) ? 0 : 1;
+    const bClust = primaryProp && b.clustersWith?.includes(primaryProp.name) ? 0 : 1;
     return aClust - bClust;
   });
   let added = 0;
@@ -313,7 +307,7 @@ export function proposeFurnishing(
     const isLit = isLitProp(sec.name);
     if (isLit && lightBudget <= 0) continue;
     const positions = api.getValidPropPositions(label, sec.name, 0);
-    if (!positions.success || !positions.positions.length) continue;
+    if (!positions.success || !positions.positions?.length) continue;
     // Filter out already-used cells (full footprint) and door approaches.
     const safe = nonDoorApproachCells(roomCells);
     const valid = positions.positions.filter(([r, c]) => {
@@ -331,7 +325,7 @@ export function proposeFurnishing(
       col: toDisp(pc),
       facing: 0,
       reasoning:
-        primaryProp && sec.clustersWith.includes(primaryProp.name)
+        primaryProp && sec.clustersWith?.includes(primaryProp.name)
           ? `secondary clustersWith ${primaryProp.name}`
           : `secondary for ${roomType}`,
     });
@@ -348,7 +342,7 @@ export function proposeFurnishing(
     const sc = pickRandom(scatterPool);
     if (!sc) break;
     const positions = api.getValidPropPositions(label, sc.name, 0);
-    if (!positions.success) continue;
+    if (!positions.success || !positions.positions) continue;
     const safe = nonDoorApproachCells(roomCells);
     const valid = positions.positions.filter(([r, c]) => {
       if (!safe.has(cellKey(r, c))) return false;
@@ -398,14 +392,7 @@ export function commitFurnishing(plan: unknown): CommitResult {
   if (!Array.isArray(entries)) {
     throw new ApiValidationError('INVALID_PLAN', 'commitFurnishing expects an array of plan entries or {plan:[]}', {});
   }
-  const api = getApi() as unknown as {
-    placeProp: (
-      r: number,
-      c: number,
-      t: string,
-      f: number,
-    ) => { success: boolean; lightsAdded?: Array<{ id: number; preset: string }> };
-  };
+  const api = getApi();
   const placed: CommitResult['placed'] = [];
   const failed: CommitResult['failed'] = [];
   const lightsAdded: CommitResult['lightsAdded'] = [];

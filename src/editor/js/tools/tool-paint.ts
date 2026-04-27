@@ -1,4 +1,4 @@
-import type { CardinalDirection, CellGrid, RenderTransform, Cell } from '../../../types.js';
+import type { CellGrid, RenderTransform } from '../../../types.js';
 // Paint tool: click+drag to box-select a rectangle, then apply fill/texture/room on mouseup.
 // Shift+click in texture mode: flood-fill the entire connected room.
 // Shift+click in clear-texture mode: flood-clear an entire room's textures.
@@ -12,15 +12,14 @@ import { selectTexture } from '../panels/index.js';
 import { loadTextureImages } from '../texture-catalog.js';
 import { invalidateBlendLayerCache, accumulateDirtyRect, patchBlendForDirtyRegion } from '../../../render/index.js';
 import {
-  CARDINAL_DIRS,
-  OPPOSITE,
   cellKey,
-  parseCellKey,
-  blockedByDiagonal,
-  lockDiagonalHalf,
   isInBounds,
   normalizeBounds,
   snapToSquare,
+  traverse,
+  getSegments,
+  getSegmentIndexAt,
+  writeSegmentTexture,
 } from '../../../util/index.js';
 
 // SVG paint bucket cursor — hotspot at the drip tip (bottom-left of bucket)
@@ -29,8 +28,6 @@ const BUCKET_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 // SVG eyedropper/syringe cursor — hotspot at the tip (bottom-left)
 /** SVG eyedropper/syringe cursor data URL with bottom-left hotspot. */
 export const SYRINGE_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='white' stroke='%23333' stroke-width='1.2' d='M20.71 5.63l-2.34-2.34a1 1 0 0 0-1.41 0l-3.54 3.54 1.41 1.41L13.41 9.66l-5.66 5.66-1.41-1.41-1.41 1.41 1.41 1.41L4.59 18.5 3 20.08 3.92 21l1.5-1.59 1.76-1.76 1.41 1.41 1.41-1.41-1.41-1.41 5.66-5.66 1.41 1.41 1.42-1.42-1.42-1.41 3.54-3.54a1 1 0 0 0 0-1.41z'/%3E%3C/svg%3E") 1 23, crosshair`;
-
-const FILL_DIRS = CARDINAL_DIRS;
 
 /** Incrementally patch blend edges/corners for a dirty region instead of full rebuild. */
 function _patchBlend(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }): void {
@@ -44,184 +41,6 @@ function _patchBlend(region: { minRow: number; maxRow: number; minCol: number; m
     : null;
   if (textureOptions) {
     patchBlendForDirtyRegion(region, state.dungeon.cells, state.dungeon.metadata.gridSize || 5, textureOptions);
-  }
-}
-
-// Room-side directions for each trim corner.  For a trimRound hypotenuse cell,
-// the room interior is on the opposite side from the voided corner.
-const ROOM_SIDE_DIRS = {
-  nw: ['south', 'east'],
-  ne: ['south', 'west'],
-  sw: ['north', 'east'],
-  se: ['north', 'west'],
-};
-
-/**
- * Phase 3 of the arc post-pass: correct arc cell membership based on fill direction.
- *
- * The arc post-pass (Phases 1+2) always claims all connected trimRound cells
- * regardless of which side the fill originated from. This phase determines the
- * fill direction per arc corner and:
- *   - Room-side fill → keeps trimRound cells, adds insideArc cells
- *   - Void-side fill → removes trimRound cells AND insideArc cells from the fill
- *
- * @param {Array} cells       - The dungeon cells grid
- * @param {Set}   filledCells - Current fill set (mutated)
- * @param {Array} toFill      - Current fill list (mutated)
- * @param {Set}   mainFillCells - Snapshot of filledCells from BEFORE the arc post-pass
- * @param {Set}   arcVisited  - Set of cellKeys for all trimRound cells claimed by arc post-pass
- */
-function correctArcCells(
-  cells: CellGrid,
-  filledCells: Set<string>,
-  toFill: [number, number, string | null][],
-  mainFillCells: Set<string>,
-  arcVisited: Set<string>,
-): void {
-  // Group arc cells by trimCorner so we can detect fill direction per corner.
-  const cornerGroups: Record<string, string[]> = {};
-  for (const k of arcVisited) {
-    const [r, c] = parseCellKey(k);
-    const cell = cells[r]?.[c];
-    if (!cell?.trimCorner) continue;
-    const corner = cell.trimCorner;
-    (cornerGroups[corner] ??= []).push(k);
-  }
-
-  for (const [corner, arcKeys] of Object.entries(cornerGroups)) {
-    const roomDirs = (ROOM_SIDE_DIRS as Record<string, string[]>)[corner]!;
-
-    // Check if ANY trimRound cell in this corner has a room-side neighbor
-    // in the main BFS fill (before arc post-pass). If so, the fill came
-    // from the room interior; otherwise it came from the void/exterior.
-    let fromRoomSide = false;
-    for (const k of arcKeys) {
-      const [r, c] = parseCellKey(k);
-      for (const dirName of roomDirs) {
-        const dirInfo = FILL_DIRS.find((d) => d.dir === dirName);
-        if (!dirInfo) continue;
-        const nr = r + dirInfo.dr,
-          nc = c + dirInfo.dc;
-        const nKey = cellKey(nr, nc);
-        // Room-side neighbor must be in mainFillCells AND not itself an arc cell
-        if (mainFillCells.has(nKey) && !arcVisited.has(nKey)) {
-          const nCell = cells[nr]?.[nc];
-          if (!nCell?.trimRound && !nCell?.trimInsideArc) {
-            fromRoomSide = true;
-            break;
-          }
-        }
-      }
-      if (fromRoomSide) break;
-    }
-
-    if (fromRoomSide) {
-      // Interior fill: keep trimRound cells, ADD insideArc cells
-      const toAdd = new Set<string>();
-      for (const k of arcKeys) {
-        const [r, c] = parseCellKey(k);
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = r + dr,
-            nc = c + dc;
-          const neighbor = cells[nr]?.[nc];
-          if (!neighbor?.trimInsideArc || neighbor.trimCorner !== corner) continue;
-          toAdd.add(cellKey(nr, nc));
-        }
-      }
-      // Propagate through connected insideArc cells of the same corner
-      const addQueue = [...toAdd];
-      const addVisited = new Set(toAdd);
-      while (addQueue.length > 0) {
-        const nk = addQueue.shift()!;
-        const [r, c] = parseCellKey(nk);
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = r + dr,
-            nc = c + dc;
-          const neighbor = cells[nr]?.[nc];
-          if (!neighbor?.trimInsideArc || neighbor.trimCorner !== corner) continue;
-          const nKey = cellKey(nr, nc);
-          if (addVisited.has(nKey)) continue;
-          addVisited.add(nKey);
-          toAdd.add(nKey);
-          addQueue.push(nKey);
-        }
-      }
-      for (const nKey of toAdd) {
-        if (!filledCells.has(nKey)) {
-          filledCells.add(nKey);
-          const [r, c] = parseCellKey(nKey);
-          toFill.push([r, c, null]);
-        }
-      }
-    } else {
-      // Exterior fill: remap all arc cells (trimRound + insideArc) to write
-      // textureSecondary instead of texture. The arc secondary post-pass in
-      // the renderer draws textureSecondary in the void-corner region outside
-      // the arc curve, so the exterior texture appears correctly there while
-      // the room-side primary texture is preserved.
-      const toRemap = new Set<string>();
-
-      // Collect trimRound cells
-      for (const k of arcKeys) toRemap.add(k);
-
-      // Collect insideArc cells adjacent to the arc
-      for (const k of arcKeys) {
-        const [r, c] = parseCellKey(k);
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = r + dr,
-            nc = c + dc;
-          const neighbor = cells[nr]?.[nc];
-          if (!neighbor?.trimInsideArc || neighbor.trimCorner !== corner) continue;
-          toRemap.add(cellKey(nr, nc));
-        }
-      }
-      // Propagate through connected insideArc cells of the same corner
-      const remapQueue = [...toRemap].filter((k) => {
-        const [r, c] = parseCellKey(k);
-        return cells[r]?.[c]?.trimInsideArc;
-      });
-      const remapVisited = new Set(remapQueue);
-      while (remapQueue.length > 0) {
-        const nk = remapQueue.shift()!;
-        const [r, c] = parseCellKey(nk);
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = r + dr,
-            nc = c + dc;
-          const neighbor = cells[nr]?.[nc];
-          if (!neighbor?.trimInsideArc || neighbor.trimCorner !== corner) continue;
-          const nKey = cellKey(nr, nc);
-          if (remapVisited.has(nKey)) continue;
-          remapVisited.add(nKey);
-          toRemap.add(nKey);
-          remapQueue.push(nKey);
-        }
-      }
-
-      // Remap: change halfKey to 'textureSecondary' so the exterior texture
-      // is written to the secondary slot, preserving the primary (room) texture.
-      for (let i = 0; i < toFill.length; i++) {
-        const k = cellKey(toFill[i]![0], toFill[i]![1]);
-        if (toRemap.has(k)) {
-          toFill[i]![2] = 'textureSecondary';
-        }
-      }
-      // trimRound cells added by the arc post-pass may not be in toFill yet
-      // (they were added to filledCells but also to toFill during phase 1/2).
-      // Ensure they're present with the correct halfKey.
-      for (const k of arcKeys) {
-        let found = false;
-        for (let i = 0; i < toFill.length; i++) {
-          if (cellKey(toFill[i]![0], toFill[i]![1]) === k) {
-            found = true;
-            break;
-          }
-        }
-        if (!found && filledCells.has(k)) {
-          const [r, c] = parseCellKey(k);
-          toFill.push([r, c, 'textureSecondary']);
-        }
-      }
-    }
   }
 }
 
@@ -240,75 +59,60 @@ function getRelPos(event: MouseEvent, row: number, col: number) {
 }
 
 /**
- * Returns the half-texture key for the half that contains (relX, relY),
- * or null if the cell has no diagonal wall.
- * nw-se diagonal: NE half if relY < relX, else SW.
- * ne-sw diagonal: NW half if relX+relY < 1, else SE.
+ * Texture flood-fill BFS via the unified `traverse()` segment graph.
+ *
+ * Returns `(filledCells, toFill)` where `toFill` entries are
+ * `[row, col, segmentIndex]`. Arc cells are visited naturally — each
+ * (interior, exterior) segment is its own graph node, so the BFS reaches
+ * exactly the segments on the user's side of the chord and no others.
  */
-// Room-side directions for each trim corner (the side the room floor is on).
-const TRIM_ROOM_DIRS = {
-  nw: new Set(['south', 'east']),
-  ne: new Set(['south', 'west']),
-  sw: new Set(['north', 'east']),
-  se: new Set(['north', 'west']),
-};
+function paintFloodBFS(
+  cells: CellGrid,
+  startRow: number,
+  startCol: number,
+  startRelX: number,
+  startRelY: number,
+): {
+  filledCells: Set<string>;
+  toFill: [number, number, number][];
+} {
+  const filledCells = new Set<string>();
+  const toFill: [number, number, number][] = [];
+  const startCell = cells[startRow]?.[startCol];
+  if (!startCell) return { filledCells, toFill };
 
-function halfKeyFromPos(cell: Cell | null, relX: number, relY: number) {
-  if (!cell) return null;
-  if (cell.trimWall || cell.trimRound) return null; // arc clip handles shaping — use whole-cell texture
-  // Straight trimmed cells: BFS only reaches the room-side half
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (cell.trimCorner && !cell.trimWall) return 'texture';
-  if (cell['nw-se']) return relY < relX ? 'texture' : 'textureSecondary';
-  if (cell['ne-sw']) return relX + relY < 1 ? 'texture' : 'textureSecondary';
-  return null;
-}
+  const startSegmentIndex = getSegmentIndexAt(startCell, startRelX, startRelY);
 
-/**
- * Returns the half-texture key based on the BFS entry direction into the cell.
- * For arc wall cells: room-side entry → 'texture', void-side entry → 'textureSecondary'.
- * For straight trims: always 'texture' (void side is null, unreachable).
- * For diagonal cells: entry direction determines which half.
- */
-function halfKeyFromEntry(cell: Cell | null, entryDir: string | null): string | null {
-  if (!cell) return null;
-  // Arc wall cells: use trimCrossing to determine side. If entry exits reach
-  // room-side edges, it's primary; otherwise secondary. For corner-clip cells
-  // where crossing is all-reachable, fall back to trimCorner.
-  if (cell.trimWall && cell.trimCorner) {
-    if (cell.trimCrossing) {
-      const exits = (cell.trimCrossing as Record<string, string>)[entryDir?.[0] ?? ''] ?? '';
-      const roomDirs = (TRIM_ROOM_DIRS as Record<string, Set<string>>)[cell.trimCorner]!;
-      const reachesRoom = [...roomDirs].some((d) => exits.includes(d[0]!));
-      const reachesVoid = ['north', 'south', 'east', 'west']
-        .filter((d) => !roomDirs.has(d))
-        .some((d) => exits.includes(d[0]!));
-      // If exits reach BOTH sides (corner-clip cell), use trimCorner as tiebreaker
-      if (reachesRoom && reachesVoid) {
-        return roomDirs.has(entryDir!) ? 'texture' : 'textureSecondary';
-      }
-      return reachesRoom ? 'texture' : 'textureSecondary';
-    }
-    // No crossing data: use trimCorner directly
-    const roomDirs = (TRIM_ROOM_DIRS as Record<string, Set<string>>)[cell.trimCorner]!;
-    return roomDirs.has(entryDir!) ? 'texture' : 'textureSecondary';
+  traverse(
+    cells,
+    {
+      row: startRow,
+      col: startCol,
+      segmentIndex: startSegmentIndex >= 0 ? startSegmentIndex : 0,
+    },
+    {
+      visit: (ctx) => {
+        const fillKey = cellKey(ctx.row, ctx.col);
+        // First-segment-wins: a cell with multiple segments visited via
+        // traverse contributes only one write. Diagonal/trim cells are
+        // typically reached through a single segment (the chord wall blocks
+        // the other), so this rarely matters in practice.
+        if (filledCells.has(fillKey)) return;
+        filledCells.add(fillKey);
+        toFill.push([ctx.row, ctx.col, ctx.segmentIndex]);
+      },
+    },
+  );
+
+  // Legacy contract: even if traverse() returned no segments (e.g. start
+  // segment is voided), the start cell is still included so the user's
+  // click is acknowledged.
+  if (filledCells.size === 0) {
+    filledCells.add(cellKey(startRow, startCol));
+    toFill.push([startRow, startCol, Math.max(0, startSegmentIndex)]);
   }
-  if (cell.trimRound) return null;
-  // Straight trimmed cells: only reachable from room side
-  if (cell.trimCorner) return 'texture';
-  if (cell['nw-se']) return entryDir === 'north' || entryDir === 'east' ? 'texture' : 'textureSecondary';
-  if (cell['ne-sw']) return entryDir === 'north' || entryDir === 'west' ? 'texture' : 'textureSecondary';
-  return null;
-}
 
-/**
- * Converts a half-texture key back into a synthetic BFS entry direction.
- * Used to give diagonal start cells a proper entry direction so blockedByDiagonal works.
- */
-function syntheticEntryFromHalfKey(halfKey: string | null) {
-  if (halfKey === 'texture') return 'north';
-  if (halfKey === 'textureSecondary') return 'south';
-  return null;
+  return { filledCells, toFill };
 }
 
 /**
@@ -449,12 +253,71 @@ export class PaintTool extends Tool {
     }
 
     this.dragEnd = { row, col };
-    this._applyToBox();
+
+    // For texture / clear-texture, a no-drag click targets the single
+    // segment under the cursor (the highlighted half), not the whole cell.
+    // Box-drag (multi-cell or even 1×1 with no segment-precision needed for
+    // unsplit cells) goes through `_applyToBox`, which now writes/clears
+    // every non-voided segment of every cell in the rect.
+    const isClick = this.dragStart!.row === this.dragEnd.row && this.dragStart!.col === this.dragEnd.col;
+    const mode = state.paintMode;
+    if (isClick && (mode === 'texture' || mode === 'clear-texture')) {
+      this._applyToSegmentAt(row, col, event, mode);
+    } else {
+      this._applyToBox();
+    }
 
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
     requestRender();
+  }
+
+  /**
+   * Single-click texture / clear-texture: target only the segment under the
+   * cursor. Hit-tests the click position against the cell's segments and
+   * mutates that one segment.
+   */
+  _applyToSegmentAt(row: number, col: number, event: MouseEvent, mode: 'texture' | 'clear-texture') {
+    const cells = state.dungeon.cells;
+    const cell = cells[row]?.[col];
+    if (!cell) return;
+    const { relX, relY } = getRelPos(event, row, col);
+    const segIdx = Math.max(0, getSegmentIndexAt(cell, relX, relY));
+    const segs = getSegments(cell);
+    const seg = segs[segIdx];
+    if (!seg || seg.voided) return;
+
+    if (mode === 'texture') {
+      const tid = state.activeTexture;
+      if (!tid) return;
+      void loadTextureImages(tid);
+      const opacity = state.textureOpacity;
+      if (seg.texture === tid && seg.textureOpacity === opacity) return;
+      mutate(
+        'Paint texture',
+        [{ row, col }],
+        () => {
+          writeSegmentTexture(cell, segIdx, tid, opacity);
+          accumulateDirtyRect(row, col, row, col);
+          _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
+        },
+        { textureOnly: true },
+      );
+    } else {
+      // clear-texture
+      if (!seg.texture) return;
+      mutate(
+        'Clear texture',
+        [{ row, col }],
+        () => {
+          writeSegmentTexture(cell, segIdx, null);
+          accumulateDirtyRect(row, col, row, col);
+          _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
+        },
+        { textureOnly: true },
+      );
+    }
   }
 
   floodFill(startRow: number, startCol: number, event: MouseEvent) {
@@ -465,209 +328,21 @@ export class PaintTool extends Tool {
     if (!tid) return;
     void loadTextureImages(tid); // ensure images are loading (no-op if already started)
 
-    // Determine which half of the start cell was clicked (for diagonal cells)
-    const startCell = cells[startRow][startCol];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX: startRelX, relY: startRelY } = event
       ? getRelPos(event, startRow, startCol)
       : { relX: 0.5, relY: 0.5 };
-    const startHalfKey = halfKeyFromPos(startCell, startRelX, startRelY);
 
-    // For diagonal start cells, derive a synthetic entry direction from the clicked half so
-    // that blockedByDiagonal correctly restricts exits to the clicked half's side.
-    let startEntry = syntheticEntryFromHalfKey(startHalfKey);
-
-    // halfKeyFromPos returns null for trimRound cells (arc uses whole-cell texture).
-    // For traversal we still need an entry direction so blockedByDiagonal can restrict
-    // exits to the clicked half — derive it directly from mouse position geometry.
-    if (startEntry === null && startCell.trimRound) {
-      if (startCell['nw-se']) startEntry = startRelY < startRelX ? 'north' : 'south';
-      else if (startCell['ne-sw']) startEntry = startRelX + startRelY < 1 ? 'north' : 'south';
-    }
-
-    // Queue entries: [r, c, entryDir] — entryDir is the direction we came FROM.
-    const queue: [number, number, string | null][] = [[startRow, startCol, startEntry]];
-
-    // Visited keyed by (cell + entryDir). For diagonal cells, when a cell is first reached
-    // from one half, lockDiagonalHalf pre-marks the other half's entry keys so the BFS
-    // cannot re-enter the same cell from the opposite side of the diagonal wall.
-    const visitedTraversal = new Set([`${startRow},${startCol},${startEntry ?? ''}`]);
-    lockDiagonalHalf(visitedTraversal, startRow, startCol, startEntry, startCell);
-
-    // toFill stores [r, c, halfKey] — halfKey is null for whole-cell, else 'texture' or 'textureSecondary'.
-    const filledCells = new Set([cellKey(startRow, startCol)]);
-    const toFill: [number, number, string | null][] = [[startRow, startCol, startHalfKey]];
-
-    while (queue.length > 0) {
-      const [r, c, entryDir] = queue.shift()!;
-      const cell = cells[r]?.[c];
-      if (!cell) continue;
-
-      const diagonalBlocked = blockedByDiagonal(cell, entryDir as CardinalDirection | null);
-
-      // Arc wall exit blocking: 3×3 sub-grid crossing matrix.
-      let arcExits: string | null = null;
-      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
-        arcExits = cell.trimCrossing[entryDir?.[0] as string] ?? '';
-      }
-
-      for (const { dir, dr, dc } of FILL_DIRS) {
-        if (cell[dir]) continue; // wall, door, or secret door — don't cross
-        if (diagonalBlocked.has(dir)) continue; // diagonal wall blocks this exit
-        if (arcExits !== null && !arcExits.includes(dir[0]!)) continue; // arc wall blocks this exit
-
-        const nr = r + dr,
-          nc = c + dc;
-        const neighborEntryDir = OPPOSITE[dir];
-        const tKey = `${nr},${nc},${neighborEntryDir}`;
-        if (visitedTraversal.has(tKey)) continue;
-        visitedTraversal.add(tKey);
-        if (!cells[nr]?.[nc]) continue; // void — stop
-
-        const neighborCell = cells[nr][nc];
-        if (neighborCell[neighborEntryDir]) continue; // wall on the entry side of neighbor
-
-        // Lock arc cells to the side they're first reached from
-        if (neighborCell.trimCrossing && typeof neighborCell.trimCrossing === 'object') {
-          const tc = neighborCell.trimCrossing;
-          const myExits = tc[neighborEntryDir[0]!] ?? '';
-          for (const ld of ['north', 'south', 'east', 'west']) {
-            if (ld === neighborEntryDir) continue;
-            if ((tc[ld[0]!] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
-          }
-        }
-        // Lock diagonal neighbor cells to the first half they're reached from
-        lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighborCell);
-        queue.push([nr, nc, neighborEntryDir]);
-
-        // Skip arc cells entirely in the main BFS — the post-pass handles them.
-        // This prevents BFS leaking through corner-clip arc cells into other circles.
-        if (neighborCell.trimWall) continue;
-
-        const fillKey = cellKey(nr, nc);
-        if (!filledCells.has(fillKey)) {
-          filledCells.add(fillKey);
-          const halfKey = halfKeyFromEntry(neighborCell, neighborEntryDir);
-          toFill.push([nr, nc, halfKey]);
-        }
-      }
-    }
-
-    const forceSecondary = state.paintSecondary;
-
-    // Snapshot the main BFS fill before the arc post-pass so Phase 3 can
-    // determine which side of the arc the fill originated from.
-    const mainFillCells = new Set(filledCells);
-
-    // Arc post-pass: determine the fill side ONCE from the first non-arc cell
-    // adjacent to an arc cell, then apply to ALL arc cells uniformly.
-    // During a single flood fill, all reached cells are on the same side of the arc.
-    {
-      // Step 1: determine the halfKey by checking if the fill reached the CENTER
-      // of the NEARBY arc region. Only consider arc cells adjacent to the filled area.
-      let arcMinR = Infinity,
-        arcMaxR = 0,
-        arcMinC = Infinity,
-        arcMaxC = 0;
-      let hasNearbyArc = false;
-      for (const k of mainFillCells) {
-        const [fr, fc] = k.split(',').map(Number) as [number, number];
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = fr + dr,
-            nc = fc + dc;
-          if (cells[nr]?.[nc]?.trimWall) {
-            hasNearbyArc = true;
-            arcMinR = Math.min(arcMinR, nr);
-            arcMaxR = Math.max(arcMaxR, nr);
-            arcMinC = Math.min(arcMinC, nc);
-            arcMaxC = Math.max(arcMaxC, nc);
-          }
-        }
-      }
-      let arcHalfKey = 'texture'; // default for fills with no adjacent arcs
-      if (hasNearbyArc) {
-        const centerR = Math.floor((arcMinR + arcMaxR) / 2);
-        const centerC = Math.floor((arcMinC + arcMaxC) / 2);
-        // Only count the center as "inside" if it's a non-arc cell that was filled.
-        // Arc cells at the center can be reached by BFS leaking through corner clips.
-        const centerCell = cells[centerR]?.[centerC];
-        const centerIsInside = mainFillCells.has(cellKey(centerR, centerC)) && centerCell && !centerCell.trimWall;
-        arcHalfKey = centerIsInside ? 'texture' : 'textureSecondary';
-      }
-
-      // Step 2: claim all arc cells adjacent to any filled cell, then propagate
-      const arcVisited = new Set();
-      const arcQueue = [];
-
-      // Seed from non-arc filled cells adjacent to arc cells.
-      // Skip cells sandwiched between arc cells (they're in a gap between circles).
-      for (const k of mainFillCells) {
-        const [fr, fc] = k.split(',').map(Number) as [number, number];
-        const fCell = cells[fr]?.[fc];
-        if (fCell?.trimWall) continue;
-        // Check if this cell is sandwiched: arc neighbors on opposing axes
-        const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
-        const hasArcS = !!cells[fr + 1]?.[fc]?.trimWall;
-        const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
-        const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
-        if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue; // sandwiched → skip
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = fr + dr,
-            nc = fc + dc;
-          const arcCell = cells[nr]?.[nc];
-          if (!arcCell?.trimWall) continue;
-          const nKey = cellKey(nr, nc);
-          if (arcVisited.has(nKey)) continue;
-          arcVisited.add(nKey);
-          if (!filledCells.has(nKey)) {
-            filledCells.add(nKey);
-            toFill.push([nr, nc, arcHalfKey]);
-          }
-          arcQueue.push([nr, nc]);
-        }
-      }
-
-      // Propagate through connected arc cells. Allow free propagation but stop
-      // at cells where a non-arc mainFillCells neighbor gives the WRONG halfKey
-      // (indicates crossing into a different circle's boundary).
-      while (arcQueue.length > 0) {
-        const [ar, ac] = arcQueue.shift()! as [number, number];
-        for (const { dr, dc } of FILL_DIRS) {
-          const nr = ar + dr,
-            nc = ac + dc;
-          const arcCell = cells[nr]?.[nc];
-          if (!arcCell?.trimWall) continue;
-          const nKey = cellKey(nr, nc);
-          if (arcVisited.has(nKey)) continue;
-          // Block if any non-arc mainFillCells neighbor gives opposite halfKey
-          let blocked = false;
-          for (const { dir: d2, dr: dr2, dc: dc2 } of FILL_DIRS) {
-            const mr = nr + dr2,
-              mc = nc + dc2;
-            if (!mainFillCells.has(cellKey(mr, mc))) continue;
-            if (cells[mr]?.[mc]?.trimWall) continue;
-            const hk = halfKeyFromEntry(arcCell, d2);
-            if (hk && hk !== arcHalfKey) {
-              blocked = true;
-              break;
-            }
-          }
-          if (blocked) continue;
-          arcVisited.add(nKey);
-          if (!filledCells.has(nKey)) {
-            filledCells.add(nKey);
-            toFill.push([nr, nc, arcHalfKey]);
-          }
-          arcQueue.push([nr, nc]);
-        }
-      }
-    }
+    const { toFill } = paintFloodBFS(cells, startRow, startCol, startRelX, startRelY);
 
     const opacity = state.textureOpacity;
-    // Route through mutate() so smartInvalidate bumps contentVersion (forces a
-    // cells rebuild) and patches the blend cache for texture-change undo/redo.
-    // Direct markDirty+notify used to skip both, leaving the map stale until
-    // the next edit.
+
+    // The traverse()-driven BFS above naturally visits the right segment
+    // for every reached cell — including arc cells (each (interior, exterior)
+    // segment is its own graph node, gated by the chord wall). No arc
+    // post-pass is needed; the deleted `correctArcCells` (220 lines) was a
+    // legacy hack to compensate for the half-key data path that segments
+    // make obsolete.
     const coords = toFill.map(([r, c]) => ({ row: r, col: c }));
     mutate(
       'Flood fill',
@@ -677,11 +352,9 @@ export class PaintTool extends Tool {
           fMaxR = -Infinity,
           fMinC = Infinity,
           fMaxC = -Infinity;
-        for (const [r, c, halfKey] of toFill) {
-          const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-          const opKey = texKey + 'Opacity';
-          (cells[r]![c] as Record<string, unknown>)[texKey] = tid;
-          (cells[r]![c] as Record<string, unknown>)[opKey] = opacity;
+        for (const [r, c, segmentIndex] of toFill) {
+          const cell = cells[r]![c]!;
+          writeSegmentTexture(cell, segmentIndex, tid, opacity);
           if (r < fMinR) fMinR = r;
           if (r > fMaxR) fMaxR = r;
           if (c < fMinC) fMinC = c;
@@ -701,135 +374,27 @@ export class PaintTool extends Tool {
     const cells = state.dungeon.cells;
     if (!cells[startRow]?.[startCol]) return;
 
-    const startCell = cells[startRow][startCol];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX: startRelX, relY: startRelY } = event
       ? getRelPos(event, startRow, startCol)
       : { relX: 0.5, relY: 0.5 };
-    const startHalfKey = halfKeyFromPos(startCell, startRelX, startRelY);
-    const startEntry = syntheticEntryFromHalfKey(startHalfKey);
 
-    const queue: [number, number, string | null][] = [[startRow, startCol, startEntry]];
-    const visitedTraversal = new Set([`${startRow},${startCol},${startEntry ?? ''}`]);
-    lockDiagonalHalf(visitedTraversal, startRow, startCol, startEntry, startCell);
+    // Same segment-aware BFS as floodFill — each visited (cell, segment)
+    // becomes one clear target.
+    const { toFill: toClear } = paintFloodBFS(cells, startRow, startCol, startRelX, startRelY);
 
-    const filledCells = new Set([cellKey(startRow, startCol)]);
-    const toClear: [number, number, string | null][] = [[startRow, startCol, startHalfKey]];
-
-    while (queue.length > 0) {
-      const [r, c, entryDir] = queue.shift()!;
-      const cell = cells[r]?.[c];
-      if (!cell) continue;
-
-      const diagonalBlocked = blockedByDiagonal(cell, entryDir as CardinalDirection | null);
-
-      let arcExits: string | null = null;
-      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
-        arcExits = cell.trimCrossing[entryDir?.[0] as string] ?? '';
-      }
-
-      for (const { dir, dr, dc } of FILL_DIRS) {
-        if (cell[dir]) continue;
-        if (diagonalBlocked.has(dir)) continue;
-        if (arcExits !== null && !arcExits.includes(dir[0]!)) continue;
-
-        const nr = r + dr,
-          nc = c + dc;
-        const neighborEntryDir = OPPOSITE[dir];
-        const tKey = `${nr},${nc},${neighborEntryDir}`;
-        if (visitedTraversal.has(tKey)) continue;
-        visitedTraversal.add(tKey);
-        if (!cells[nr]?.[nc]) continue;
-
-        const neighborCell = cells[nr][nc];
-        if (neighborCell[neighborEntryDir]) continue;
-
-        if (neighborCell.trimCrossing && typeof neighborCell.trimCrossing === 'object') {
-          const tc = neighborCell.trimCrossing;
-          const myExits = tc[neighborEntryDir[0]!] ?? '';
-          for (const ld of ['north', 'south', 'east', 'west']) {
-            if (ld === neighborEntryDir) continue;
-            if ((tc[ld[0]!] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
-          }
-        }
-        lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighborCell);
-        queue.push([nr, nc, neighborEntryDir]);
-
-        const fillKey = cellKey(nr, nc);
-        if (!filledCells.has(fillKey)) {
-          filledCells.add(fillKey);
-          const halfKey = halfKeyFromEntry(neighborCell, neighborEntryDir);
-          toClear.push([nr, nc, halfKey]);
-        }
-      }
-    }
-
-    // Snapshot the main BFS fill before the arc post-pass for Phase 3.
-    const mainFillCells = new Set(filledCells);
-
-    // Arc post-pass: clear all trimRound ring cells connected to the cleared region.
-    // Same two-phase approach as floodFill: adjacency-seeded + free propagation.
-    // No direction check — trimRound cells use halfKey=null so the write loop selects
-    // texture vs textureSecondary solely via forceSecondary.
-    const forceSecondary = state.paintSecondary;
-    const arcQueueC = [];
-    const arcVisitedC = new Set<string>();
-
-    for (const k of filledCells) {
-      const [fr, fc] = k.split(',').map(Number) as [number, number];
-      if (cells[fr]?.[fc]?.trimRound && !arcVisitedC.has(k)) {
-        arcVisitedC.add(k);
-        arcQueueC.push([fr, fc]);
-      }
-      for (const { dr, dc } of FILL_DIRS) {
-        const nr = fr + dr,
-          nc = fc + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimRound) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisitedC.has(nKey)) continue;
-        arcVisitedC.add(nKey);
-        if (!filledCells.has(nKey)) {
-          filledCells.add(nKey);
-          toClear.push([nr, nc, null]);
-        }
-        arcQueueC.push([nr, nc]);
-      }
-    }
-    while (arcQueueC.length > 0) {
-      const [ar, ac] = arcQueueC.shift()! as [number, number];
-      for (const { dr, dc } of FILL_DIRS) {
-        const nr = ar + dr,
-          nc = ac + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimRound) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisitedC.has(nKey)) continue;
-        arcVisitedC.add(nKey);
-        if (!filledCells.has(nKey)) {
-          filledCells.add(nKey);
-          toClear.push([nr, nc, null]);
-        }
-        arcQueueC.push([nr, nc]);
-      }
-    }
-
-    // Phase 3: correct trimInsideArc cells
-    correctArcCells(cells, filledCells, toClear, mainFillCells, arcVisitedC);
-
-    // Only push undo if there's actually something to clear
+    // Only push undo if at least one targeted segment actually has a texture
+    // to clear.
     let hasTexture = false;
-    for (const [r, c, halfKey] of toClear) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-      if ((cells[r]![c] as Record<string, unknown>)[texKey]) {
+    for (const [r, c, segmentIndex] of toClear) {
+      const cell = cells[r]![c]!;
+      if (getSegments(cell)[segmentIndex]?.texture) {
         hasTexture = true;
         break;
       }
     }
     if (!hasTexture) return;
 
-    // Route through mutate() so smartInvalidate bumps contentVersion + patches
-    // the blend cache. See floodFill for the rationale.
     const coords = toClear.map(([r, c]) => ({ row: r, col: c }));
     mutate(
       'Clear texture',
@@ -839,11 +404,9 @@ export class PaintTool extends Tool {
           cMaxR = -Infinity,
           cMinC = Infinity,
           cMaxC = -Infinity;
-        for (const [r, c, halfKey] of toClear) {
-          const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-          const opKey = texKey + 'Opacity';
-          delete (cells[r]![c] as Record<string, unknown>)[texKey];
-          delete (cells[r]![c] as Record<string, unknown>)[opKey];
+        for (const [r, c, segmentIndex] of toClear) {
+          const cell = cells[r]![c]!;
+          writeSegmentTexture(cell, segmentIndex, null);
           if (r < cMinR) cMinR = r;
           if (r > cMaxR) cMaxR = r;
           if (c < cMinC) cMinC = c;
@@ -866,15 +429,15 @@ export class PaintTool extends Tool {
     const cell = cells[row][col];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX, relY } = event ? getRelPos(event, row, col) : { relX: 0.5, relY: 0.5 };
-    const halfKey = halfKeyFromPos(cell, relX, relY);
-    const texKey = halfKey ?? 'texture';
-    const opKey = halfKey ? halfKey + 'Opacity' : 'textureOpacity';
-
-    const tid = cell[texKey];
-    if (!tid) return; // no texture on this cell
+    // Hit-test the click position to a segment and read its texture/opacity.
+    // Unsplit cells produce segment 0 (the implicit full segment).
+    const segIdxPick = Math.max(0, getSegmentIndexAt(cell, relX, relY));
+    const seg = getSegments(cell)[segIdxPick];
+    const tid = seg?.texture;
+    if (!tid) return; // no texture on this cell/segment
 
     // Pick up opacity too
-    const opacity = cell[opKey as keyof Cell] as number;
+    const opacity = seg.textureOpacity ?? 1;
     state.textureOpacity = opacity;
     const slider = document.getElementById('texture-opacity-slider')!;
     const valueEl = document.getElementById('texture-opacity-value')!;
@@ -894,27 +457,18 @@ export class PaintTool extends Tool {
     const cell = cells[row]![col]!;
 
     if (mode === 'texture' || mode === 'clear-texture' || mode === 'syringe') {
-      // Clear texture from cell
+      // Clear texture from the segment under the cursor.
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const { relX, relY } = event ? getRelPos(event, row, col) : { relX: 0.5, relY: 0.5 };
-      const halfKey = halfKeyFromPos(cell, relX, relY);
-      // Early out before pushing undo / firing render — matches previous behaviour.
-      if (halfKey ? !cell[halfKey] : !cell.texture) return;
-      // Route through `mutate()` so smartInvalidate fires: bumps contentVersion
-      // (forcing a cells rebuild) and triggers the blend patch for the texture
-      // change. Direct delete+notify skipped both, so the right-click cleared
-      // the cell but the cached map didn't repaint until the next edit.
+      const segIdx = getSegmentIndexAt(cell, relX, relY);
+      const segmentIndex = segIdx >= 0 ? segIdx : 0;
+      // Early out before pushing undo / firing render if there's nothing to clear.
+      if (!getSegments(cell)[segmentIndex]?.texture) return;
       mutate(
         'Clear texture',
         [{ row, col }],
         () => {
-          if (halfKey) {
-            delete cell[halfKey];
-            delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
-          } else {
-            delete cell.texture;
-            delete cell.textureOpacity;
-          }
+          writeSegmentTexture(cell, segmentIndex, null);
           accumulateDirtyRect(row, col, row, col);
           _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
         },
@@ -970,17 +524,21 @@ export class PaintTool extends Tool {
       if (!tid) return;
       void loadTextureImages(tid);
       const opacity = state.textureOpacity;
-      const texKey = state.paintSecondary ? 'textureSecondary' : 'texture';
-      const opKey = texKey + 'Opacity';
+      // Box-paint writes the texture onto every non-voided segment of every
+      // cell in the rect. Single-segment precision (the half under the
+      // cursor) is handled by `_applyToSegmentAt` for no-drag clicks.
       let hasWork = false;
       for (let r = r1; r <= r2 && !hasWork; r++) {
         for (let c = c1; c <= c2 && !hasWork; c++) {
           const cell = cells[r]?.[c];
-          if (
-            cell &&
-            ((cell as Record<string, unknown>)[texKey] !== tid || (cell as Record<string, unknown>)[opKey] !== opacity)
-          )
-            hasWork = true;
+          if (!cell) continue;
+          for (const seg of getSegments(cell)) {
+            if (seg.voided) continue;
+            if (seg.texture !== tid || seg.textureOpacity !== opacity) {
+              hasWork = true;
+              break;
+            }
+          }
         }
       }
       if (!hasWork) return;
@@ -998,8 +556,11 @@ export class PaintTool extends Tool {
             for (let c = c1; c <= c2; c++) {
               const cell = cells[r]?.[c];
               if (!cell) continue;
-              (cell as Record<string, unknown>)[texKey] = tid;
-              (cell as Record<string, unknown>)[opKey] = opacity;
+              const segs = getSegments(cell);
+              for (let i = 0; i < segs.length; i++) {
+                if (segs[i]!.voided) continue;
+                writeSegmentTexture(cell, i, tid, opacity);
+              }
             }
           }
           accumulateDirtyRect(r1, c1, r2, c2);
@@ -1008,15 +569,12 @@ export class PaintTool extends Tool {
         { textureOnly: true },
       );
     } else if (mode === 'clear-texture') {
-      const clearKeys = state.paintSecondary
-        ? ['textureSecondary', 'textureSecondaryOpacity']
-        : ['texture', 'textureOpacity', 'textureSecondary', 'textureSecondaryOpacity'];
-      const checkKeys = state.paintSecondary ? ['textureSecondary'] : ['texture', 'textureSecondary'];
+      // Box-clear wipes every non-voided segment's texture in the rect.
       let hasWork = false;
       for (let r = r1; r <= r2 && !hasWork; r++) {
         for (let c = c1; c <= c2 && !hasWork; c++) {
           const cell = cells[r]?.[c];
-          if (cell && checkKeys.some((k) => cell[k as keyof Cell])) hasWork = true;
+          if (cell && getSegments(cell).some((s) => !s.voided && s.texture)) hasWork = true;
         }
       }
       if (!hasWork) return;
@@ -1034,7 +592,11 @@ export class PaintTool extends Tool {
             for (let c = c1; c <= c2; c++) {
               const cell = cells[r]?.[c];
               if (!cell) continue;
-              for (const k of clearKeys) delete cell[k as keyof Cell];
+              const segs = getSegments(cell);
+              for (let i = 0; i < segs.length; i++) {
+                if (segs[i]!.voided) continue;
+                writeSegmentTexture(cell, i, null);
+              }
             }
           }
           accumulateDirtyRect(r1, c1, r2, c2);

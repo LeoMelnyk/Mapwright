@@ -46,9 +46,12 @@ const tools = {
 };
 
 function setTool(name: string) {
-  // Deactivate previous tool (read state.activeTool before updating it)
-  const prevTool = tools[state.activeTool as keyof typeof tools];
-  prevTool.onDeactivate();
+  // Deactivate previous tool (read state.activeTool before updating it).
+  // Guard against state.activeTool holding an unknown name (e.g. from a
+  // stale autosave or external API misuse) — calling .onDeactivate() on
+  // undefined would crash the editor on init.
+  const prevTool = (tools as Record<string, Tool | undefined>)[state.activeTool];
+  prevTool?.onDeactivate();
 
   state.activeTool = name;
 

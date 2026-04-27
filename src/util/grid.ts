@@ -1,25 +1,246 @@
 // Shared grid traversal primitives used by the editor tools and renderer.
 
-import type { Cell, CellGrid, CardinalDirection, CellHalfKey, Direction, EdgeValue } from '../types.js';
-import { pointInPolygon } from './polygon.js';
+import type {
+  Cell,
+  CellGrid,
+  CardinalDirection,
+  CellHalfKey,
+  Direction,
+  EdgeValue,
+  RenderTransform,
+} from '../types.js';
+import {
+  diagonalSegments,
+  getInteriorEdges,
+  getSegments,
+  primaryTextureSegmentIndex,
+  spliceSegments,
+} from './cell-segments.js';
+
+// ── Diagonal-edge helpers ──────────────────────────────────────────────────
+// Diagonal walls live on `cell.interiorEdges` (with no `arc` hint), not on
+// any cardinal field. These helpers read/write the diagonal wall through
+// the segments model so callers can use the same getEdge/setEdge API for
+// cardinals AND diagonals.
+
+const EPS = 1e-9;
+const FULL_POLY: ReadonlyArray<readonly [number, number]> = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1],
+];
+
+/** True when a polyline runs from (0,0)→(1,1) — the nw-se diagonal. */
+function isNwSeChord(verts: number[][]): boolean {
+  if (verts.length < 2) return false;
+  const a = verts[0]!;
+  const b = verts[verts.length - 1]!;
+  return (
+    (Math.abs(a[0]!) < EPS && Math.abs(a[1]!) < EPS && Math.abs(b[0]! - 1) < EPS && Math.abs(b[1]! - 1) < EPS) ||
+    (Math.abs(b[0]!) < EPS && Math.abs(b[1]!) < EPS && Math.abs(a[0]! - 1) < EPS && Math.abs(a[1]! - 1) < EPS)
+  );
+}
+
+/** True when a polyline runs from (1,0)→(0,1) — the ne-sw diagonal. */
+function isNeSwChord(verts: number[][]): boolean {
+  if (verts.length < 2) return false;
+  const a = verts[0]!;
+  const b = verts[verts.length - 1]!;
+  return (
+    (Math.abs(a[0]! - 1) < EPS && Math.abs(a[1]!) < EPS && Math.abs(b[0]!) < EPS && Math.abs(b[1]! - 1) < EPS) ||
+    (Math.abs(b[0]! - 1) < EPS && Math.abs(b[1]!) < EPS && Math.abs(a[0]!) < EPS && Math.abs(a[1]! - 1) < EPS)
+  );
+}
+
+/**
+ * Read the wall on a cell's diagonal interior edge, if any. Returns the
+ * canonical edge value (`'w'`, `'iw'`, `null`, etc.) or `undefined` when
+ * the cell is unsplit / has no matching diagonal.
+ *
+ * Skips arc-trim partitions: arcs aren't diagonals, even though they also
+ * sit on `interiorEdges`. The `arc` hint distinguishes them.
+ */
+export function getDiagonalEdge(cell: Cell | null | undefined, diag: 'nw-se' | 'ne-sw'): EdgeValue {
+  if (!cell) return undefined;
+  for (const ie of getInteriorEdges(cell)) {
+    // `isNwSeChord` / `isNeSwChord` already reject anything but a 2-vertex
+    // corner-to-corner edge, so chord/arc interior edges naturally don't match.
+    if (diag === 'nw-se' && isNwSeChord(ie.vertices)) return ie.wall;
+    if (diag === 'ne-sw' && isNeSwChord(ie.vertices)) return ie.wall;
+  }
+  return undefined;
+}
+
+/**
+ * Write a diagonal wall on a cell, replacing any prior partition. Routes
+ * through `spliceSegments` so the tile / no-overlap invariants hold.
+ *
+ * Pass `value = null` for a passable diagonal (rare; mostly used by the
+ * trim tool's `open` mode); pass `'w'` / `'iw'` for the standard cases.
+ *
+ * Texture preservation: if the cell already had a texture (single segment
+ * with a `texture` field, the common case), that texture is carried over
+ * onto BOTH new segments so the user sees the floor unchanged on both
+ * sides of the new diagonal. The inverse — collapsing a diagonal back to
+ * a single segment — is handled by `deleteDiagonalEdge`, which coalesces.
+ */
+export function setDiagonalEdge(cell: Cell, diag: 'nw-se' | 'ne-sw', value: EdgeValue): void {
+  // Snapshot the primary texture before the partition lands. For an
+  // unsplit cell `primaryTextureSegmentIndex` is 0; for a cell already
+  // split (re-partition with a different diagonal) it picks the canonical
+  // "primary" half. Either way we get the user-visible floor texture.
+  const segsBefore = getSegments(cell);
+  const primaryIdxBefore = primaryTextureSegmentIndex(cell);
+  const preservedTexture = segsBefore[primaryIdxBefore]?.texture;
+  const preservedOpacity = segsBefore[primaryIdxBefore]?.textureOpacity;
+
+  const { segments, interiorEdge } = diagonalSegments(diag);
+  spliceSegments(cell, {
+    kind: 'replacePartition',
+    segments: segments.map((s) => ({
+      ...s,
+      polygon: s.polygon.map((p) => [p[0]!, p[1]!]),
+      ...(preservedTexture !== undefined ? { texture: preservedTexture } : {}),
+      ...(preservedOpacity !== undefined ? { textureOpacity: preservedOpacity } : {}),
+    })),
+    interiorEdges: [
+      {
+        vertices: interiorEdge.vertices.map((v) => [v[0]!, v[1]!]),
+        wall: value ?? null,
+        between: [interiorEdge.between[0], interiorEdge.between[1]],
+      },
+    ],
+  });
+}
+
+/**
+ * Remove a diagonal partition from a cell, restoring it to a single
+ * unsplit segment. No-op when the cell has no matching diagonal partition.
+ */
+export function deleteDiagonalEdge(cell: Cell, diag: 'nw-se' | 'ne-sw'): void {
+  // Detect a matching diagonal interior edge. Chord/arc edges naturally
+  // don't match the corner-to-corner shape `isNwSeChord` / `isNeSwChord` test for.
+  const edges = getInteriorEdges(cell);
+  let found = false;
+  for (const ie of edges) {
+    if (diag === 'nw-se' && isNwSeChord(ie.vertices)) found = true;
+    if (diag === 'ne-sw' && isNeSwChord(ie.vertices)) found = true;
+  }
+  if (!found) return;
+
+  // Coalesce textures from the two segments — pick segment 1's texture
+  // (the canonical "primary" half: NE for nw-se, NW for ne-sw) when set,
+  // falling back to segment 0.
+  const segs = getSegments(cell);
+  const primary = segs[1]?.texture ?? segs[0]?.texture;
+  const primaryOp = segs[1]?.textureOpacity ?? segs[0]?.textureOpacity;
+
+  spliceSegments(cell, {
+    kind: 'replacePartition',
+    segments: [
+      {
+        id: 's0',
+        polygon: FULL_POLY.map((p) => [p[0], p[1]]),
+        ...(primary !== undefined ? { texture: primary } : {}),
+        ...(primaryOp !== undefined ? { textureOpacity: primaryOp } : {}),
+      },
+    ],
+    interiorEdges: [],
+  });
+}
+
+// ── Coordinate transforms (shared between editor, render, and player) ─────
+
+/**
+ * Convert feet coordinates to canvas pixels using a pan/zoom transform.
+ */
+export function toCanvas(x: number, y: number, transform: RenderTransform): { x: number; y: number } {
+  return {
+    x: x * transform.scale + transform.offsetX,
+    y: y * transform.scale + transform.offsetY,
+  };
+}
+
+/**
+ * Convert canvas pixel coordinates back to world feet using the inverse transform.
+ */
+export function fromCanvas(px: number, py: number, transform: RenderTransform): { x: number; y: number } {
+  return {
+    x: (px - transform.offsetX) / transform.scale,
+    y: (py - transform.offsetY) / transform.scale,
+  };
+}
+
+/**
+ * Convert a canvas pixel position to grid `(row, col)` indices.
+ */
+export function pixelToCell(
+  px: number,
+  py: number,
+  transform: RenderTransform,
+  gridSize: number,
+): { row: number; col: number } {
+  const feet = fromCanvas(px, py, transform);
+  return {
+    row: Math.floor(feet.y / gridSize),
+    col: Math.floor(feet.x / gridSize),
+  };
+}
 
 // ── Typed Cell edge accessors ──────────────────────────────────────────────
-// These centralise the dynamic property access needed for direction-based lookups,
-// avoiding `as Record<string, unknown>` casts scattered across the codebase.
+// These centralise the dynamic property access needed for direction-based
+// lookups. Cardinal directions read/write `cell.north`/etc. directly;
+// diagonal directions (`'nw-se'` / `'ne-sw'`) route through the segments
+// model via `getDiagonalEdge` / `setDiagonalEdge` so the cell type doesn't
+// need to carry diagonal-edge fields at all.
 
 /** Read an edge value from a cell by direction. */
 export function getEdge(cell: Cell, dir: Direction): EdgeValue {
+  if (dir === 'nw-se' || dir === 'ne-sw') return getDiagonalEdge(cell, dir);
   return cell[dir];
+}
+
+/**
+ * Scan a cell grid and return the set of texture IDs referenced by any
+ * segment of any populated cell. Used by the editor, the Node-side render
+ * pipeline, and the player view to figure out which textures need to be
+ * loaded for a given map.
+ */
+export function collectTextureIds(cells: CellGrid): Set<string> {
+  const ids = new Set<string>();
+  for (const row of cells) {
+    for (const cell of row) {
+      if (!cell) continue;
+      for (const seg of getSegments(cell)) {
+        if (seg.texture) ids.add(seg.texture);
+      }
+    }
+  }
+  return ids;
 }
 
 /** Write an edge value on a cell by direction. */
 export function setEdge(cell: Cell, dir: Direction, value: EdgeValue): void {
-  (cell as Record<Direction, EdgeValue>)[dir] = value;
+  if (dir === 'nw-se' || dir === 'ne-sw') {
+    setDiagonalEdge(cell, dir, value);
+    return;
+  }
+  // The cast is narrow (only valid CardinalDirection keys, only EdgeValue values)
+  // and lives in the implementation of the typed helper itself.
+  // eslint-disable-next-line no-restricted-syntax
+  (cell as Record<CardinalDirection, EdgeValue>)[dir] = value;
 }
 
 /** Delete an edge value from a cell by direction. */
 export function deleteEdge(cell: Cell, dir: Direction): void {
-  delete (cell as Record<Direction, EdgeValue | undefined>)[dir];
+  if (dir === 'nw-se' || dir === 'ne-sw') {
+    deleteDiagonalEdge(cell, dir);
+    return;
+  }
+  // Same justification as setEdge — narrow cast inside the helper itself.
+  // eslint-disable-next-line no-restricted-syntax
+  delete (cell as Record<CardinalDirection, EdgeValue | undefined>)[dir];
 }
 
 // ── Half-cell resolution helpers ────────────────────────────────────────────
@@ -178,19 +399,6 @@ export function isEdgeOpen(cell: Cell | null, neighbor: Cell | null, dir: Cardin
   return !cell?.[dir] && !neighbor?.[OPPOSITE[dir]];
 }
 
-/**
- * Check if the edge between two adjacent cells is passable (doors allowed, walls block).
- * @param cell - Source cell object
- * @param neighbor - Adjacent cell object
- * @param dir - Cardinal direction from cell to neighbor
- * @returns True if passable
- */
-export function isEdgePassable(cell: Cell | null, neighbor: Cell | null, dir: CardinalDirection): boolean {
-  const a = cell?.[dir],
-    b = neighbor?.[OPPOSITE[dir]];
-  return a !== 'w' && a !== 'iw' && b !== 'w' && b !== 'iw';
-}
-
 // ── Room bounds from cell key set ──────────────────────────────────────────
 
 /**
@@ -248,14 +456,16 @@ export function setEdgeReciprocal(
   direction: string,
   value: EdgeValue,
 ): void {
-  (cells[row]![col] as Record<string, unknown>)[direction] = value;
+  const cell = cells[row]![col];
+  if (!cell) return;
+  setEdge(cell, direction as Direction, value);
 
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
   const nr = row + dr,
     nc = col + dc;
   if (isInBounds(cells, nr, nc) && cells[nr]![nc]) {
-    (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]] = value;
+    setEdge(cells[nr]![nc], OPPOSITE[direction as CardinalDirection], value);
   }
 }
 
@@ -267,355 +477,15 @@ export function setEdgeReciprocal(
  * @param direction - Edge direction
  */
 export function deleteEdgeReciprocal(cells: CellGrid, row: number, col: number, direction: string): void {
-  delete (cells[row]![col] as Record<string, unknown>)[direction];
+  const cell = cells[row]![col];
+  if (!cell) return;
+  deleteEdge(cell, direction as Direction);
 
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
   const nr = row + dr,
     nc = col + dc;
   if (isInBounds(cells, nr, nc) && cells[nr]![nc]) {
-    delete (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]];
+    deleteEdge(cells[nr]![nc], OPPOSITE[direction as CardinalDirection]);
   }
-}
-
-// ── Diagonal-aware BFS helpers ──────────────────────────────────────────────
-
-/**
- * Returns a Set of exit directions blocked by a diagonal wall, given the entry direction.
- * @param cell - Cell object with potential 'nw-se' or 'ne-sw' diagonal walls
- * @param entryDir - Direction the cell was entered from
- * @returns Blocked exit directions
- */
-export function blockedByDiagonal(cell: Cell, entryDir: CardinalDirection | null): Set<string> {
-  const blocked = new Set<string>();
-  if (entryDir === null) return blocked;
-
-  if (cell['nw-se']) {
-    if (entryDir === 'north' || entryDir === 'east') {
-      blocked.add('south');
-      blocked.add('west');
-    } else {
-      blocked.add('north');
-      blocked.add('east');
-    }
-  }
-  if (cell['ne-sw']) {
-    if (entryDir === 'south' || entryDir === 'east') {
-      blocked.add('north');
-      blocked.add('west');
-    } else {
-      blocked.add('south');
-      blocked.add('east');
-    }
-  }
-  return blocked;
-}
-
-/**
- * When a diagonal cell is first reached from one half, lock the other half as visited.
- * @param visited - BFS visited set (mutated)
- * @param r - Row index
- * @param c - Column index
- * @param entryDir - Direction the cell was entered from
- * @param cell - Cell object
- */
-export function lockDiagonalHalf(
-  visited: Set<string>,
-  r: number,
-  c: number,
-  entryDir: string | null,
-  cell: Cell,
-): void {
-  if (!entryDir) return;
-  if (cell['nw-se']) {
-    const others = entryDir === 'north' || entryDir === 'east' ? ['south', 'west'] : ['north', 'east'];
-    others.forEach((e) => visited.add(`${r},${c},${e}`));
-  } else if (cell['ne-sw']) {
-    const others = entryDir === 'north' || entryDir === 'west' ? ['south', 'east'] : ['north', 'west'];
-    others.forEach((e) => visited.add(`${r},${c},${e}`));
-  }
-}
-
-/**
- * Diagonal-aware BFS that floods a connected room region.
- * Returns a Set of "row,col" cell keys for the room (default), or a Set of
- * "row,col,halfKey" keys when `returnHalves: true`.
- *
- * When `returnHalves: true` and the start cell is split, pass `startHalfKey`
- * to control which half the flood begins on. For diagonal-split start cells
- * this derives a valid `startEntryDir`; for trim-split start cells it picks
- * the side of the arc with matching reach via `trimCrossing`.
- *
- * @param cells - The dungeon cells grid (2D: cells[row][col]).
- * @param startRow
- * @param startCol
- * @param options
- */
-export function floodFillRoom(
-  cells: CellGrid,
-  startRow: number,
-  startCol: number,
-  options: {
-    traverseDoors?: boolean;
-    startEntryDir?: string | null;
-    rowMin?: number;
-    rowMax?: number;
-    returnHalves?: boolean;
-    startHalfKey?: CellHalfKey;
-  } = {},
-): Set<string> {
-  const { traverseDoors = false, rowMin = 0, rowMax = cells.length - 1, returnHalves = false, startHalfKey } = options;
-  let { startEntryDir = null } = options;
-
-  const filledCells = new Set<string>();
-  const startCell = cells[startRow]?.[startCol];
-  if (!startCell) return filledCells;
-
-  // Derive a startEntryDir consistent with startHalfKey when returnHalves is
-  // on and the caller did not pin one explicitly.
-  if (returnHalves && startHalfKey && startEntryDir === null) {
-    startEntryDir = _entryDirForStartHalf(startCell, startHalfKey);
-  }
-
-  // Fallback trim side — used only when a trim cell is reached with no
-  // usable entryDir (e.g. the start cell itself, or arc post-pass seeds
-  // adjacent to a trim cell from an ambiguous direction). `_deriveHalfKey`
-  // prefers to infer the side from entryDir + trimCrossing; this is the
-  // backstop when inference isn't possible.
-  const trimSide: 'interior' | 'exterior' = startHalfKey === 'exterior' ? 'exterior' : 'interior';
-
-  const emit = (r: number, c: number, cell: Cell, entryDir: string | null): void => {
-    if (!returnHalves) {
-      filledCells.add(cellKey(r, c));
-      return;
-    }
-    filledCells.add(cellHalfKey(r, c, _deriveHalfKey(cell, entryDir, trimSide)));
-  };
-
-  emit(startRow, startCol, startCell, startEntryDir);
-
-  // Queue entries: [r, c, entryDir]
-  const queue: [number, number, string | null][] = [[startRow, startCol, startEntryDir]];
-  const visitedTraversal = new Set<string>([`${startRow},${startCol},${startEntryDir ?? ''}`]);
-  lockDiagonalHalf(visitedTraversal, startRow, startCol, startEntryDir, startCell);
-
-  while (queue.length > 0) {
-    const [r, c, entryDir] = queue.shift()!;
-    const cell = cells[r]?.[c];
-    if (!cell) continue;
-
-    const diagonalBlocked = blockedByDiagonal(cell, entryDir as CardinalDirection | null);
-
-    // Arc wall exit blocking: 3×3 sub-grid crossing matrix determines which
-    // exits are reachable from the entry direction without crossing the arc.
-    let arcExits: string | null = null;
-    if (cell.trimCrossing) {
-      arcExits = (cell.trimCrossing as Record<string, string>)[entryDir?.[0] ?? ''] ?? '';
-    }
-
-    for (const { dir, dr, dc } of CARDINAL_DIRS) {
-      // Check exit edge on current cell
-      const edge = cell[dir];
-      if (edge === 'w' || edge === 'iw') continue; // wall and invisible wall always block
-      if (edge && !traverseDoors) continue; // doors (including 'id') block unless traverseDoors
-      if (diagonalBlocked.has(dir)) continue; // diagonal wall blocks this exit
-      if (arcExits !== null && !arcExits.includes(dir[0]!)) continue; // arc wall blocks this exit
-
-      const nr = r + dr,
-        nc = c + dc;
-      if (nr < rowMin || nr > rowMax) continue; // row-range constraint
-      const neighborEntryDir: CardinalDirection = OPPOSITE[dir];
-      const tKey = `${nr},${nc},${neighborEntryDir}`;
-      if (visitedTraversal.has(tKey)) continue;
-      visitedTraversal.add(tKey);
-      if (!isInBounds(cells, nr, nc)) continue;
-
-      const neighbor = cells[nr]?.[nc];
-      if (!neighbor) continue;
-
-      // Check entry edge on neighbor cell
-      const nEdge = neighbor[neighborEntryDir];
-      if (nEdge === 'w' || nEdge === 'iw') continue; // wall and invisible wall always block
-      if (nEdge && !traverseDoors) continue; // doors (including 'id') block unless traverseDoors
-
-      // Lock arc cell to the side it's first reached from (like lockDiagonalHalf).
-      // Uses crossing matrix: lock entry directions whose reachable set differs.
-      if (neighbor.trimCrossing) {
-        const tc = neighbor.trimCrossing;
-        const myExits: string = (tc as Record<string, string>)[neighborEntryDir[0]!] ?? '';
-        for (const ld of ['north', 'south', 'east', 'west']) {
-          if (ld === neighborEntryDir) continue;
-          const otherExits: string = (tc as Record<string, string>)[ld[0]!] ?? '';
-          if (otherExits !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
-        }
-      }
-      lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighbor);
-      queue.push([nr, nc, neighborEntryDir]);
-
-      // Skip trimWall cells in the main BFS — the arc post-pass handles them.
-      // The main BFS still traverses THROUGH arc cells (they're in the queue)
-      // so non-arc cells on the far side are reachable, but arc cells themselves
-      // are claimed by adjacency in the post-pass to avoid corner-clip misses.
-      if (neighbor.trimWall) continue;
-
-      emit(nr, nc, neighbor, neighborEntryDir);
-    }
-  }
-
-  // Arc post-pass: claim all trimWall cells adjacent to any filled cell,
-  // then propagate through connected trimWall cells. Mirrors the paint tool's
-  // arc post-pass (tool-paint.js lines 517-608).
-  {
-    const arcVisited = new Set<string>();
-    const arcQueue: [number, number, string | null][] = [];
-
-    const addFilled = (r: number, c: number, cell: Cell, entryDir: string | null): void => {
-      if (!returnHalves) {
-        filledCells.add(cellKey(r, c));
-        return;
-      }
-      filledCells.add(cellHalfKey(r, c, _deriveHalfKey(cell, entryDir, trimSide)));
-    };
-
-    // Seed: non-arc filled cells adjacent to arc cells.
-    // Skip cells sandwiched between arc cells (gap between circles).
-    for (const k of filledCells) {
-      // Tolerate both "r,c" and "r,c,halfKey" entries in filledCells.
-      const parts = k.split(',');
-      const fr = Number(parts[0]);
-      const fc = Number(parts[1]);
-      const fCell = cells[fr]?.[fc];
-      if (fCell?.trimWall) continue;
-      const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
-      const hasArcS = !!cells[fr + 1]?.[fc]?.trimWall;
-      const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
-      const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
-      if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue;
-      for (const { dir, dr, dc } of CARDINAL_DIRS) {
-        const nr = fr + dr,
-          nc = fc + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimWall) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisited.has(nKey)) continue;
-        arcVisited.add(nKey);
-        const neighborEntryDir = OPPOSITE[dir];
-        addFilled(nr, nc, neighbor, neighborEntryDir);
-        arcQueue.push([nr, nc, neighborEntryDir]);
-      }
-    }
-
-    // Propagate through connected arc cells. Each arc-to-arc step carries
-    // the direction we moved in so the child's entry direction resolves to
-    // the same trim side as its parent (adjacent trim cells on the same
-    // arc share a side via trimCrossing).
-    while (arcQueue.length > 0) {
-      const [ar, ac] = arcQueue.shift()!;
-      for (const { dir, dr, dc } of CARDINAL_DIRS) {
-        const nr = ar + dr,
-          nc = ac + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimWall) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisited.has(nKey)) continue;
-        arcVisited.add(nKey);
-        const neighborEntryDir = OPPOSITE[dir];
-        addFilled(nr, nc, neighbor, neighborEntryDir);
-        arcQueue.push([nr, nc, neighborEntryDir]);
-      }
-    }
-  }
-
-  return filledCells;
-}
-
-/**
- * Pick a startEntryDir consistent with a given start half-key. For diagonal
- * halves, any cardinal direction that lands on that half works. For trim
- * halves, we score each direction by how many exits its `trimCrossing` set
- * contains and pick the side (widest reach = 'interior', narrowest = 'exterior').
- */
-function _entryDirForStartHalf(cell: Cell, halfKey: CellHalfKey): string | null {
-  if (cell['nw-se']) {
-    if (halfKey === 'ne') return 'north';
-    if (halfKey === 'sw') return 'south';
-  }
-  if (cell['ne-sw']) {
-    if (halfKey === 'nw') return 'north';
-    if (halfKey === 'se') return 'south';
-  }
-  if (cell.trimClip && (halfKey === 'interior' || halfKey === 'exterior')) {
-    const tc = cell.trimCrossing;
-    if (!tc || typeof tc !== 'object') return null;
-    const scored = (['north', 'south', 'east', 'west'] as const).map((d) => ({
-      dir: d,
-      count: (tc[d[0]!] ?? '').length,
-    }));
-    scored.sort((a, b) => b.count - a.count);
-    return halfKey === 'interior' ? scored[0]!.dir : scored[scored.length - 1]!.dir;
-  }
-  return null;
-}
-
-/**
- * Derive the half-key of a cell when reached via `entryDir` during a flood.
- *
- * For trim cells: the `trimCrossing` matrix assigns each cardinal direction
- * to one of the two sides of the arc. The interior side is well-connected
- * to the rest of the room and so its entries have MORE reachable exits;
- * the exterior sliver is confined to a corner and so its entries have
- * FEWER. We compare the entry direction's exit count against the maximum
- * over all four directions: max → interior, less → exterior. This matches
- * how the BFS itself partitions the arc (`visitedTraversal` locks out
- * same-cell entries whose exit sets differ from ours).
- *
- * Falls back to `trimClip` point-in-polygon on the entry edge midpoint
- * only when `trimCrossing` is unavailable, then to the caller's `trimSide`
- * when even that can't be computed.
- */
-function _deriveHalfKey(cell: Cell, entryDir: string | null, trimSide: 'interior' | 'exterior'): CellHalfKey {
-  if (cell['nw-se']) {
-    if (entryDir === 'north' || entryDir === 'east') return 'ne';
-    return 'sw';
-  }
-  if (cell['ne-sw']) {
-    if (entryDir === 'north' || entryDir === 'west') return 'nw';
-    return 'se';
-  }
-  if (cell.trimClip && cell.trimClip.length >= 3) {
-    if (entryDir) {
-      // Primary discriminator: `trimCorner` names the void corner (e.g. 'nw'
-      // = arc cuts the NW corner, void is NW sliver). The two cardinals that
-      // spell the corner touch the exterior sliver; the opposite two land on
-      // the interior (room) side. `computeTrimCrossing` partitions each edge
-      // into sides A/B with the same structure — both sides end up with 2
-      // exits each, so exit-count comparison ties. The corner letters
-      // resolve the ambiguity unambiguously.
-      const corner = typeof cell.trimCorner === 'string' ? cell.trimCorner.toLowerCase() : '';
-      if (corner.length > 0) {
-        return corner.includes(entryDir[0]!) ? 'exterior' : 'interior';
-      }
-      // No trimCorner: fall back to trimCrossing exit-count heuristic
-      // (still correct for non-tied cases) and then midpoint PIP.
-      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
-        const tc = cell.trimCrossing;
-        const myExits = (tc[entryDir[0]!] ?? '').length;
-        let maxExits = 0;
-        for (const d of ['n', 's', 'e', 'w']) {
-          const count = (tc[d] ?? '').length;
-          if (count > maxExits) maxExits = count;
-        }
-        if (myExits !== maxExits) return 'exterior';
-      }
-      let lx = 0.5,
-        ly = 0.5;
-      if (entryDir === 'north') ly = 0;
-      else if (entryDir === 'south') ly = 1;
-      else if (entryDir === 'west') lx = 0;
-      else if (entryDir === 'east') lx = 1;
-      return pointInPolygon(lx, ly, cell.trimClip) ? 'interior' : 'exterior';
-    }
-    return trimSide;
-  }
-  return 'full';
 }

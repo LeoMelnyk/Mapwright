@@ -9,9 +9,19 @@
  * Public exports here are re-exported from lighting.ts for backwards compat.
  */
 
-import type { CellGrid, GoboMode, GoboPattern, Metadata, OverlayProp, PropCatalog, PropDefinition } from '../types.js';
+import type {
+  CellGrid,
+  Direction,
+  GoboMode,
+  GoboPattern,
+  Metadata,
+  OverlayProp,
+  PropCatalog,
+  PropDefinition,
+} from '../types.js';
 import { extractOverlayPropLightSegments } from './props.js';
 import { getGoboDefinition } from './gobo-registry.js';
+import { cellHasChordEdge, getEdge, getInteriorEdges, isChordEdge } from '../util/index.js';
 import {
   PROP_SHADOW_MAX_RATIO,
   PROP_SHADOW_EPSILON_FT,
@@ -98,10 +108,11 @@ export function extractWallSegments(
       if (!cells[row]?.[col - 1]) addSeg(cx, cy, cx, cy1);
       if (!cells[row]?.[col + 1]) addSeg(cx1, cy, cx1, cy1);
 
-      // Diagonal walls — skip for arc-trimmed cells; trimWall polylines provide the boundary instead
-      if (!cell.trimWall) {
-        if (blocks(cell['nw-se'])) addSeg(cx, cy, cx1, cy1);
-        if (blocks(cell['ne-sw'])) addSeg(cx1, cy, cx, cy1);
+      // Diagonal walls — skip for chord-trimmed cells; chord polylines on
+      // interiorEdges provide the boundary instead.
+      if (!cellHasChordEdge(cell)) {
+        if (blocks(getEdge(cell, 'nw-se'))) addSeg(cx, cy, cx1, cy1);
+        if (blocks(getEdge(cell, 'ne-sw'))) addSeg(cx1, cy, cx, cy1);
       }
     }
   }
@@ -124,13 +135,22 @@ export function extractWallSegments(
     }
   }
 
-  // Arc trim wall segments — read per-cell trimWall polylines and convert to
-  // world-feet line segments for the shadow/visibility system.
+  // Chord trim wall segments — read per-cell chord polylines from interiorEdges
+  // and convert to world-feet line segments for the shadow/visibility system.
+  // (Pre-existing behavior: open trims are added too — the chord's visual
+  // presence is treated as light-blocking regardless of `wall`. If that turns
+  // out to be a bug, gate on `interiorEdge.wall != null` here.)
+  // Invisible chord walls (`wall === 'iw'`) are skipped — they block movement
+  // but cast no shadow, matching cardinal `iw` semantics in `extractWallSegments`.
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.trimWall || typeof cell.trimWall === 'string') continue;
-      const wall = cell.trimWall;
+      if (!cell) continue;
+      const interiorEdge = getInteriorEdges(cell)[0];
+      if (!interiorEdge || !isChordEdge(interiorEdge)) continue;
+      if (interiorEdge.wall === 'iw') continue;
+      const wall = interiorEdge.vertices;
+      if (wall.length < 2) continue;
       const ox = col * gridSize,
         oy = row * gridSize;
       for (let i = 0; i < wall.length - 1; i++) {
@@ -619,7 +639,7 @@ export function extractWindowGoboZones(cells: CellGrid, metadata: Metadata | nul
     // orphan gobos.
     const cell = cells[w.row]?.[w.col];
     if (!cell) continue;
-    if ((cell as Record<string, unknown>)[w.direction] !== 'win') continue;
+    if (getEdge(cell, w.direction as Direction) !== 'win') continue;
     const k = keyOf(w.direction, w.row, w.col);
     byKey.set(k, {
       row: w.row,

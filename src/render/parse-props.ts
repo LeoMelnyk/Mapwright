@@ -126,7 +126,8 @@ export function parsePropFile(text: string): PropDefinition {
   const blocksLight = header.blocks_light === 'yes' || header.blocks_light === 'true';
 
   // Height: prop height in feet for z-height shadow projection (default null = infinite)
-  const height = isNaN(parseFloat(header.height!)) ? null : parseFloat(header.height!);
+  const heightRaw = parseFloat(header.height!);
+  const height = isNaN(heightRaw) ? null : heightRaw;
 
   // Padding: extra cells of overflow around the footprint (default 0)
   const padding = parseFloat(header.padding!) || 0;

@@ -56,7 +56,7 @@ export const cvState: {
   rightStartPanX: number;
   rightStartPanY: number;
   rightDragged: boolean;
-  _lastHoveredCell: { row: number; col: number } | null;
+  _lastHoveredCell: { row: number; col: number; segmentIndex: number } | null;
   animFrameId: number | null;
   animLoopId: ReturnType<typeof setInterval> | null;
   _bgMeasureActive: boolean;

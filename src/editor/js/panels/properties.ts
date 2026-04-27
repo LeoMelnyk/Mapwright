@@ -1,10 +1,11 @@
 // Properties panel: Prop Explorer + Cell Info floating panel
-import type { FillType, PropCatalog } from '../../../types.js';
+import type { Direction, FillType, PropCatalog } from '../../../types.js';
 import state, { getTheme, pushUndo, markDirty, subscribe, notify } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { renderProp } from '../../../render/index.js';
 import { getTextureCatalog } from '../texture-catalog.js';
 import { getEl, getCtx } from '../utils.js';
+import { getSegments, getInteriorEdges, getEdge, isChordEdge, getChordCorner } from '../../../util/index.js';
 
 const panel = () => getEl('properties-content');
 
@@ -617,8 +618,8 @@ function updateCellInfo() {
   } else {
     // Borders
     bodyHtml += '<div class="prop-section">Borders</div>';
-    for (const dir of ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw']) {
-      const val = (cell as Record<string, unknown>)[dir] ?? '\u2014';
+    for (const dir of ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'] as Direction[]) {
+      const val = getEdge(cell, dir) ?? '\u2014';
       bodyHtml += `<div class="prop-row"><span>${dir}</span><span class="prop-val">${val}</span></div>`;
     }
 
@@ -638,21 +639,23 @@ function updateCellInfo() {
     }
 
     // Trim
-    if (cell.trimCorner || cell.trimWall || cell.trimClip) {
-      bodyHtml += '<div class="prop-section">Trim</div>';
-      if (cell.trimCorner)
-        bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${cell.trimCorner}</span></div>`;
-      if (cell.trimWall)
-        bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">round arc</span></div>`;
-      else if (cell['ne-sw'] || cell['nw-se'])
-        bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">straight diagonal</span></div>`;
-      if (cell.trimOpen) bodyHtml += `<div class="prop-row"><span>open</span><span class="prop-val">true</span></div>`;
-      if (cell.trimInverted)
-        bodyHtml += `<div class="prop-row"><span>inverted</span><span class="prop-val">true</span></div>`;
-      if (cell.trimWall)
-        bodyHtml += `<div class="prop-row"><span>wall pts</span><span class="prop-val">${cell.trimWall.length}</span></div>`;
-      if (cell.trimClip)
-        bodyHtml += `<div class="prop-row"><span>clip pts</span><span class="prop-val">${cell.trimClip.length}</span></div>`;
+    {
+      const interiorEdge = getInteriorEdges(cell)[0];
+      const hasChord = !!interiorEdge && isChordEdge(interiorEdge);
+      const hasDiag = !!getEdge(cell, 'nw-se') || !!getEdge(cell, 'ne-sw');
+      if (interiorEdge && (hasChord || hasDiag)) {
+        bodyHtml += '<div class="prop-section">Trim</div>';
+        const corner = hasChord ? getChordCorner(interiorEdge) : null;
+        if (corner)
+          bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${corner}</span></div>`;
+        bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">${hasChord ? 'chord' : 'straight diagonal'}</span></div>`;
+        if (interiorEdge.wall == null)
+          bodyHtml += `<div class="prop-row"><span>open</span><span class="prop-val">true</span></div>`;
+        bodyHtml += `<div class="prop-row"><span>wall pts</span><span class="prop-val">${interiorEdge.vertices.length}</span></div>`;
+        const interiorPoly = getSegments(cell)[0]?.polygon;
+        if (interiorPoly && hasChord)
+          bodyHtml += `<div class="prop-row"><span>clip pts</span><span class="prop-val">${interiorPoly.length}</span></div>`;
+      }
     }
 
     // Fill
@@ -697,13 +700,24 @@ function updateCellInfo() {
       bodyHtml += `<div class="prop-row"><span>id</span><span class="prop-val">${overlayProp.id}</span></div>`;
     }
 
-    // Texture
-    if (cell.texture || cell.textureSecondary) {
-      bodyHtml += '<div class="prop-section">Texture</div>';
-      if (cell.texture)
-        bodyHtml += `<div class="prop-row"><span>primary</span><span class="prop-val" title="${cell.texture}">${cell.texture.split('/').pop()}</span></div>`;
-      if (cell.textureSecondary)
-        bodyHtml += `<div class="prop-row"><span>secondary</span><span class="prop-val" title="${cell.textureSecondary}">${cell.textureSecondary.split('/').pop()}</span></div>`;
+    // Texture — list every segment with a texture so split cells (diagonals,
+    // trim arcs, multi-segment) show all their textures, labeled by segment id.
+    {
+      const textureRows: string[] = [];
+      const segs = getSegments(cell);
+      for (let i = 0; i < segs.length; i++) {
+        const seg = segs[i]!;
+        if (!seg.texture) continue;
+        const label = segs.length === 1 ? 'texture' : `${seg.id} (segment ${i})`;
+        const display = seg.texture.split('/').pop() ?? seg.texture;
+        textureRows.push(
+          `<div class="prop-row"><span>${label}</span><span class="prop-val" title="${seg.texture}">${display}</span></div>`,
+        );
+      }
+      if (textureRows.length > 0) {
+        bodyHtml += '<div class="prop-section">Texture</div>';
+        bodyHtml += textureRows.join('');
+      }
     }
 
     // Raw JSON (collapsed by default)

@@ -1,7 +1,7 @@
 // Mouse/wheel event handlers for canvas-view.
 import state, { markDirty, notify } from './state.js';
 import { pixelToCell, nearestEdge, nearestCorner } from './utils.js';
-import { displayGridSize as _dgs } from '../../util/index.js';
+import { displayGridSize as _dgs, getSegmentIndexAt } from '../../util/index.js';
 import { renderTimings, getTimingFrame } from '../../render/index.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
 import { cvState, CELL_SIZE, MIN_ZOOM, MAX_ZOOM, PAN_THRESHOLD, noteInteraction } from './canvas-view-state.js';
@@ -179,7 +179,21 @@ export function onMouseMove(e: MouseEvent): void {
   const transform = getTransform();
   const gridSize = state.dungeon.metadata.gridSize;
   const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
-  state.hoveredCell = cell;
+  // Resolve the segment under the cursor for per-segment hover highlight.
+  // For unsplit cells this is always 0; for diagonal/trim/segmented cells
+  // it picks the polygon containing the cursor's cell-local position.
+  const cellsGrid = state.dungeon.cells;
+  const cellAtHover = cellsGrid[cell.row]?.[cell.col];
+  let segmentIndex = 0;
+  if (cellAtHover) {
+    const worldX = (pos.x - transform.offsetX) / transform.scale;
+    const worldY = (pos.y - transform.offsetY) / transform.scale;
+    const lx = (worldX - cell.col * gridSize) / gridSize;
+    const ly = (worldY - cell.row * gridSize) / gridSize;
+    const idx = getSegmentIndexAt(cellAtHover, lx, ly);
+    if (idx >= 0) segmentIndex = idx;
+  }
+  state.hoveredCell = { row: cell.row, col: cell.col, segmentIndex };
 
   // Session tool mouse move (e.g., range detector drag)
   if (state.sessionToolsActive && cvState.sessionTool?.onMouseMove) {
@@ -210,16 +224,21 @@ export function onMouseMove(e: MouseEvent): void {
     cvState.activeTool.onMouseMove(cell.row, cell.col, edge, e, pos);
   }
 
-  // Only re-render if hovered cell changed (for hover highlight, edge highlight, etc.)
-  // Tools that need per-pixel cursor tracking (e.g. placement preview) call
-  // requestRender() from their own onMouseMove handler.
+  // Only re-render if hovered cell or segment changed — segment changes
+  // matter for split cells where the highlight is segment-scoped.
   const prevHover = cvState._lastHoveredCell;
   const curHover = state.hoveredCell;
-  if (prevHover?.row !== curHover.row || prevHover.col !== curHover.col) {
+  if (
+    prevHover?.row !== curHover.row ||
+    prevHover.col !== curHover.col ||
+    prevHover.segmentIndex !== curHover.segmentIndex
+  ) {
     requestRender();
   }
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  cvState._lastHoveredCell = curHover ? { row: curHover.row, col: curHover.col } : null;
+  cvState._lastHoveredCell = curHover
+    ? { row: curHover.row, col: curHover.col, segmentIndex: curHover.segmentIndex }
+    : null;
   notify(); // update status bar
   renderTimings.mouseMove = { ms: performance.now() - _moveStart, frame: getTimingFrame() };
 }

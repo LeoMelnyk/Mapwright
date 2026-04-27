@@ -774,6 +774,55 @@ describe('hybrid undo', () => {
     expect(patch.cells[0].after).toBeNull();
   });
 
+  // ── Patch-path undo / redo round-trip ─────────────────────────────────
+  // Regression: createRedoEntry used to swap before/after on patch entries,
+  // so redo() called applyEntry(swappedEntry, 'redo') which read cp.after =
+  // original cp.before, restoring the pre-mutation state instead of the
+  // post-mutation state. Every editor edit that goes through mutate() (i.e.
+  // virtually all of them) could be undone but never redone.
+
+  it('redoes a patch-path cell mutation correctly', () => {
+    state.dungeon.cells[2][2] = {};
+    mutate('add hazard', [{ row: 2, col: 2 }], () => {
+      (state.dungeon.cells[2][2] as Record<string, unknown>).hazard = true;
+    });
+    expect(state.dungeon.cells[2][2]?.hazard).toBe(true);
+
+    undo();
+    expect(state.dungeon.cells[2][2]?.hazard).toBeUndefined();
+
+    redo();
+    expect(state.dungeon.cells[2][2]?.hazard).toBe(true);
+  });
+
+  it('redoes a patch-path metadata change correctly', () => {
+    state.dungeon.metadata.dungeonName = 'Original';
+    mutate('rename', [], () => {
+      state.dungeon.metadata.dungeonName = 'Renamed';
+    }, { metaOnly: true });
+    expect(state.dungeon.metadata.dungeonName).toBe('Renamed');
+
+    undo();
+    expect(state.dungeon.metadata.dungeonName).toBe('Original');
+
+    redo();
+    expect(state.dungeon.metadata.dungeonName).toBe('Renamed');
+  });
+
+  it('round-trips multiple undo/redo cycles on the same patch entry', () => {
+    state.dungeon.cells[1][1] = { north: 'w' };
+    mutate('paint', [{ row: 1, col: 1 }], () => {
+      state.dungeon.cells[1][1] = { north: 'w', east: 'd' };
+    });
+
+    for (let i = 0; i < 3; i++) {
+      undo();
+      expect(state.dungeon.cells[1][1]).toEqual({ north: 'w' });
+      redo();
+      expect(state.dungeon.cells[1][1]).toEqual({ north: 'w', east: 'd' });
+    }
+  });
+
   // ── Keyframe interval ──────────────────────────────────────────────────
 
   it('stores a full keyframe snapshot every KEYFRAME_INTERVAL entries', () => {

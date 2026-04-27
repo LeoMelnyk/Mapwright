@@ -19,7 +19,7 @@ import {
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
-import { log } from '../../util/index.js';
+import { getSegments, log } from '../../util/index.js';
 
 // ── Notify topics ─────────────────────────────────────────────────────────
 export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui';
@@ -36,7 +36,8 @@ const state: EditorState = {
   currentLevel: 0,
   selectedCells: [],
   activeTool: 'paint',
-  roomMode: 'room', // 'room' (wall boundaries) or 'merge' (only wall void edges)
+  roomMode: 'room', // 'room' (wall boundaries), 'merge' (only wall void edges), or 'circular' (inscribe a circle via 4 corner arcs)
+  circularStyle: 'closed', // 'closed' (void cells outside arc) or 'open' (cells stay floor, arc is passable curve)
   paintMode: 'texture', // 'texture', 'syringe', 'room', 'clear-texture'
   fillMode: 'water', // 'water', 'pit', 'difficult-terrain', 'clear-fill'
   waterDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
@@ -71,7 +72,6 @@ const state: EditorState = {
   selectedPropIds: [], // array of overlay prop IDs for selected props (new system)
   activeTexture: null, // string — texture ID from catalog (e.g. 'cobblestone')
   textureOpacity: 1.0, // 0–1 — opacity applied when painting a texture
-  paintSecondary: false, // when true, texture paints write to textureSecondary slot
   textureCatalog: null, // TextureCatalog object, loaded at init (runtime only, not serialized)
   texturesVersion: 0, // incremented when texture images finish loading; invalidates blend cache
   lightCatalog: null, // LightCatalog object, loaded at init (runtime only, not serialized)
@@ -113,6 +113,8 @@ const state: EditorState = {
   showWeatherOverlay: false, // force-on while a group is selected; otherwise user-toggled
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
   debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
+  debugFloodRainbow: false, // when true, every traverse() BFS colors cells by depth
+  floodRainbowCells: new Map<string, number>(), // most recent BFS: "row,col" → depth
   _lastPushUndoMs: null,
 };
 
@@ -259,19 +261,32 @@ function applyEntry(
 
 /**
  * Create a redo entry that captures the inverse of what was just applied.
- * For patch entries, swap before/after. For snapshots, serialize current state.
+ *
+ * For patch entries we clone the entry without swapping before/after — the
+ * before/after pair is symmetric, and `applyEntry` chooses which side to use
+ * based on its `direction` argument. (Earlier code swapped, then `redo()`
+ * called `applyEntry(entry, 'redo')` which read `cp.after` — the swap made
+ * `cp.after` the original pre-mutation state, so redo silently restored the
+ * pre-mutation cell instead of the post-mutation cell.)
+ *
+ * For snapshot entries, capture the current state — that's what redo will
+ * need to restore once the user undoes again past this point.
  */
 function createRedoEntry(
   appliedEntry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } },
   label: string,
 ): typeof appliedEntry & { label: string; timestamp: number } {
   if (appliedEntry.patch) {
-    // Swap before/after for the reverse direction
     return {
       patch: {
-        cells: appliedEntry.patch.cells.map((cp) => ({ row: cp.row, col: cp.col, before: cp.after, after: cp.before })),
+        cells: appliedEntry.patch.cells.map((cp) => ({
+          row: cp.row,
+          col: cp.col,
+          before: cp.before,
+          after: cp.after,
+        })),
         meta: appliedEntry.patch.meta
-          ? { before: appliedEntry.patch.meta.after, after: appliedEntry.patch.meta.before }
+          ? { before: appliedEntry.patch.meta.before, after: appliedEntry.patch.meta.after }
           : null,
       },
       label,
@@ -345,8 +360,7 @@ export function undo(): void {
             waterDepth: null,
             lavaDepth: null,
             hazard: false,
-            texture: null,
-            textureSecondary: null,
+            segmentTextures: [],
           };
         return {
           row,
@@ -356,8 +370,7 @@ export function undo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
-          texture: (cell.texture as string | null) ?? null,
-          textureSecondary: (cell.textureSecondary as string | null) ?? null,
+          segmentTextures: getSegments(cell).map((s) => s.texture ?? null),
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -410,8 +423,7 @@ export function redo(): void {
             waterDepth: null,
             lavaDepth: null,
             hazard: false,
-            texture: null,
-            textureSecondary: null,
+            segmentTextures: [],
           };
         return {
           row,
@@ -421,8 +433,7 @@ export function redo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
-          texture: (cell.texture as string | null) ?? null,
-          textureSecondary: (cell.textureSecondary as string | null) ?? null,
+          segmentTextures: getSegments(cell).map((s) => s.texture ?? null),
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -700,6 +711,42 @@ function _entriesSinceKeyframe(): number {
   return state.undoStack.length;
 }
 
+/**
+ * Apply post-mutation cache invalidations and notify subscribers.
+ *
+ * Used by every `mutate()` exit path so the patch / snapshot / metaOnly
+ * branches share the same finalization semantics. `renderBefore` is the
+ * pre-mutation cell snapshot from `captureBeforeState()` — pass `[]` when
+ * there are no cell changes (metaOnly), and `smartInvalidate` is skipped.
+ */
+function _finalizeMutation(
+  renderBefore: ReturnType<typeof captureBeforeState>,
+  cells: CellGrid,
+  options: {
+    invalidate?: InvalidateFlag[];
+    forceGeometry?: boolean;
+    forceFluid?: boolean;
+    textureOnly?: boolean;
+    topic?: NotifyTopic;
+  },
+): void {
+  if (renderBefore.length > 0) {
+    smartInvalidate(renderBefore, cells, {
+      forceGeometry: options.forceGeometry ?? false,
+      forceFluid: options.forceFluid ?? false,
+      textureOnly: options.textureOnly ?? false,
+    });
+  }
+  const flags = options.invalidate;
+  if (flags) {
+    if (flags.includes('lighting')) invalidateLightmap(true);
+    else if (flags.includes('lighting:props')) invalidateLightmap('props');
+    if (flags.includes('props')) markPropSpatialDirty();
+  }
+  markDirty();
+  notify(options.topic);
+}
+
 export function mutate(
   label: string,
   coords: Array<{ row: number; col: number }>,
@@ -735,14 +782,7 @@ export function mutate(
     state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
     if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
     state.redoStack.length = 0;
-    const flags = options.invalidate;
-    if (flags) {
-      if (flags.includes('lighting')) invalidateLightmap(true);
-      else if (flags.includes('lighting:props')) invalidateLightmap('props');
-      if (flags.includes('props')) markPropSpatialDirty();
-    }
-    markDirty();
-    notify(options.topic);
+    _finalizeMutation(renderBefore, cells, options);
     return;
   }
 
@@ -781,42 +821,13 @@ export function mutate(
       patchEntry.meta = { before: metaBefore, after: metaAfter };
     }
 
-    // Smart invalidation + finish
-    if (renderBefore.length > 0) {
-      smartInvalidate(renderBefore, cells, {
-        forceGeometry: options.forceGeometry ?? false,
-        forceFluid: options.forceFluid ?? false,
-        textureOnly: options.textureOnly ?? false,
-      });
-    }
-    const flags = options.invalidate;
-    if (flags) {
-      if (flags.includes('lighting')) invalidateLightmap(true);
-      else if (flags.includes('lighting:props')) invalidateLightmap('props');
-      if (flags.includes('props')) markPropSpatialDirty();
-    }
-    markDirty();
-    notify(options.topic);
+    _finalizeMutation(renderBefore, cells, options);
     return;
   }
 
   // Full snapshot path — fn() runs after pushUndo
   fn();
-  if (renderBefore.length > 0) {
-    smartInvalidate(renderBefore, cells, {
-      forceGeometry: options.forceGeometry ?? false,
-      forceFluid: options.forceFluid ?? false,
-      textureOnly: options.textureOnly ?? false,
-    });
-  }
-  const flags = options.invalidate;
-  if (flags) {
-    if (flags.includes('lighting')) invalidateLightmap(true);
-    else if (flags.includes('lighting:props')) invalidateLightmap('props');
-    if (flags.includes('props')) markPropSpatialDirty();
-  }
-  markDirty();
-  notify(options.topic);
+  _finalizeMutation(renderBefore, cells, options);
 }
 
 export default state;

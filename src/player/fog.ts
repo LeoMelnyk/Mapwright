@@ -1,5 +1,12 @@
 // Fog of war: cell filtering for the player view.
-import { cellKey, CARDINAL_OFFSETS } from '../util/index.js';
+import {
+  cellKey,
+  CARDINAL_OFFSETS,
+  cellHasChordEdge,
+  getChordCorner,
+  getSegments,
+  getInteriorEdges,
+} from '../util/index.js';
 import { classifyStairShape, getOccupiedCells } from '../editor/js/stair-geometry.js';
 import type { Dungeon, Cell, CellGrid, Stairs, Bridge, OverlayProp, PropCatalog } from '../types.js';
 import type { OpenedDoor } from './player-state.js';
@@ -98,10 +105,15 @@ export function classifyAllTrimFog(revealedCells: Set<string>, cells: CellGrid):
 
   for (const key of revealedCells) {
     const [r, c] = key.split(',').map(Number) as [number, number];
-    const cell = cells[r]?.[c] as (Cell & { trimClip?: [number, number][]; trimCorner?: TrimCorner }) | null;
-    if (!cell?.trimClip || !cell.trimCorner) continue;
-
-    const clip = cell.trimClip;
+    const cell = cells[r]?.[c];
+    if (!cell) continue;
+    const ie = getInteriorEdges(cell)[0];
+    if (!ie) continue;
+    const corner = getChordCorner(ie);
+    if (!corner) continue;
+    const trimCorner = corner as TrimCorner;
+    const clip = getSegments(cell)[0]?.polygon as [number, number][] | undefined;
+    if (!clip) continue;
 
     // Check 1–2 cells out in each direction for a non-trim revealed cell.
     // Each direction is validated against the trimClip polygon to ensure it
@@ -115,23 +127,25 @@ export function classifyAllTrimFog(revealedCells: Set<string>, cells: CellGrid):
         for (let dist = 1; dist <= 2; dist++) {
           const nr = r + dr * dist,
             nc = c + dc * dist;
-          const neighbor = cells[nr]?.[nc] as (Cell & { trimClip?: [number, number][] }) | null;
+          const neighbor = cells[nr]?.[nc];
           if (!neighbor) break; // void or out of bounds
-          if (!neighbor.trimClip) {
+          if (!cellHasChordEdge(neighbor)) {
             if (revealedCells.has(cellKey(nr, nc))) return true;
             break; // non-trim but not revealed
           }
           // Intermediate trim cell: verify the direction still exits on the
           // expected side.  Large/inverted arcs can curve so that a direction
           // that starts on the exterior flips to interior at the next cell.
-          if (_exitsInterior(dr, dc, neighbor.trimClip) !== wantInterior) break;
+          const neighborClip = getSegments(neighbor)[0]?.polygon as [number, number][] | undefined;
+          if (!neighborClip) break;
+          if (_exitsInterior(dr, dc, neighborClip) !== wantInterior) break;
         }
       }
       return false;
     };
 
-    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[cell.trimCorner], false);
-    const intRevealed = _sideRevealed(_INTERIOR_DIRS[cell.trimCorner], true);
+    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[trimCorner], false);
+    const intRevealed = _sideRevealed(_INTERIOR_DIRS[trimCorner], true);
 
     if (intRevealed && extRevealed) results.set(key, 'both');
     else if (intRevealed) results.set(key, 'roomOnly');

@@ -12,6 +12,7 @@ import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
 import { BRIDGE_TEXTURE_IDS } from './bridges.js';
+import { collectTextureIds } from '../util/index.js';
 
 const __dirname = (() => {
   const d = dirname(fileURLToPath(import.meta.url));
@@ -91,24 +92,6 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
 export function clearCatalogCache(): void {
   catalogCache = null;
   imageCache.clear();
-}
-
-/**
- * Scan a cell grid and return a Set of all texture IDs referenced.
- */
-function collectTextureIds(cells: CellGrid): Set<string> {
-  const ids = new Set<string>();
-  const KEYS = ['texture', 'textureSecondary'] as const;
-  for (const row of cells) {
-    for (const cell of row) {
-      if (!cell) continue;
-      for (const key of KEYS) {
-        const val = cell[key];
-        if (val) ids.add(val);
-      }
-    }
-  }
-  return ids;
 }
 
 /**

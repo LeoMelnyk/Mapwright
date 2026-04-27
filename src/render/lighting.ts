@@ -59,7 +59,7 @@ import {
   STRIKE_DEFAULT_PROBABILITY,
   STRIKE_DEFAULT_BASELINE,
 } from './lighting-config.js';
-import { log } from '../util/index.js';
+import { getSegments, log, traverse } from '../util/index.js';
 import { applyGobosToRT } from './gobo.js';
 
 // Re-export geometry helpers so existing importers (render barrel, editor)
@@ -2450,9 +2450,20 @@ function applyNormalMapBump(
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]![col];
-      if (!cell?.texture) continue;
-
-      const texId = cell.texture;
+      if (!cell) continue;
+      // Pick the first segment with a texture to sample the normal map from.
+      // For unsplit cells this is the cell's only texture; for split cells we
+      // sample one segment's normals to keep the per-cell lighting cheap
+      // (the dominant-light computation is approximate anyway).
+      const segs = getSegments(cell);
+      let texId: string | undefined;
+      for (const seg of segs) {
+        if (seg.texture && !seg.voided) {
+          texId = seg.texture;
+          break;
+        }
+      }
+      if (!texId) continue;
       const entry = textureCatalog.textures[texId];
       if (!entry?.norImg?.complete) continue;
 
@@ -2663,35 +2674,34 @@ export function extractFillLights(
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
 
-  // ── Step 1: flood-fill connected lava regions ──────────────────────────────
-  const visited = new Set();
-  const regions = [];
+  // ── Step 1: flood connected lava regions (wall-agnostic) ──────────────────
+  const visited = new Set<string>();
+  const regions: [number, number][][] = [];
 
   for (let r0 = 0; r0 < numRows; r0++) {
     for (let c0 = 0; c0 < numCols; c0++) {
       if (visited.has(`${r0},${c0}`)) continue;
       if (cells[r0]?.[c0]?.fill !== 'lava') continue;
 
-      const region = [];
-      const queue = [[r0, c0]];
-      visited.add(`${r0},${c0}`);
-      while (queue.length > 0) {
-        const [r, c] = queue.shift()! as [number, number];
+      const region: [number, number][] = [];
+      const result = traverse(
+        cells,
+        { row: r0, col: c0 },
+        {
+          ignoreWalls: true,
+          voidedSegmentsBlock: false,
+          acceptNeighbor: (ctx) => ctx.cell.fill === 'lava',
+        },
+      );
+      for (const segKey of result.visited) {
+        const comma1 = segKey.indexOf(',');
+        const comma2 = segKey.indexOf(',', comma1 + 1);
+        const r = Number(segKey.slice(0, comma1));
+        const c = Number(segKey.slice(comma1 + 1, comma2));
+        const ck = `${r},${c}`;
+        if (visited.has(ck)) continue;
+        visited.add(ck);
         region.push([r, c]);
-        for (const [dr, dc] of [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-        ] as const) {
-          const nr = r + dr,
-            nc = c + dc;
-          const nk = `${nr},${nc}`;
-          if (visited.has(nk)) continue;
-          if (cells[nr]?.[nc]?.fill !== 'lava') continue;
-          visited.add(nk);
-          queue.push([nr, nc]);
-        }
       }
       regions.push(region);
     }
@@ -2739,13 +2749,13 @@ export function extractFillLights(
 
     if (spacing === null) {
       // Tiny pool: one light at the cell closest to the centroid
-      const avgR = region.reduce((s, [r]) => s + r!, 0) / area;
-      const avgC = region.reduce((s, [, c]) => s + c!, 0) / area;
+      const avgR = region.reduce((s, [r]) => s + r, 0) / area;
+      const avgC = region.reduce((s, [, c]) => s + c, 0) / area;
       const [br, bc] = region.reduce((best, [r, c]) => {
-        const d = (r! - avgR) ** 2 + (c! - avgC) ** 2;
-        const bd = (best[0]! - avgR) ** 2 + (best[1]! - avgC) ** 2;
-        return d < bd ? [r!, c!] : best;
-      }, region[0]!) as [number, number];
+        const d = (r - avgR) ** 2 + (c - avgC) ** 2;
+        const bd = (best[0] - avgR) ** 2 + (best[1] - avgC) ** 2;
+        return d < bd ? [r, c] : best;
+      }, region[0]!);
       pushLight(br, bc);
     } else {
       // Larger pool: regular grid anchored to the bounding box.
@@ -2755,7 +2765,7 @@ export function extractFillLights(
         maxR = -Infinity,
         minC = Infinity,
         maxC = -Infinity;
-      for (const [r, c] of region as [number, number][]) {
+      for (const [r, c] of region) {
         if (r < minR) minR = r;
         if (r > maxR) maxR = r;
         if (c < minC) minC = c;

@@ -1,4 +1,4 @@
-import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
+import type { TextureCatalog, TextureRuntime } from '../../types.js';
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
 // Metadata comes from /textures/bundle.json in one request (HTTP cached via ETag);
 // PNG images stay per-file and load lazily through the browser's Image element.
@@ -320,25 +320,10 @@ export function ensureTexturesLoaded(
   return Promise.all(promises);
 }
 
-/**
- * Scan a cell grid and return a Set of all texture IDs referenced.
- * @param {Array<Array>} cells - The dungeon cells grid.
- * @returns {Set<string>} Set of texture IDs used in the grid.
- */
-export function collectTextureIds(cells: CellGrid): Set<string> {
-  const ids = new Set<string>();
-  const KEYS = ['texture', 'textureSecondary'] as const;
-  for (const row of cells) {
-    for (const cell of row) {
-      if (!cell) continue;
-      for (const key of KEYS) {
-        const val = cell[key];
-        if (val && typeof val === 'string') ids.add(val);
-      }
-    }
-  }
-  return ids;
-}
+// `collectTextureIds` lives in `src/util/grid.ts` so the player view and the
+// Node-side render pipeline can share the same implementation. Re-exported
+// here so editor-side importers don't need to update their import paths.
+export { collectTextureIds } from '../../util/index.js';
 
 /**
  * Synchronous getter for the texture catalog.

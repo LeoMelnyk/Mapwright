@@ -1,4 +1,5 @@
-import { asMultiLevel, type Cell, type CellGrid, type EdgeValue } from '../types.js';
+import { asMultiLevel, type CardinalDirection, type Cell, type CellGrid, type EdgeValue } from '../types.js';
+import { getEdge } from '../util/index.js';
 
 /**
  * Validate a single cell's structure and border types.
@@ -40,7 +41,7 @@ function validateCell(cell: Cell | null, level: number | null, row: number, col:
       }
 
       // Check if cell has diagonal borders - labels would be obscured (stairs are fine on diagonals)
-      if ((cell['nw-se'] || cell['ne-sw']) && cell.center.label) {
+      if ((getEdge(cell, 'nw-se') || getEdge(cell, 'ne-sw')) && cell.center.label) {
         errors.push(
           `${cellId}: cannot have center label with diagonal borders (nw-se or ne-sw would obscure the label)`,
         );
@@ -104,21 +105,20 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
-        const hasDiag = cell['ne-sw'] ?? cell['nw-se'];
+        const neSw = getEdge(cell, 'ne-sw');
+        const nwSe = getEdge(cell, 'nw-se');
         const diagCovers = new Set<string>();
-        if (hasDiag) {
-          if (cell['ne-sw']) {
-            diagCovers.add('north');
-            diagCovers.add('west');
-            diagCovers.add('south');
-            diagCovers.add('east');
-          }
-          if (cell['nw-se']) {
-            diagCovers.add('north');
-            diagCovers.add('east');
-            diagCovers.add('south');
-            diagCovers.add('west');
-          }
+        if (neSw) {
+          diagCovers.add('north');
+          diagCovers.add('west');
+          diagCovers.add('south');
+          diagCovers.add('east');
+        }
+        if (nwSe) {
+          diagCovers.add('north');
+          diagCovers.add('east');
+          diagCovers.add('south');
+          diagCovers.add('west');
         }
 
         // Check north adjacency
@@ -204,9 +204,8 @@ function validateDoorAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
-        const checkDoor = (dir: string, adjRow: number, adjCol: number) => {
-          // Validated dynamic property access — dir is one of 'north','south','east','west'
-          const edgeVal = (cell as Record<string, unknown>)[dir] as EdgeValue;
+        const checkDoor = (dir: CardinalDirection, adjRow: number, adjCol: number) => {
+          const edgeVal: EdgeValue = getEdge(cell, dir);
           if (edgeVal === 'd' || edgeVal === 's') {
             const adjCell = levelCells[adjRow]?.[adjCol];
             if (adjCell === null) {

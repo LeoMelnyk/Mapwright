@@ -2,12 +2,12 @@
  * Base tool interface. All editor tools extend this class.
  */
 
-import type { RenderTransform } from '../../../types.js';
+import type { Direction, RenderTransform } from '../../../types.js';
 
 export interface EdgeInfo {
   row: number;
   col: number;
-  direction: string;
+  direction: Direction;
 }
 
 export interface CanvasPos {

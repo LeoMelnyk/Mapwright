@@ -164,13 +164,14 @@ export function activateBgCellMeasure(callback: (newPixelsPerCell: number) => vo
 
 function tickAnimLoop() {
   cvState.animLoopId = null;
-  const { metadata } = state.dungeon;
-  if (!metadata.lightingEnabled) return;
   // Suspend animation while the user is mid-zoom or mid-pan. During interaction,
   // every rAF hits the lightmap cache short-circuit (one cheap drawImage),
   // keeping the viewport responsive on maps with many animated lights. Visual
   // masking hides the paused flicker — the brain doesn't notice. Animation
   // resumes within INTERACTION_QUIET_MS of the user stopping.
+  // Loop lifecycle (start/stop based on animated lights *or* weather) is
+  // managed by render() — don't gate on lightingEnabled here, or weather
+  // particles on a no-lighting map will freeze after a single tick.
   if (!isInteracting()) {
     state.animClock = performance.now() / 1000;
     requestRender();

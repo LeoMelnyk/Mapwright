@@ -2,6 +2,7 @@
 import state, { undoDisabled, setUndoDisabled } from '../state.js';
 import { invalidateMapCache, requestRender } from '../canvas-view.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
+import { setFloodRainbowEnabled } from '../flood-rainbow-overlay.js';
 
 let container: HTMLElement | null = null;
 
@@ -26,6 +27,8 @@ export function initDebugPanel(el: HTMLElement): void {
   // Restore persisted debug state
   state.debugShowHitboxes = getEditorSettings().debugShowHitboxes === true;
   state.debugShowSelectionBoxes = getEditorSettings().debugShowSelectionBoxes === true;
+  state.debugFloodRainbow = getEditorSettings().debugFloodRainbow === true;
+  setFloodRainbowEnabled(state.debugFloodRainbow);
   build();
 }
 
@@ -35,6 +38,7 @@ function build() {
   let html = '<div class="debug-section"><span class="debug-section-title">Overlays</span>';
   html += `<label class="debug-toggle"><input type="checkbox" data-debug="hitboxes" ${state.debugShowHitboxes ? 'checked' : ''}> Show Hitboxes</label>`;
   html += `<label class="debug-toggle"><input type="checkbox" data-debug="selection-boxes" ${state.debugShowSelectionBoxes ? 'checked' : ''}> Show Selection Boxes</label>`;
+  html += `<label class="debug-toggle"><input type="checkbox" data-debug="flood-rainbow" ${state.debugFloodRainbow ? 'checked' : ''}> Flood Rainbow</label>`;
   html += `<label class="debug-toggle"><input type="checkbox" data-debug="disable-undo" ${undoDisabled ? 'checked' : ''}> Disable Undo Stack</label>`;
   html += '</div>';
 
@@ -77,6 +81,14 @@ function build() {
     if (input.dataset.debug === 'selection-boxes') {
       state.debugShowSelectionBoxes = input.checked;
       setEditorSetting('debugShowSelectionBoxes', input.checked);
+      requestRender();
+      return;
+    }
+
+    if (input.dataset.debug === 'flood-rainbow') {
+      state.debugFloodRainbow = input.checked;
+      setEditorSetting('debugFloodRainbow', input.checked);
+      setFloodRainbowEnabled(input.checked);
       requestRender();
       return;
     }

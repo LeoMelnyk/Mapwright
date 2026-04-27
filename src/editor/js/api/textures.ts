@@ -10,6 +10,7 @@ import {
   patchBlendForDirtyRegion,
 } from './_shared.js';
 import { normalizeRect } from './_rect-utils.js';
+import { writeSegmentTexture, primaryTextureSegmentIndex, getSegments } from '../../../util/index.js';
 
 function _blendPatch(minRow: number, minCol: number, maxRow: number, maxCol: number): void {
   const catalog = state.textureCatalog;
@@ -39,12 +40,12 @@ export function setTexture(row: number, col: number, textureId: string, opacity:
   const cell = ensureCell(row, col);
   void loadTextureImages(textureId);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  const clampedOpacity = Math.max(0, Math.min(1, opacity));
   mutate(
     'setTexture',
     coords,
     () => {
-      cell.texture = textureId;
-      cell.textureOpacity = Math.max(0, Math.min(1, opacity));
+      writeSegmentTexture(cell, primaryTextureSegmentIndex(cell), textureId, clampedOpacity);
       _blendPatch(row, col, row, col);
     },
     { textureOnly: true },
@@ -63,14 +64,16 @@ export function removeTexture(row: number, col: number): { success: true } {
   col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row]![col];
-  if (!cell?.texture) return { success: true };
+  if (!cell) return { success: true };
+  // No-op when the primary segment carries no texture.
+  const primaryIdx = primaryTextureSegmentIndex(cell);
+  if (!getSegments(cell)[primaryIdx]?.texture) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate(
     'removeTexture',
     coords,
     () => {
-      delete cell.texture;
-      delete cell.textureOpacity;
+      writeSegmentTexture(cell, primaryTextureSegmentIndex(cell), null);
       _blendPatch(row, col, row, col);
     },
     { textureOnly: true },
@@ -109,8 +112,7 @@ export function setTextureRect(
         for (let c = minC; c <= maxC; c++) {
           const cell = state.dungeon.cells[r]?.[c];
           if (cell) {
-            cell.texture = textureId;
-            cell.textureOpacity = clampedOpacity;
+            writeSegmentTexture(cell, primaryTextureSegmentIndex(cell), textureId, clampedOpacity);
           }
         }
       }
@@ -141,8 +143,7 @@ export function removeTextureRect(r1: number, c1: number, r2: number, c2: number
         for (let c = minC; c <= maxC; c++) {
           const cell = state.dungeon.cells[r]?.[c];
           if (cell) {
-            delete cell.texture;
-            delete cell.textureOpacity;
+            writeSegmentTexture(cell, primaryTextureSegmentIndex(cell), null);
           }
         }
       }
@@ -173,14 +174,11 @@ export function floodFillTexture(
   if (!state.dungeon.cells[row]?.[col]) return { success: false, error: 'void cell' };
   const prevTexture = state.activeTexture;
   const prevOpacity = state.textureOpacity;
-  const prevSecondary = state.paintSecondary;
   state.activeTexture = textureId;
   state.textureOpacity = Math.max(0, Math.min(1, opacity));
-  state.paintSecondary = false;
   void loadTextureImages(textureId);
   paintTool.floodFill(row, col, null as unknown as MouseEvent);
   state.activeTexture = prevTexture;
   state.textureOpacity = prevOpacity;
-  state.paintSecondary = prevSecondary;
   return { success: true };
 }

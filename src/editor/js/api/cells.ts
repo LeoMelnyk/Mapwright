@@ -1,4 +1,4 @@
-import type { Cell } from '../../../types.js';
+import type { Cell, CardinalDirection } from '../../../types.js';
 import {
   state,
   mutate,
@@ -10,6 +10,9 @@ import {
   roomTool,
   toInt,
   ApiValidationError,
+  getEdge,
+  setEdge,
+  deleteEdge,
 } from './_shared.js';
 import { normalizeRect } from './_rect-utils.js';
 
@@ -150,8 +153,12 @@ export function createRoom(r1: number, c1: number, r2: number, c2: number, mode:
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
 
-  if (mode !== 'room' && mode !== 'merge') {
-    throw new ApiValidationError('INVALID_ROOM_MODE', `Invalid room mode: ${mode}. Use 'room' or 'merge'.`, { mode });
+  if (mode !== 'room' && mode !== 'merge' && mode !== 'circular') {
+    throw new ApiValidationError(
+      'INVALID_ROOM_MODE',
+      `Invalid room mode: ${mode}. Use 'room', 'merge', or 'circular'.`,
+      { mode },
+    );
   }
 
   const selection = new Set();
@@ -204,47 +211,40 @@ export function createPolygonRoom(
         cells[r]![c] ??= {};
         const cell = cells[r]![c];
 
-        for (const dir of ['north', 'south', 'east', 'west']) {
+        for (const dir of ['north', 'south', 'east', 'west'] as CardinalDirection[]) {
           const [dr, dc] = OFFSETS[dir]!;
           const nr = r + dr,
             nc = c + dc;
           const inBounds_ = isInBounds(cells, nr, nc);
           const neighborCell = inBounds_ ? cells[nr]![nc] : null;
-          const reciprocal = OPPOSITE[dir as keyof typeof OPPOSITE];
+          const reciprocal = OPPOSITE[dir];
           const neighborInRoom = cellSet.has(cellKey(nr, nc));
 
           if (mergeMode) {
             if (!inBounds_ || !neighborCell) {
-              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
-                (cell as Record<string, unknown>)[dir] = 'w';
+              if (getEdge(cell, dir) !== 'd' && getEdge(cell, dir) !== 's') setEdge(cell, dir, 'w');
             } else {
-              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
-                delete (cell as Record<string, unknown>)[dir];
-              if (
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
-              )
-                delete (neighborCell as Record<string, unknown>)[reciprocal];
+              if (getEdge(cell, dir) !== 'd' && getEdge(cell, dir) !== 's') deleteEdge(cell, dir);
+              if (getEdge(neighborCell, reciprocal) !== 'd' && getEdge(neighborCell, reciprocal) !== 's')
+                deleteEdge(neighborCell, reciprocal);
             }
           } else {
             if (neighborInRoom) {
-              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
-                delete (cell as Record<string, unknown>)[dir];
+              if (getEdge(cell, dir) !== 'd' && getEdge(cell, dir) !== 's') deleteEdge(cell, dir);
               if (
                 neighborCell &&
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
+                getEdge(neighborCell, reciprocal) !== 'd' &&
+                getEdge(neighborCell, reciprocal) !== 's'
               )
-                delete (neighborCell as Record<string, unknown>)[reciprocal];
+                deleteEdge(neighborCell, reciprocal);
             } else {
-              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
-                (cell as Record<string, unknown>)[dir] = 'w';
+              if (getEdge(cell, dir) !== 'd' && getEdge(cell, dir) !== 's') setEdge(cell, dir, 'w');
               if (
                 neighborCell &&
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
-                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
+                getEdge(neighborCell, reciprocal) !== 'd' &&
+                getEdge(neighborCell, reciprocal) !== 's'
               )
-                (neighborCell as Record<string, unknown>)[reciprocal] = 'w';
+                setEdge(neighborCell, reciprocal, 'w');
             }
           }
         }

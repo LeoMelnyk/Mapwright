@@ -39,7 +39,7 @@ import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from 
 import { GRID_SCALE } from './constants.js';
 import { cellsLayerThemeSig } from './theme-diff.js';
 import { buildFluidComposite, fluidThemeSig, getFluidDataVersion, consumeFluidPartialRegion } from './fluid.js';
-import { log } from '../util/index.js';
+import { log, getSegments, isCellSplit } from '../util/index.js';
 
 /** Internal cells-layer state (floors, grid, walls, bridges, props — no lightmap). */
 interface CellsLayer {
@@ -120,44 +120,6 @@ interface MapCacheParams {
 import { renderLightmap, extractFillLights } from './lighting.js';
 
 const DEFAULT_MAX_CACHE_DIM: number = 16384;
-
-/** Return the room-portion triangle (normalized 0–1) for a diagonal trim corner.
- *  The room keeps the larger triangle; the void is the small corner triangle. */
-function _diagRoomTriangle(corner: string): number[][] {
-  switch (corner) {
-    case 'nw':
-      return [
-        [1, 0],
-        [1, 1],
-        [0, 1],
-      ];
-    case 'ne':
-      return [
-        [0, 0],
-        [1, 1],
-        [0, 1],
-      ];
-    case 'sw':
-      return [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-      ];
-    case 'se':
-      return [
-        [0, 0],
-        [1, 0],
-        [0, 1],
-      ];
-    default:
-      return [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, 1],
-      ]; // full cell fallback
-  }
-}
 
 /**
  * Signature of theme properties that affect the cells layer specifically.
@@ -823,32 +785,28 @@ export class MapCache {
     // the voided portion still shows hatching underneath.
     ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
-    const trimCells: Array<[number, number, number[][]]> = [];
     for (let r = 0; r < roomCells.length; r++) {
       const row = roomCells[r]!;
       for (let c = 0; c < row.length; c++) {
         if (!row[c]) continue;
-        const cell = cells[r]?.[c] as Record<string, unknown> | null;
-        const clip = cell?.trimClip as number[][] | undefined;
-        if (clip && clip.length >= 3) {
-          // Trim cell — cut out only the room portion (inside trimClip)
+        const cell = cells[r]?.[c];
+        if (cell && isCellSplit(cell)) {
+          // Split cell — cut out only the room portion (the non-voided
+          // segment(s)). For arc trims and diagonal cuts where one side is
+          // voided, this leaves the void hatched. When neither segment is
+          // voided (clean diagonal partition), all segments are room.
+          const segs = getSegments(cell);
           const px = c * cellPx,
             py = r * cellPx;
-          ctx.moveTo(px + clip[0]![0]! * cellPx, py + clip[0]![1]! * cellPx);
-          for (let i = 1; i < clip.length; i++) {
-            ctx.lineTo(px + clip[i]![0]! * cellPx, py + clip[i]![1]! * cellPx);
+          for (const seg of segs) {
+            if (seg.voided) continue;
+            const poly = seg.polygon;
+            ctx.moveTo(px + poly[0]![0]! * cellPx, py + poly[0]![1]! * cellPx);
+            for (let i = 1; i < poly.length; i++) {
+              ctx.lineTo(px + poly[i]![0]! * cellPx, py + poly[i]![1]! * cellPx);
+            }
+            ctx.closePath();
           }
-          ctx.closePath();
-        } else if (cell?.trimCorner && !clip) {
-          // Diagonal trim without arc clip — collect for triangle cut-out
-          trimCells.push([r, c, _diagRoomTriangle(cell.trimCorner as string)]);
-          const tri = trimCells[trimCells.length - 1]![2];
-          const px = c * cellPx,
-            py = r * cellPx;
-          ctx.moveTo(px + tri[0]![0]! * cellPx, py + tri[0]![1]! * cellPx);
-          ctx.lineTo(px + tri[1]![0]! * cellPx, py + tri[1]![1]! * cellPx);
-          ctx.lineTo(px + tri[2]![0]! * cellPx, py + tri[2]![1]! * cellPx);
-          ctx.closePath();
         } else {
           // Normal cell — cut out entirely
           ctx.rect(c * cellPx, r * cellPx, cellPx, cellPx);

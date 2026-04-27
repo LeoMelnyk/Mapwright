@@ -19,8 +19,8 @@ describe('CURRENT_FORMAT_VERSION', () => {
     expect(CURRENT_FORMAT_VERSION).toBeGreaterThan(0);
   });
 
-  it('equals 3 for the current codebase', () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(4);
+  it('matches the current codebase version', () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(5);
   });
 });
 
@@ -37,7 +37,7 @@ describe('migrateToLatest', () => {
 
     expect(migrateHalfTextures).toHaveBeenCalledOnce();
     expect(migrateHalfTextures).toHaveBeenCalledWith(json);
-    expect(result.metadata.formatVersion).toBe(4);
+    expect(result.metadata.formatVersion).toBe(5);
     // v1->v2 creates metadata.props[]
     expect(result.metadata.props).toEqual([]);
   });
@@ -49,10 +49,10 @@ describe('migrateToLatest', () => {
   });
 
   it('does not apply any migration when formatVersion equals current', () => {
-    const json = { metadata: { formatVersion: 4, props: [], resolution: 2 }, cells: [] };
+    const json = { metadata: { formatVersion: 5, props: [], resolution: 2 }, cells: [] };
     migrateToLatest(json);
     expect(migrateHalfTextures).not.toHaveBeenCalled();
-    expect(json.metadata.formatVersion).toBe(4);
+    expect(json.metadata.formatVersion).toBe(5);
   });
 
   it('logs warning and returns json unchanged for future version', () => {
@@ -109,12 +109,12 @@ describe('migrateToLatest', () => {
     };
     migrateToLatest(json);
 
-    expect(json.metadata.formatVersion).toBe(4);
+    expect(json.metadata.formatVersion).toBe(5);
     expect(json.metadata.props).toHaveLength(1);
     const p = json.metadata.props[0];
     expect(p.type).toBe('throne');
-    expect(p.x).toBe(5);   // col=1 * gridSize=5
-    expect(p.y).toBe(5);   // row=1 * gridSize=5
+    expect(p.x).toBe(5); // col=1 * gridSize=5
+    expect(p.y).toBe(5); // row=1 * gridSize=5
     expect(p.rotation).toBe(90);
     expect(p.scale).toBe(1.0);
     expect(p.zIndex).toBe(10);
@@ -157,7 +157,10 @@ describe('migrateToLatest', () => {
   it('v1->v2 creates empty array when no props exist', () => {
     const json = {
       metadata: { formatVersion: 1, gridSize: 5 },
-      cells: [[null, {}], [null, null]],
+      cells: [
+        [null, {}],
+        [null, null],
+      ],
     };
     migrateToLatest(json);
 
@@ -170,9 +173,7 @@ describe('migrateToLatest', () => {
   it('v1->v2 deletes cell.prop after extraction', () => {
     const json = {
       metadata: { formatVersion: 1, gridSize: 5 },
-      cells: [
-        [{ prop: { type: 'chair', span: [1, 1], facing: 0 } }],
-      ],
+      cells: [[{ prop: { type: 'chair', span: [1, 1], facing: 0 } }]],
     };
     migrateToLatest(json);
 
@@ -192,7 +193,7 @@ describe('migrateToLatest', () => {
 
     const p = json.metadata.props[0];
     expect(p.x).toBe(16); // col=2 * gridSize=8
-    expect(p.y).toBe(8);  // row=1 * gridSize=8
+    expect(p.y).toBe(8); // row=1 * gridSize=8
     expect(p.rotation).toBe(180);
   });
 
@@ -206,7 +207,7 @@ describe('migrateToLatest', () => {
     };
     migrateToLatest(json);
 
-    const ids = json.metadata.props.map(p => p.id);
+    const ids = json.metadata.props.map((p) => p.id);
     expect(ids).toEqual(['prop_1', 'prop_2', 'prop_3']);
     expect(json.metadata.nextPropId).toBe(4);
   });
@@ -241,9 +242,7 @@ describe('migrateToLatest', () => {
   it('v2->v3 replicates walls to correct sub-cells', () => {
     const json = {
       metadata: { formatVersion: 2, gridSize: 10, props: [] },
-      cells: [
-        [{ north: 'w', east: 'd' }],
-      ],
+      cells: [[{ north: 'w', east: 'd' }]],
     };
     migrateToLatest(json);
 
@@ -266,9 +265,7 @@ describe('migrateToLatest', () => {
   it('v2->v3 replicates fill to all 4 sub-cells', () => {
     const json = {
       metadata: { formatVersion: 2, gridSize: 10, props: [] },
-      cells: [
-        [{ fill: 'water' }],
-      ],
+      cells: [[{ fill: 'water' }]],
     };
     migrateToLatest(json);
 
@@ -281,9 +278,7 @@ describe('migrateToLatest', () => {
   it('v2->v3 places label on TL sub-cell', () => {
     const json = {
       metadata: { formatVersion: 2, gridSize: 10, props: [] },
-      cells: [
-        [{ center: { label: 'A1' } }],
-      ],
+      cells: [[{ center: { label: 'A1' } }]],
     };
     migrateToLatest(json);
 
@@ -295,7 +290,9 @@ describe('migrateToLatest', () => {
   it('v2->v3 doubles level startRow and numRows', () => {
     const json = {
       metadata: {
-        formatVersion: 2, gridSize: 10, props: [],
+        formatVersion: 2,
+        gridSize: 10,
+        props: [],
         levels: [{ name: 'L1', startRow: 5, numRows: 10 }],
       },
       cells: Array.from({ length: 20 }, () => Array(10).fill(null)),
@@ -309,8 +306,17 @@ describe('migrateToLatest', () => {
   it('v2->v3 doubles stair corner point coordinates', () => {
     const json = {
       metadata: {
-        formatVersion: 2, gridSize: 10, props: [],
-        stairs: [{ points: [[3, 4], [5, 6]] }],
+        formatVersion: 2,
+        gridSize: 10,
+        props: [],
+        stairs: [
+          {
+            points: [
+              [3, 4],
+              [5, 6],
+            ],
+          },
+        ],
       },
       cells: Array.from({ length: 10 }, () => Array(10).fill(null)),
     };
@@ -323,8 +329,17 @@ describe('migrateToLatest', () => {
   it('v2->v3 doubles bridge corner point coordinates', () => {
     const json = {
       metadata: {
-        formatVersion: 2, gridSize: 10, props: [],
-        bridges: [{ points: [[2, 3], [4, 5]] }],
+        formatVersion: 2,
+        gridSize: 10,
+        props: [],
+        bridges: [
+          {
+            points: [
+              [2, 3],
+              [4, 5],
+            ],
+          },
+        ],
       },
       cells: Array.from({ length: 10 }, () => Array(10).fill(null)),
     };
@@ -423,15 +438,30 @@ describe('migrateToLatest', () => {
   // ── Repair pass ──────────────────────────────────────────────────────────
 
   it('repair pass handles cells with trimWall but no trimCrossing', () => {
-    // Already at v4 but missing trimCrossing — repair pass should fix
+    // Already at v4 but missing trimCrossing — repair pass should fix.
+    // After v4→v5 the trim arc state lives in `cell.segments` /
+    // `cell.interiorEdges` instead of the legacy fields, but this test
+    // verifies the v4 repair still runs without throwing on legacy data.
     const json = {
       metadata: { formatVersion: 4, props: [], resolution: 2 },
       cells: [
-        [{ trimWall: [[0, 0], [1, 1]], trimClip: [[0, 0], [1, 0], [1, 1]] }],
+        [
+          {
+            trimWall: [
+              [0, 0],
+              [1, 1],
+            ],
+            trimClip: [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+            ],
+          },
+        ],
       ],
     };
     // Should not throw
     migrateToLatest(json);
-    expect(json.metadata.formatVersion).toBe(4);
+    expect(json.metadata.formatVersion).toBe(5);
   });
 });

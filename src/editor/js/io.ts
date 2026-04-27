@@ -7,8 +7,10 @@ interface FilePickerWindow {
 }
 
 import type { Dungeon, Theme } from '../../types.js';
+import type { LegacyCellGrid } from '../../util/migrate-segments.js';
 import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
+import { migrateCellsToSegments } from '../../util/index.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
 import {
@@ -48,6 +50,14 @@ export function loadDungeonJSON(
   pushUndo();
   state.dungeon = json;
   (migrateToLatest as (j: unknown) => void)(json);
+
+  // Storage flip: convert legacy texture/diagonal/trim shape into authoritative
+  // `cell.segments` + `cell.interiorEdges`, then DELETE the legacy fields.
+  // Renderer + tools all go through `getSegments()` / `writeSegmentTexture` /
+  // `spliceSegments`. Saves emit segments-only output going forward.
+  if (Array.isArray(json.cells)) {
+    migrateCellsToSegments(json.cells, { removeLegacyFields: true });
+  }
 
   // Lightweight structural validation — warn but don't reject
   const loadWarnings = validateDungeonStructure(json);
@@ -154,7 +164,11 @@ export function loadDungeonJSON(
  * @returns {void}
  */
 export function migrateHalfTextures(dungeon: Dungeon): void {
-  for (const row of dungeon.cells) {
+  // This is the v0→v1 save migration. It reads/writes legacy fields by
+  // design — those fields are stripped later when `migrateCellsToSegments`
+  // converts the cells to the segment shape on load.
+  const legacyCells = dungeon.cells as unknown as LegacyCellGrid;
+  for (const row of legacyCells) {
     for (const cell of row) {
       if (!cell) continue;
       const hasOld =
@@ -419,9 +433,21 @@ export async function saveDungeon(): Promise<void> {
 async function saveBlob(blob: Blob, suggestedName: string) {
   if ((window as unknown as FilePickerWindow).showSaveFilePicker) {
     try {
+      const ext = suggestedName.slice(suggestedName.lastIndexOf('.')).toLowerCase();
+      const pickerTypes: Record<string, { description: string; accept: Record<string, string[]> }> = {
+        '.png': { description: 'PNG Image', accept: { 'image/png': ['.png'] } },
+        '.uvtt': { description: 'Universal VTT', accept: { 'application/json': ['.uvtt'] } },
+        '.dd2vtt': { description: 'Universal VTT', accept: { 'application/json': ['.dd2vtt'] } },
+        '.json': { description: 'JSON', accept: { 'application/json': ['.json'] } },
+        '.mapwright': { description: 'Mapwright Map', accept: { 'application/json': ['.mapwright'] } },
+      };
+      const type = pickerTypes[ext] ?? {
+        description: 'File',
+        accept: { 'application/octet-stream': [ext || ''] },
+      };
       const handle = await (window as unknown as FilePickerWindow).showSaveFilePicker!({
         suggestedName,
-        types: [{ description: 'PNG Image', accept: { 'image/png': ['.png'] } }],
+        types: [type],
       });
       const writable = await handle.createWritable();
       await writable.write(blob);
@@ -608,8 +634,7 @@ function showExportVttModal(): Promise<{ bakeLighting: boolean; bakeWeather: boo
  */
 export async function exportDd2vtt(): Promise<void> {
   const config = state.dungeon;
-  const suggestedName =
-    (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.uvtt';
+  const suggestedName = (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.uvtt';
 
   const exportOptions = await showExportVttModal();
   if (!exportOptions) return;

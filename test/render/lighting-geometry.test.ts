@@ -13,7 +13,14 @@ import {
   DEFAULT_LIGHT_Z,
   type ShadowZone,
 } from '../../src/render/lighting-geometry.js';
-import type { CellGrid } from '../../src/types.js';
+import type { Cell, CellGrid } from '../../src/types.js';
+import { setDiagonalEdge } from '../../src/util/index.js';
+
+function diagonalCell(diag: 'nw-se' | 'ne-sw', wall: 'w' | 'iw'): Cell {
+  const cell: Cell = {};
+  setDiagonalEdge(cell, diag, wall);
+  return cell;
+}
 
 // ---------------------------------------------------------------------------
 // Helper to check if a specific segment exists in the result set.
@@ -159,7 +166,7 @@ describe('extractWallSegments', () => {
   });
 
   it('diagonal wall nw-se produces a diagonal segment', () => {
-    const cells: CellGrid = [[{ 'nw-se': 'w' }]];
+    const cells: CellGrid = [[diagonalCell('nw-se', 'w')]];
     const gridSize = 10;
     const segments = extractWallSegments(cells, gridSize, null);
 
@@ -168,7 +175,7 @@ describe('extractWallSegments', () => {
   });
 
   it('diagonal wall ne-sw produces a diagonal segment', () => {
-    const cells: CellGrid = [[{ 'ne-sw': 'w' }]];
+    const cells: CellGrid = [[diagonalCell('ne-sw', 'w')]];
     const gridSize = 10;
     const segments = extractWallSegments(cells, gridSize, null);
 
@@ -177,7 +184,7 @@ describe('extractWallSegments', () => {
   });
 
   it('invisible diagonal wall ("iw") does not produce a diagonal segment', () => {
-    const cells: CellGrid = [[{ 'nw-se': 'iw' }]];
+    const cells: CellGrid = [[diagonalCell('nw-se', 'iw')]];
     const gridSize = 10;
     const segments = extractWallSegments(cells, gridSize, null);
 
@@ -185,29 +192,55 @@ describe('extractWallSegments', () => {
     expect(hasSegment(segments, 0, 0, 10, 10)).toBe(false);
   });
 
-  it('diagonal wall is skipped when cell has trimWall polyline', () => {
-    // When a cell has a trimWall array, diagonal walls are skipped
-    // because the trimWall polyline provides the boundary instead.
-    const cells: CellGrid = [
-      [
+  it('diagonal wall is skipped when cell has a chord trim', () => {
+    // When a cell has a chord/arc trim (chord interior edge), the chord
+    // polyline provides the boundary instead of the raw corner-to-corner
+    // diagonal. The chord-trim path in extractWallSegments emits the polyline
+    // segments separately (covered in chord-specific tests).
+    const cell: Cell = {
+      segments: [
         {
-          'nw-se': 'w',
-          trimWall: [
+          id: 's0',
+          polygon: [
             [0, 0],
             [0.5, 0.5],
             [1, 1],
-          ] as number[][],
+            [0, 1],
+          ],
+        },
+        {
+          id: 's1',
+          polygon: [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0.5, 0.5],
+          ],
         },
       ],
-    ];
+      interiorEdges: [
+        {
+          // Chord: 3-vertex polyline through the diagonal — same shape as a
+          // legacy `trimWall: [[0,0],[0.5,0.5],[1,1]]` cell.
+          vertices: [
+            [0, 0],
+            [0.5, 0.5],
+            [1, 1],
+          ],
+          wall: 'w',
+          between: [0, 1],
+        },
+      ],
+    };
+    const cells: CellGrid = [[cell]];
     const gridSize = 10;
     const segments = extractWallSegments(cells, gridSize, null);
 
-    // The raw diagonal (0,0)→(10,10) should NOT appear because trimWall takes over.
-    // Instead, trimWall polyline segments should appear.
+    // The raw diagonal (0,0)→(10,10) should NOT appear because the chord trim
+    // takes over.
     expect(hasSegment(segments, 0, 0, 10, 10)).toBe(false);
 
-    // The trimWall polyline segments should be present:
+    // The chord polyline segments should be present:
     // (0,0)→(5,5) and (5,5)→(10,10)
     expect(hasSegment(segments, 0, 0, 5, 5)).toBe(true);
     expect(hasSegment(segments, 5, 5, 10, 10)).toBe(true);

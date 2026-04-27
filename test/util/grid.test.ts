@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
-  cellKey, parseCellKey, isInBounds, snapToSquare, normalizeBounds,
-  isEdgeOpen, isEdgePassable, roomBoundsFromKeys,
-  setEdgeReciprocal, deleteEdgeReciprocal,
-  blockedByDiagonal, floodFillRoom, OPPOSITE,
+  cellKey,
+  parseCellKey,
+  isInBounds,
+  snapToSquare,
+  normalizeBounds,
+  isEdgeOpen,
+  roomBoundsFromKeys,
+  setEdgeReciprocal,
+  deleteEdgeReciprocal,
+  getEdge,
+  OPPOSITE,
 } from '../../src/util/grid.js';
 
 // ── Helper: create a grid of null cells ──────────────────────────────────────
@@ -96,7 +103,7 @@ describe('normalizeBounds', () => {
   });
 });
 
-// ── isEdgeOpen / isEdgePassable ──────────────────────────────────────────────
+// ── isEdgeOpen ───────────────────────────────────────────────────────────────
 
 describe('isEdgeOpen', () => {
   it('returns true when neither side has an edge', () => {
@@ -116,28 +123,6 @@ describe('isEdgeOpen', () => {
   });
 });
 
-describe('isEdgePassable', () => {
-  it('returns true for open edges', () => {
-    expect(isEdgePassable({}, {}, 'north')).toBe(true);
-  });
-
-  it('returns false for walls', () => {
-    expect(isEdgePassable({ north: 'w' }, {}, 'north')).toBe(false);
-  });
-
-  it('returns false for invisible walls', () => {
-    expect(isEdgePassable({ north: 'iw' }, {}, 'north')).toBe(false);
-  });
-
-  it('returns true for doors (passable)', () => {
-    expect(isEdgePassable({ north: 'd' }, {}, 'north')).toBe(true);
-  });
-
-  it('returns true for secret doors', () => {
-    expect(isEdgePassable({ north: 's' }, {}, 'north')).toBe(true);
-  });
-});
-
 // ── roomBoundsFromKeys ───────────────────────────────────────────────────────
 
 describe('roomBoundsFromKeys', () => {
@@ -145,8 +130,12 @@ describe('roomBoundsFromKeys', () => {
     const keys = new Set(['2,3', '2,4', '3,3', '3,4', '4,3', '4,4']);
     const bounds = roomBoundsFromKeys(keys);
     expect(bounds).toEqual({
-      r1: 2, c1: 3, r2: 4, c2: 4,
-      centerRow: 3, centerCol: 3,
+      r1: 2,
+      c1: 3,
+      r2: 4,
+      c2: 4,
+      centerRow: 3,
+      centerCol: 3,
     });
   });
 
@@ -177,7 +166,9 @@ describe('setEdgeReciprocal', () => {
     const grid = makeGrid(5, 5);
     grid[2][3] = makeCell();
     setEdgeReciprocal(grid, 2, 3, 'nw-se', 'w');
-    expect(grid[2][3]['nw-se']).toBe('w');
+    // Diagonal walls live on cell.interiorEdges; getEdge routes through
+    // segments to read the diagonal-edge wall back.
+    expect(getEdge(grid[2][3], 'nw-se')).toBe('w');
     // No neighbor should be affected
   });
 
@@ -199,120 +190,6 @@ describe('deleteEdgeReciprocal', () => {
     deleteEdgeReciprocal(grid, 2, 3, 'east');
     expect(grid[2][3].east).toBeUndefined();
     expect(grid[2][4].west).toBeUndefined();
-  });
-});
-
-// ── blockedByDiagonal ────────────────────────────────────────────────────────
-
-describe('blockedByDiagonal', () => {
-  it('returns empty set when no diagonal wall', () => {
-    const blocked = blockedByDiagonal({}, 'north');
-    expect(blocked.size).toBe(0);
-  });
-
-  it('nw-se diagonal blocks south+west when entering from north', () => {
-    const blocked = blockedByDiagonal({ 'nw-se': 'w' }, 'north');
-    expect(blocked.has('south')).toBe(true);
-    expect(blocked.has('west')).toBe(true);
-    expect(blocked.has('north')).toBe(false);
-    expect(blocked.has('east')).toBe(false);
-  });
-
-  it('nw-se diagonal blocks north+east when entering from south', () => {
-    const blocked = blockedByDiagonal({ 'nw-se': 'w' }, 'south');
-    expect(blocked.has('north')).toBe(true);
-    expect(blocked.has('east')).toBe(true);
-  });
-
-  it('ne-sw diagonal blocks north+west when entering from south', () => {
-    const blocked = blockedByDiagonal({ 'ne-sw': 'w' }, 'south');
-    expect(blocked.has('north')).toBe(true);
-    expect(blocked.has('west')).toBe(true);
-  });
-
-  it('returns empty set for null entry direction', () => {
-    const blocked = blockedByDiagonal({ 'nw-se': 'w' }, null);
-    expect(blocked.size).toBe(0);
-  });
-});
-
-// ── floodFillRoom ────────────────────────────────────────────────────────────
-
-describe('floodFillRoom', () => {
-  it('fills a simple rectangular room', () => {
-    const grid = makeGrid(6, 6);
-    // Create a 3x3 room at (1,1)-(3,3) with walls on perimeter
-    for (let r = 1; r <= 3; r++) {
-      for (let c = 1; c <= 3; c++) {
-        grid[r][c] = makeCell();
-      }
-    }
-    // Add walls on the perimeter
-    for (let c = 1; c <= 3; c++) {
-      grid[1][c].north = 'w';
-      grid[3][c].south = 'w';
-    }
-    for (let r = 1; r <= 3; r++) {
-      grid[r][1].west = 'w';
-      grid[r][3].east = 'w';
-    }
-
-    const filled = floodFillRoom(grid, 2, 2);
-    expect(filled.size).toBe(9); // 3x3 = 9 cells
-    expect(filled.has('1,1')).toBe(true);
-    expect(filled.has('3,3')).toBe(true);
-    expect(filled.has('0,0')).toBe(false); // outside
-  });
-
-  it('stops at walls', () => {
-    const grid = makeGrid(5, 5);
-    grid[1][1] = makeCell({ east: 'w' });
-    grid[1][2] = makeCell({ west: 'w' });
-
-    const filled = floodFillRoom(grid, 1, 1);
-    expect(filled.has('1,1')).toBe(true);
-    expect(filled.has('1,2')).toBe(false); // blocked by wall
-  });
-
-  it('stops at doors by default', () => {
-    const grid = makeGrid(5, 5);
-    grid[1][1] = makeCell({ east: 'd' });
-    grid[1][2] = makeCell({ west: 'd' });
-
-    const filled = floodFillRoom(grid, 1, 1);
-    expect(filled.has('1,1')).toBe(true);
-    expect(filled.has('1,2')).toBe(false); // blocked by door
-  });
-
-  it('traverses doors when traverseDoors=true', () => {
-    const grid = makeGrid(5, 5);
-    grid[1][1] = makeCell({ east: 'd' });
-    grid[1][2] = makeCell({ west: 'd' });
-
-    const filled = floodFillRoom(grid, 1, 1, { traverseDoors: true });
-    expect(filled.has('1,1')).toBe(true);
-    expect(filled.has('1,2')).toBe(true); // door traversed
-  });
-
-  it('returns empty set for null start cell', () => {
-    const grid = makeGrid(5, 5);
-    const filled = floodFillRoom(grid, 2, 2);
-    expect(filled.size).toBe(0);
-  });
-
-  it('fills L-shaped room', () => {
-    const grid = makeGrid(6, 6);
-    // L-shape: (1,1)-(1,3) + (2,1)-(3,1)
-    grid[1][1] = makeCell();
-    grid[1][2] = makeCell();
-    grid[1][3] = makeCell();
-    grid[2][1] = makeCell();
-    grid[3][1] = makeCell();
-
-    const filled = floodFillRoom(grid, 1, 1);
-    expect(filled.size).toBe(5);
-    expect(filled.has('1,3')).toBe(true);
-    expect(filled.has('3,1')).toBe(true);
   });
 });
 

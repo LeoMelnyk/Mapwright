@@ -11,7 +11,7 @@
 // bypassing the migration pipeline entirely.
 
 import type { Bridge, CellGrid, Direction, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
-import { getEdge, deleteEdge, CARDINAL_OFFSETS } from '../../util/index.js';
+import { getEdge, setEdge as setCellEdge, deleteEdge, CARDINAL_OFFSETS } from '../../util/index.js';
 
 /** Donjon JSON export shape. */
 interface DonjonData {
@@ -737,11 +737,11 @@ export function convertDonjonDungeon(data: DonjonData): { metadata: Metadata; ce
       ['south', [1, 0]],
       ['west', [0, -1]],
       ['east', [0, 1]],
-    ] as [string, [number, number]][]) {
+    ] as [Direction, [number, number]][]) {
       const nr = r + dr,
         nc = c + dc;
       if (!cells[nr]?.[nc]) {
-        if (!(cell as Record<string, unknown>)[dir]) (cell as Record<string, unknown>)[dir] = 'w';
+        if (!getEdge(cell, dir)) setCellEdge(cell, dir, 'w');
       }
     }
   }

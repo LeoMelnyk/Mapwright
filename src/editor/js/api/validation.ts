@@ -7,8 +7,11 @@ import {
   cellKey,
   toInt,
   toDisp,
+  traverse,
   ApiValidationError,
+  getEdge,
 } from './_shared.js';
+import type { CardinalDirection } from '../../../types.js';
 
 // ── Validation ──────────────────────────────────────────────────────────
 
@@ -29,13 +32,14 @@ export function validateDoorClearance(): {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') continue;
+        const edge = getEdge(cell, dir as CardinalDirection);
+        if (edge !== 'd' && edge !== 's') continue;
         if (getApi()._isCellCoveredByProp(r, c)) {
           issues.push({
             row: toDisp(r),
             col: toDisp(c),
             direction: dir,
-            doorType: (cell as Record<string, unknown>)[dir] as string,
+            doorType: edge as string,
             problem: 'prop blocking door cell',
           });
         }
@@ -48,7 +52,7 @@ export function validateDoorClearance(): {
               row: toDisp(nr),
               col: toDisp(nc),
               direction: OPPOSITE[dir as keyof typeof OPPOSITE],
-              doorType: (cell as Record<string, unknown>)[dir] as string,
+              doorType: edge as string,
               problem: 'prop blocking door approach',
             });
           }
@@ -78,30 +82,18 @@ export function validateConnectivity(entranceLabel: string): {
     throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${entranceLabel}" not found`, { label: entranceLabel });
 
   const cells = state.dungeon.cells;
-  const visited = new Set();
   // findCellByLabel returns display coords — convert to internal
   const startR = toInt(start.row!),
     startC = toInt(start.col!);
-  const queue: [number, number][] = [[startR, startC]];
-  visited.add(cellKey(startR, startC));
 
-  while (queue.length) {
-    const [r, c] = queue.shift()!;
-    const cell = cells[r]?.[c];
-    if (!cell) continue;
-    for (const dir of CARDINAL_DIRS) {
-      const edge = (cell as Record<string, unknown>)[dir];
-      if (edge === 'w' || edge === 'iw') continue;
-      const [dr, dc] = OFFSETS[dir]!;
-      const nr = r + dr,
-        nc = c + dc;
-      const key = cellKey(nr, nc);
-      if (visited.has(key)) continue;
-      if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[nr]?.length ?? 0)) continue;
-      if (!cells[nr]?.[nc]) continue;
-      visited.add(key);
-      queue.push([nr, nc]);
-    }
+  // Connectivity check: traverse through open edges AND through doors.
+  // doorsBlock: false matches the legacy custom BFS, which only blocked on
+  // walls ('w' / 'iw'). Windows still block movement (default true).
+  const result = traverse(cells, { row: startR, col: startC }, { doorsBlock: false });
+  const visited = new Set<string>();
+  for (const k of result.visited) {
+    const parts = k.split(',');
+    visited.add(`${parts[0]},${parts[1]}`);
   }
 
   const reachable = [];
@@ -282,17 +274,7 @@ export function critiqueMap(
   const intensityThreshold = options.intensitySumThreshold ?? 2.5;
   const findings: CritiqueFinding[] = [];
 
-  const api = getApi() as unknown as {
-    listRooms: () => {
-      success: boolean;
-      rooms: Array<{ label: string; r1: number; c1: number; r2: number; c2: number }>;
-    };
-    _collectRoomCells: (l: string) => Set<string> | null;
-    validateDoorClearance: () => {
-      clear: boolean;
-      issues: Array<{ row: number; col: number; direction: string; doorType: string; problem: string }>;
-    };
-  };
+  const api = getApi();
 
   const meta = state.dungeon.metadata;
   const gs = meta.gridSize || 5;

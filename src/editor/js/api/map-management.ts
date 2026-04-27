@@ -1,4 +1,4 @@
-import type { Dungeon, LabelStyle, Theme } from '../../../types.js';
+import type { CardinalDirection, Dungeon, LabelStyle, Theme } from '../../../types.js';
 import {
   state,
   pushUndo,
@@ -10,15 +10,18 @@ import {
   collectTextureIds,
   ensureTexturesLoaded,
   migrateToLatest,
+  migrateCellsToSegments,
   CARDINAL_DIRS,
   OFFSETS,
   OPPOSITE,
   toDisp,
   ApiValidationError,
+  getEdge,
 } from './_shared.js';
 import { normalizeTheme } from '../../../render/index.js';
 import { applyThemeChange, snapshotCurrentTheme } from '../canvas-view.js';
 import { _clearCheckpoints } from './operational.js';
+import { getCellPrimaryTexture } from '../../../util/index.js';
 
 /**
  * Create a new empty map, replacing the current one.
@@ -62,6 +65,14 @@ export function loadMap(json: Record<string, unknown>): { success: true; info: R
   pushUndo();
   state.dungeon = json as unknown as Dungeon;
   migrateToLatest(json as Parameters<typeof migrateToLatest>[0]);
+
+  // Storage flip: convert legacy fields → authoritative segments, then
+  // delete legacy. Mirrors io.ts:loadDungeonJSON.
+  if (Array.isArray(json.cells)) {
+    migrateCellsToSegments(json.cells as Parameters<typeof migrateCellsToSegments>[0], {
+      removeLegacyFields: true,
+    });
+  }
 
   // Normalize embedded theme data so downstream renderers can read fields
   // directly (matches the contract applied in theme-catalog for shipped/user
@@ -123,7 +134,8 @@ export function getMapInfo(): {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       if (cell.center?.label != null) labelCount++;
-      if (cell.texture) textureIds.add(cell.texture);
+      const tex = getCellPrimaryTexture(cell);
+      if (tex) textureIds.add(tex);
     }
   }
 
@@ -195,13 +207,14 @@ export function getFullMapInfo(): Record<string, unknown> {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') continue;
+        const edge = getEdge(cell, dir as CardinalDirection);
+        if (edge !== 'd' && edge !== 's') continue;
         const key = `${r},${c},${dir}`;
         const [dr, dc] = OFFSETS[dir]!;
         const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir as keyof typeof OPPOSITE]}`;
         if (seen.has(recipKey)) continue;
         seen.add(key);
-        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as Record<string, unknown>)[dir] });
+        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: edge });
       }
     }
   }

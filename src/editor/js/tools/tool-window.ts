@@ -8,7 +8,7 @@
 // gobo and tint color. The icon hit-test runs before placement, so clicking
 // an icon never places a new window underneath.
 
-import type { CardinalDirection, Direction, EdgeValue, RenderTransform, Window as WindowDef } from '../../../types.js';
+import type { CardinalDirection, EdgeValue, RenderTransform, Window as WindowDef } from '../../../types.js';
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { mutate } from '../state.js';
 import {
@@ -162,7 +162,7 @@ export class WindowTool extends Tool {
     if (!isInBounds(cells, er, ec)) return;
     const cell = cells[er]?.[ec];
     if (!cell) return;
-    if (getEdge(cell, direction as Direction) !== 'win') return;
+    if (getEdge(cell, direction) !== 'win') return;
 
     const canon = canonicalizeEdge(er, ec, direction);
     if (!canon) return;
@@ -216,7 +216,7 @@ export class WindowTool extends Tool {
     if (!canon) return;
 
     const cell = cells[er]![ec] ?? {};
-    const currentlyWindow = (cell as Record<string, unknown>)[direction] === 'win';
+    const currentlyWindow = getEdge(cell, direction) === 'win';
     const goboId = state.windowGobo || 'window-mullions';
 
     const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
@@ -472,7 +472,7 @@ function isLiveWindow(win: WindowDef): boolean {
   if (!isInBounds(cells, win.row, win.col)) return false;
   const cell = cells[win.row]?.[win.col];
   if (!cell) return false;
-  return (cell as Record<string, unknown>)[win.direction] === 'win';
+  return getEdge(cell, win.direction) === 'win';
 }
 
 function findWindowEntry(row: number, col: number, direction: WindowDir): WindowDef | null {

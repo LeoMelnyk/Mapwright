@@ -6,7 +6,23 @@ import { invalidateFluidCache, patchFluidRegion, getFluidCacheParams } from './f
 import { invalidateVisibilityCache } from './lighting.js';
 import { invalidateEffectsCache } from './effects.js';
 import { toCanvas } from './bounds.js';
-import { log } from '../util/index.js';
+import { getSegments, log } from '../util/index.js';
+
+/**
+ * Snapshot every segment's texture id (or null if empty). Used by
+ * `captureBeforeState` to detect texture-only mutations cheaply via diff
+ * against the post-op state.
+ */
+function snapshotSegmentTextures(cell: Cell): (string | null)[] {
+  return getSegments(cell).map((s) => s.texture ?? null);
+}
+
+/** True if two segment-texture snapshots differ in any slot. */
+function segmentTexturesDiffer(a: (string | null)[], b: (string | null)[]): boolean {
+  if (a.length !== b.length) return true;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return true;
+  return false;
+}
 
 // Re-export cache invalidation functions (public API maintained for direct importers)
 export { invalidateFluidCache };
@@ -70,8 +86,12 @@ interface BeforeState {
   waterDepth: number | null;
   lavaDepth: number | null;
   hazard: boolean;
-  texture: string | null;
-  textureSecondary: string | null;
+  /**
+   * Per-segment texture ids (or `null` for an empty segment). Length equals
+   * the cell's segment count at snapshot time. Compared element-wise against
+   * a fresh snapshot in `smartInvalidate` to detect any texture change.
+   */
+  segmentTextures: (string | null)[];
 }
 
 export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number; col: number }>): BeforeState[] {
@@ -86,8 +106,7 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number;
         waterDepth: null,
         lavaDepth: null,
         hazard: false,
-        texture: null,
-        textureSecondary: null,
+        segmentTextures: [],
       };
     return {
       row,
@@ -97,8 +116,7 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number;
       waterDepth: (cell.waterDepth as number | null) ?? null,
       lavaDepth: (cell.lavaDepth as number | null) ?? null,
       hazard: !!cell.hazard,
-      texture: (cell.texture as string | null) ?? null,
-      textureSecondary: (cell.textureSecondary as string | null) ?? null,
+      segmentTextures: snapshotSegmentTextures(cell),
     };
   });
 }
@@ -144,8 +162,7 @@ export function smartInvalidate(
     waterDepth: beforeWD,
     lavaDepth: beforeLD,
     hazard: beforeHazard,
-    texture: beforeTex,
-    textureSecondary: beforeTexSec,
+    segmentTextures: beforeSegTex,
   } of changes) {
     if (needsGeometry && needsFluid && needsBlend) break;
 
@@ -161,7 +178,15 @@ export function smartInvalidate(
         }
       }
       // Void↔floor toggles alter the blend topology too (appearing/disappearing cells).
-      if (beforeTex || beforeTexSec) needsBlend = true;
+      // Check both sides: removing a textured cell drops blend edges; adding a textured
+      // cell introduces new ones. Empty-floor toggles (no texture either side) don't
+      // touch blend.
+      if (
+        beforeSegTex.some((t) => t !== null) ||
+        (afterCell !== null && snapshotSegmentTextures(afterCell).some((t) => t !== null))
+      ) {
+        needsBlend = true;
+      }
     } else if (!wasVoid && !isVoid) {
       // captureBeforeState normalizes missing fields to null, but the raw cell
       // object may have `undefined` for fields that were never set. Naively
@@ -171,9 +196,8 @@ export function smartInvalidate(
       const afterWD = afterCell.waterDepth ?? null;
       const afterLD = afterCell.lavaDepth ?? null;
       const afterHazard = !!afterCell.hazard;
-      const afterTex = (afterCell.texture as string | null) ?? null;
-      const afterTexSec = (afterCell.textureSecondary as string | null) ?? null;
-      if (beforeTex !== afterTex || beforeTexSec !== afterTexSec) {
+      const afterSegTex = snapshotSegmentTextures(afterCell);
+      if (segmentTexturesDiffer(beforeSegTex, afterSegTex)) {
         needsBlend = true;
       }
       if (beforeFill !== afterFill || beforeWD !== afterWD || beforeLD !== afterLD || beforeHazard !== afterHazard) {
@@ -285,157 +309,6 @@ export function patchFluidForDirtyRegion(
 }
 
 /**
- * Collect rounded corner arc descriptors from cells with trimRound.
- * Keyed by arc center — all trimRound cells sharing a center contribute to one entry.
- *
- * Entry flags (set by fog.js for player view, aggregated via OR across all cells):
- *   isOpen        — Decorative arc (no wall).
- *   exteriorOnly  — Player fog: only exterior revealed.
- *   hideExterior  — Player fog: only interior revealed.
- *
- * @param {Array<Array<Object>>} cells - 2D cell grid
- * @returns {Map<string, Object>} Map of arc center keys to corner descriptor objects
- */
-export function collectRoundedCorners(cells: CellGrid): Map<string, Record<string, unknown>> {
-  const roundedCorners = new Map();
-  const numRows = cells.length;
-  for (let row = 0; row < numRows; row++) {
-    const numCols = cells[row]?.length ?? 0;
-    for (let col = 0; col < numCols; col++) {
-      const cell = cells[row]?.[col];
-      if (!cell?.trimRound) continue;
-      const key = `${cell.trimArcCenterRow},${cell.trimArcCenterCol}`;
-      if (!roundedCorners.has(key)) {
-        roundedCorners.set(key, {
-          centerRow: cell.trimArcCenterRow,
-          centerCol: cell.trimArcCenterCol,
-          radius: cell.trimArcRadius,
-          corner: cell.trimCorner,
-          inverted: !!cell.trimArcInverted,
-          isOpen: !!cell.trimOpen,
-          exteriorOnly: !!cell.trimShowExteriorOnly,
-          hideExterior: !!cell.trimHideExterior,
-        });
-      } else {
-        const entry = roundedCorners.get(key);
-        if (cell.trimShowExteriorOnly) entry.exteriorOnly = true;
-        if (cell.trimHideExterior) entry.hideExterior = true;
-      }
-    }
-  }
-  return roundedCorners;
-}
-
-/**
- * Trace a single arc wedge pie-slice subpath for one rounded corner.
- * Appends to the current path — caller must beginPath/closePath/clip.
- * Used by the player fog overlay (arc-aware fog masking).
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Object} rc - Rounded corner descriptor (centerRow, centerCol, radius, corner, inverted)
- * @param {number} gridSize - Grid cell size in feet
- * @param {Object} transform - Transform with scale, offsetX, offsetY
- * @returns {void}
- */
-export function traceArcWedge(
-  ctx: CanvasRenderingContext2D,
-  rc: {
-    row: number;
-    col: number;
-    radius: number;
-    centerRow: number;
-    centerCol: number;
-    corner: string;
-    inverted: boolean;
-    startAngle: number;
-    endAngle: number;
-  },
-  gridSize: number,
-  transform: RenderTransform,
-): void {
-  const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-  const Rpx = rc.radius * gridSize * transform.scale;
-  if (rc.inverted) {
-    let startAngle = 0,
-      endAngle = 0,
-      anticlockwise = false;
-    switch (rc.corner) {
-      case 'nw':
-        startAngle = Math.PI / 2;
-        endAngle = 0;
-        anticlockwise = true;
-        break;
-      case 'ne':
-        startAngle = Math.PI / 2;
-        endAngle = Math.PI;
-        anticlockwise = false;
-        break;
-      case 'sw':
-        startAngle = 0;
-        endAngle = (3 * Math.PI) / 2;
-        anticlockwise = true;
-        break;
-      case 'se':
-        startAngle = Math.PI;
-        endAngle = (3 * Math.PI) / 2;
-        anticlockwise = false;
-        break;
-    }
-    ctx.moveTo(ocp.x, ocp.y);
-    ctx.lineTo(ocp.x + Rpx * Math.cos(startAngle), ocp.y + Rpx * Math.sin(startAngle));
-    ctx.arc(ocp.x, ocp.y, Rpx, startAngle, endAngle, anticlockwise);
-    ctx.lineTo(ocp.x, ocp.y);
-  } else {
-    let acx = 0,
-      acy = 0;
-    switch (rc.corner) {
-      case 'nw':
-        acx = (rc.centerCol + rc.radius) * gridSize;
-        acy = (rc.centerRow + rc.radius) * gridSize;
-        break;
-      case 'ne':
-        acx = (rc.centerCol - rc.radius) * gridSize;
-        acy = (rc.centerRow + rc.radius) * gridSize;
-        break;
-      case 'sw':
-        acx = (rc.centerCol + rc.radius) * gridSize;
-        acy = (rc.centerRow - rc.radius) * gridSize;
-        break;
-      case 'se':
-        acx = (rc.centerCol - rc.radius) * gridSize;
-        acy = (rc.centerRow - rc.radius) * gridSize;
-        break;
-    }
-    const acp = toCanvas(acx, acy, transform);
-    switch (rc.corner) {
-      case 'nw':
-        ctx.moveTo(ocp.x, ocp.y);
-        ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, (3 * Math.PI) / 2, Math.PI, true);
-        ctx.lineTo(ocp.x, ocp.y);
-        break;
-      case 'ne':
-        ctx.moveTo(ocp.x, ocp.y);
-        ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, (3 * Math.PI) / 2, 0, false);
-        ctx.lineTo(ocp.x, ocp.y);
-        break;
-      case 'sw':
-        ctx.moveTo(ocp.x, ocp.y);
-        ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, Math.PI, false);
-        ctx.lineTo(ocp.x, ocp.y);
-        break;
-      case 'se':
-        ctx.moveTo(ocp.x, ocp.y);
-        ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, 0, true);
-        ctx.lineTo(ocp.x, ocp.y);
-        break;
-    }
-  }
-}
-
-/**
  * Run `fn` inside a clip that excludes the void portions of trim cells
  * (both arc trimClip and straight diagonal trims).
  * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + roomPoly] (even=void, odd=floor).
@@ -454,16 +327,18 @@ export function withTrimVoidClip(
   transform: RenderTransform,
   fn: () => void,
 ): void {
-  // Quick scan: bail early if no closed trim cells exist
-  let hasTrim = false;
-  for (let r = 0; !hasTrim && r < cells.length; r++)
-    for (let c = 0; !hasTrim && c < (cells[r]?.length ?? 0); c++) {
+  // A cell needs void-clipping when any of its segments is voided.
+  // Quick scan: bail early if no such cells exist.
+  let hasVoid = false;
+  for (let r = 0; !hasVoid && r < cells.length; r++)
+    for (let c = 0; !hasVoid && c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
-      if (cell?.trimClip && !cell.trimOpen) hasTrim = true;
-      else if (cell?.trimCorner && !cell.trimClip && !cell.trimOpen) hasTrim = true;
+      if (!cell) continue;
+      const segs = getSegments(cell);
+      if (segs.some((s) => s.voided)) hasVoid = true;
     }
 
-  if (!hasTrim) {
+  if (!hasVoid) {
     fn();
     return;
   }
@@ -471,46 +346,26 @@ export function withTrimVoidClip(
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  // For each split cell with a voided segment, add `cellRect` + `non-voided
+  // segment polygon(s)` to the path. With `'evenodd'`, the cell rect is
+  // even (excluded), the non-voided polygon is odd (included) — so we end
+  // up clipping to canvas-rect minus the voided slivers.
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
+      const segs = getSegments(cell);
+      if (!segs.some((s) => s.voided)) continue;
       const tl = toCanvas(c * gridSize, r * gridSize, transform);
       const gs = gridSize * transform.scale;
-      if (cell.trimClip && !cell.trimOpen) {
-        // Arc trim: cell rect + trimClip polygon
-        const clip = cell.trimClip;
-        ctx.rect(tl.x, tl.y, gs, gs);
-        ctx.moveTo(tl.x + clip[0]![0]! * gs, tl.y + clip[0]![1]! * gs);
-        for (let i = 1; i < clip.length; i++) ctx.lineTo(tl.x + clip[i]![0]! * gs, tl.y + clip[i]![1]! * gs);
-        ctx.closePath();
-      } else if (cell.trimCorner && !cell.trimClip && !cell.trimOpen) {
-        // Diagonal trim: cell rect + room triangle (excludes void corner)
-        const tr = { x: tl.x + gs, y: tl.y };
-        const bl = { x: tl.x, y: tl.y + gs };
-        const br = { x: tl.x + gs, y: tl.y + gs };
-        ctx.rect(tl.x, tl.y, gs, gs);
-        switch (cell.trimCorner) {
-          case 'nw':
-            ctx.moveTo(tr.x, tr.y);
-            ctx.lineTo(br.x, br.y);
-            ctx.lineTo(bl.x, bl.y);
-            break;
-          case 'ne':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(bl.x, bl.y);
-            ctx.lineTo(br.x, br.y);
-            break;
-          case 'sw':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(tr.x, tr.y);
-            ctx.lineTo(br.x, br.y);
-            break;
-          case 'se':
-            ctx.moveTo(tl.x, tl.y);
-            ctx.lineTo(tr.x, tr.y);
-            ctx.lineTo(bl.x, bl.y);
-            break;
+      ctx.rect(tl.x, tl.y, gs, gs);
+      for (const seg of segs) {
+        if (seg.voided) continue;
+        const poly = seg.polygon;
+        if (poly.length < 3) continue;
+        ctx.moveTo(tl.x + poly[0]![0]! * gs, tl.y + poly[0]![1]! * gs);
+        for (let i = 1; i < poly.length; i++) {
+          ctx.lineTo(tl.x + poly[i]![0]! * gs, tl.y + poly[i]![1]! * gs);
         }
         ctx.closePath();
       }

@@ -12,6 +12,15 @@ import {
 } from '../../src/editor/js/api/transforms.js';
 import { setTexture } from '../../src/editor/js/api/textures.js';
 import { markPropSpatialDirty } from '../../src/editor/js/prop-spatial.js';
+import { getSegments } from '../../src/util/index.js';
+
+function cellTexture(cell) {
+  if (!cell) return undefined;
+  for (const seg of getSegments(cell)) {
+    if (seg.texture && !seg.voided) return seg.texture;
+  }
+  return undefined;
+}
 
 function buildRoom(r1: number, c1: number, r2: number, c2: number, label?: string) {
   const cells = state.dungeon.cells;
@@ -152,7 +161,7 @@ describe('replaceTexture', () => {
     setTexture(3, 3, 'polyhaven/cobblestone_floor_03');
     const r = replaceTexture('polyhaven/cobblestone_floor_03', 'polyhaven/wood_floor');
     expect(r.replaced).toBe(1);
-    expect(state.dungeon.cells[3][3]?.texture).toBe('polyhaven/wood_floor');
+    expect(cellTexture(state.dungeon.cells[3][3])).toBe('polyhaven/wood_floor');
   });
 });
 

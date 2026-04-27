@@ -11,10 +11,12 @@ footprint: AxB
 facing: yes|no
 shadow: yes|no
 blocks_light: yes|no
+height: 3                    # required when blocks_light: yes
 placement: wall|corner|center|floor|any
 room_types: comma, separated, room, types
 typical_count: single|few|many
 clusters_with: other-prop, another-prop
+padding: 0.05                # optional — extends valid coordinate range outside footprint
 notes: Free-text placement guidance for Claude
 ---
 # Comment describing visual group
@@ -22,6 +24,8 @@ shape x,y w,h style
 ```
 
 The YAML header is separated from draw commands by `---`. Comments start with `#`.
+
+`padding` (default 0) widens the allowed `x`/`y` range for draw / hitbox / selection commands by N units outside the footprint on all sides. Use it sparingly when a prop's silhouette legitimately bleeds past its anchor cells (e.g. a tree canopy 0.05 wider than the trunk's 1×1 footprint). Most props don't need it.
 
 ### Placement Metadata
 
@@ -583,7 +587,9 @@ lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"cookie":{"type":"sigil","focus
 | `rotationSpeed` | deg/sec | Animate rotation (e.g. summoning sigils). |
 | `scrollSpeedX` / `scrollSpeedY` | per sec | Animate scroll (e.g. canopy dapple, water caustics). |
 
-Cookies work on both point and directional lights. For window props, pair with a directional preset (`daylight`, `sunbeam`) so the projection has a clear direction. Animated cookies (`rotationSpeed` / `scrollSpeed*`) bypass the per-light bake cache, so use them sparingly on prop-heavy maps.
+Cookies work on both point and directional lights. For window props, pair with a directional preset (`daylight`, `sunbeam`) so the projection has a clear direction.
+
+**Performance:** animated cookies (`rotationSpeed` / `scrollSpeed*`) bypass the per-light bake cache and re-rasterize every frame. Use sparingly — one or two on a map is fine, ten will tank framerate on prop-heavy scenes.
 
 **Use cookies for:** floor-level pattern effects (water caustics, tree dapple, magical sigils, stained-glass pool). **Use `gobos:` (below) for:** upright patterned occluders (window mullions, prison bars, lattice walls). Gobos are physically projected by any nearby light the same way prop z-shadows are, so the pattern falls on the far side of the fixture.
 
@@ -607,8 +613,8 @@ gobos: [{"x1":0.20,"y1":0.18,"x2":0.80,"y2":0.18,"zBottom":1,"zTop":4,"gobo":"ve
 | `x1`, `y1`, `x2`, `y2` | number | Segment endpoints in prop-local cell coordinates (0..cols, 0..rows). Defines the gobo's footprint on the prop. |
 | `zBottom` | feet | Gobo base height above the floor. Lights below this height pass underneath and don't project. |
 | `zTop` | feet | Gobo top height. Projection length scales with `zTop / (lz - zTop)` — higher lights cast shorter projections. |
-| `gobo` | string | Id in `src/gobos/manifest.json`. Shipped gobos: `window-mullions`, `vertical-bars`, `horizontal-slats`, `ceiling-grate`. |
-| `density` | number (optional) | Override the gobo catalog's default density (grid divisions / slat bands). Useful when the same pattern fits a small and a large window. |
+| `gobo` | string | Id from `src/gobos/manifest.json` (16 shipped — `window-mullions`, `vertical-bars`, `horizontal-slats`, `ceiling-grate`, plus 12 window-style gobos). See [`src/themes/CLAUDE.md`](../themes/CLAUDE.md) for the full list and the `.gobo` file format. |
+| `density` | number (optional) | Override the gobo catalog's default density (grid divisions / slat bands). |
 | `strength` | 0..1 (optional, default 1) | Pattern opacity. 1 = full multiply mask, 0 = no effect. |
 
 **When to use cookies vs gobos:**
@@ -617,16 +623,9 @@ gobos: [{"x1":0.20,"y1":0.18,"x2":0.80,"y2":0.18,"zBottom":1,"zTop":4,"gobo":"ve
 
 **Gobo props are passive — do not add `lights:`.** A window/grate/lattice doesn't emit light, it modulates incoming light. Drop the prop with only a `gobos:` declaration and let any nearby torch, daylight source, or magical light supply the actual illumination. The shipped `clerestory-window`, `stern-window`, `sun-window`, and `grate-wall` follow this convention — place them and then place a separate light source on whichever side should be the "outside."
 
-**Adding a new gobo:** drop a `.gobo` YAML file into `src/gobos/` with `name`, `description`, `pattern` (`grid`/`slats`/`sigil`/`caustics`/`dapple`/`stained-glass`), `density`, and optionally `orientation: horizontal`. Run `node tools/update-gobo-manifest.js` to regenerate the manifest + bundle.
+**Adding a new gobo:** see [`src/themes/CLAUDE.md`](../themes/CLAUDE.md) for the `.gobo` file format and authoring workflow.
 
-**Available presets** (see `src/lights/manifest.json` for the authoritative list):
-
-| Category | Presets |
-|---|---|
-| Fire & flame | `candle`, `oil-lamp`, `lantern`, `torch`, `wall-sconce`, `campfire`, `fireplace`, `brazier`, `bonfire`, `forge`, `ember` |
-| Magical | `light-cantrip`, `dancing-lights`, `continual-flame`, `faerie-fire`, `moonbeam`, `daylight`, `eldritch-glow`, `divine-radiance`, `infernal-flame`, `necrotic`, `arcane-blue`, `astral`, `silvery`, `faerzress` |
-| Natural | `moonlight`, `starlight`, `bioluminescence`, `lava-glow`, `phosphorescent-fungi`, `sunbeam` |
-| Utility | `dim`, `bright`, `spotlight`, `ambient-glow` |
+**Available presets:** 47 presets across `Fire & Flame`, `Magical`, `Natural`, `Utility` categories. **Authoritative list and full preset catalog: [`src/themes/CLAUDE.md`](../themes/CLAUDE.md).** Or call `listLightPresets()` from the editor API. Don't hardcode preset names from this file — use the runtime catalog.
 
 **Picking the right preset:** the preset controls color, falloff, animation (flicker/pulse), and z-height. Match the preset to the prop concept, then use inline overrides to tune radius/intensity. Quick guide:
 

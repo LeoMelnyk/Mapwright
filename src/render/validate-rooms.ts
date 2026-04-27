@@ -1,5 +1,5 @@
 import { asMultiLevel, type Cell, type CellGrid } from '../types.js';
-import { floodFillRoom as sharedFloodFillRoom, parseCellKey } from '../util/index.js';
+import { traverse, parseCellKey } from '../util/index.js';
 
 /** Parsed room label for sorting. */
 interface ParsedLabel {
@@ -21,7 +21,14 @@ function floodFillRoomLabels(
   isMultiLevel: boolean,
 ) {
   const levelCells = (isMultiLevel ? asMultiLevel(cells)[startLevel] : cells)!;
-  const cellKeys = sharedFloodFillRoom(levelCells as (Cell | null)[][], startRow, startCol);
+  const result = traverse(levelCells as (Cell | null)[][], { row: startRow, col: startCol });
+
+  // Collapse "r,c,segIdx" → unique "r,c" keys.
+  const cellKeys = new Set<string>();
+  for (const k of result.visited) {
+    const parts = k.split(',');
+    cellKeys.add(`${parts[0]},${parts[1]}`);
+  }
 
   const labels = [];
   for (const key of cellKeys) {

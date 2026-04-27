@@ -1,10 +1,19 @@
 // DM session overlays: door overlay and stair overlay (find, hit test, render), openStairs, dumpFogRegion.
 
-import type { CardinalDirection, Cell, RenderTransform } from '../../types.js';
+import type { CardinalDirection, Cell, Direction, RenderTransform } from '../../types.js';
 import { sessionState, send } from './dm-session-state.js';
 import state, { notify } from './state.js';
 import { requestRender, panToLevel } from './canvas-view.js';
-import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, CARDINAL_OFFSETS } from '../../util/index.js';
+import {
+  CARDINAL_DIRS,
+  OPPOSITE,
+  cellKey,
+  parseCellKey,
+  isInBounds,
+  CARDINAL_OFFSETS,
+  cellHasChordEdge,
+  getEdge,
+} from '../../util/index.js';
 import { toCanvas } from './utils.js';
 import { classifyStairShape, getOccupiedCells, stairBoundingBox } from './stair-geometry.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -42,19 +51,15 @@ function findRevealableDoors() {
     if (!cell) continue;
 
     // Cardinal doors (normal, secret, and invisible)
-    for (const dir of ['north', 'south', 'east', 'west']) {
-      if (
-        (cell as Record<string, unknown>)[dir] !== 'd' &&
-        (cell as Record<string, unknown>)[dir] !== 's' &&
-        (cell as Record<string, unknown>)[dir] !== 'id'
-      )
-        continue;
+    for (const dir of ['north', 'south', 'east', 'west'] as CardinalDirection[]) {
+      const edge = getEdge(cell, dir);
+      if (edge !== 'd' && edge !== 's' && edge !== 'id') continue;
 
       const dkey = `${r},${c},${dir}`;
       if (seen.has(dkey)) continue;
 
-      const isSecret = (cell as Record<string, unknown>)[dir] === 's';
-      const isInvisible = (cell as Record<string, unknown>)[dir] === 'id';
+      const isSecret = edge === 's';
+      const isInvisible = edge === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -78,19 +83,15 @@ function findRevealableDoors() {
     }
 
     // Diagonal doors (nw-se, ne-sw)
-    for (const diagDir of ['nw-se', 'ne-sw']) {
-      if (
-        (cell as Record<string, unknown>)[diagDir] !== 'd' &&
-        (cell as Record<string, unknown>)[diagDir] !== 's' &&
-        (cell as Record<string, unknown>)[diagDir] !== 'id'
-      )
-        continue;
+    for (const diagDir of ['nw-se', 'ne-sw'] as Direction[]) {
+      const diagVal = getEdge(cell, diagDir);
+      if (diagVal !== 'd' && diagVal !== 's' && diagVal !== 'id') continue;
 
       const dkey = `${r},${c},${diagDir}`;
       if (seen.has(dkey)) continue;
 
-      const isSecret = (cell as Record<string, unknown>)[diagDir] === 's';
-      const isInvisible = (cell as Record<string, unknown>)[diagDir] === 'id';
+      const isSecret = diagVal === 's';
+      const isInvisible = diagVal === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -571,7 +572,7 @@ export function dumpFogRegion(r1: number, c1: number, r2: number, c2: number): R
         entry.r = r;
         entry.c = c;
         entry.revealed = revealed;
-        entry.type = cell.trimClip ? 'trimArc' : 'floor';
+        entry.type = cellHasChordEdge(cell) ? 'trimArc' : 'floor';
         row.push(entry);
       }
     }

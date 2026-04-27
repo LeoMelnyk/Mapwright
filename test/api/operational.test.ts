@@ -209,11 +209,23 @@ describe('getRoomContents', () => {
     }
     // Add a prop via overlay
     const gs = state.dungeon.metadata.gridSize || 5;
-    state.dungeon.metadata.props = [
-      { id: 1, type: 'pillar', x: 4 * gs, y: 3 * gs, rotation: 0 },
-    ];
+    state.dungeon.metadata.props = [{ id: 1, type: 'pillar', x: 4 * gs, y: 3 * gs, rotation: 0 }];
     // Add a texture to one cell
-    state.dungeon.cells[4][3] = { texture: 'cobblestone', textureOpacity: 0.8 };
+    state.dungeon.cells[4][3] = {
+      segments: [
+        {
+          id: 's0',
+          polygon: [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+          ],
+          texture: 'cobblestone',
+          textureOpacity: 0.8,
+        },
+      ],
+    };
     // Add a door
     state.dungeon.cells[2][3].north = 'd';
 
@@ -360,7 +372,10 @@ describe('getPropFootprint', () => {
 
   it('generates cells relative to anchor at [0,0]', () => {
     const result = getPropFootprint('bed', 0); // 2x1
-    expect(result.cells).toEqual([[0, 0], [1, 0]]);
+    expect(result.cells).toEqual([
+      [0, 0],
+      [1, 0],
+    ]);
   });
 });
 

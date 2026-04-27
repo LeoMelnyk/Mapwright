@@ -410,6 +410,52 @@ describe('placeLightInRoom additional', () => {
     // Light catalog mock provides torch with color '#ff8833'
     expect(light.color).toBe('#ff8833');
   });
+
+  // Regression: bbox center of an L-shaped room can fall in void.
+  // The fix in convenience.ts switches placeLightInRoom from bbox center
+  // to the floor cell closest to the room's true centroid, so the light
+  // always lands on a floor cell.
+  it('places light on a floor cell for an L-shaped room', () => {
+    // Build an L: a 5×5 block at (2..6, 2..6) plus a 5×3 leg sticking right
+    // at rows 4..6, cols 7..9. The bbox center of (2..6, 2..9) is (4, 5) —
+    // a real floor cell — so we need a shape whose bbox center is in void.
+    //
+    // Use a U: floors at rows 2..6 cols 2..3, rows 2..6 cols 6..7, and
+    // rows 6..6 cols 2..7 (the bottom bar). bbox = (2..6, 2..7), bbox
+    // center cell ≈ (4, 4) which sits in the U's hollow (void).
+    const cells = state.dungeon.cells;
+    const floor = (r: number, c: number) => {
+      cells[r][c] = {};
+    };
+    // Left leg
+    for (let r = 2; r <= 6; r++) {
+      floor(r, 2);
+      floor(r, 3);
+    }
+    // Right leg
+    for (let r = 2; r <= 6; r++) {
+      floor(r, 6);
+      floor(r, 7);
+    }
+    // Bottom bar (connects the two legs)
+    for (let c = 4; c <= 5; c++) {
+      floor(6, c);
+    }
+    cells[3][2].center = { label: 'U1' };
+
+    // Sanity: bbox center (4, 4) is void
+    expect(cells[4][4]).toBeNull();
+
+    const result = placeLightInRoom('U1', 'torch');
+    expect(result.success).toBe(true);
+
+    const gs = state.dungeon.metadata.gridSize || 5;
+    const light = state.dungeon.metadata.lights[0];
+    // Convert world coords back to cell indices: x = col * gs + gs/2
+    const lightCol = Math.floor(light.x / gs);
+    const lightRow = Math.floor(light.y / gs);
+    expect(cells[lightRow][lightCol]).not.toBeNull(); // light landed on a floor cell
+  });
 });
 
 // ── setDoorBetween additional ───────────────────────────────────────────────

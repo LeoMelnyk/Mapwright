@@ -6,7 +6,7 @@
 // All methods are read-only (no mutate/pushUndo). Coordinates returned
 // are display coords (after toDisp).
 
-import type { Cell, OverlayProp } from '../../../types.js';
+import type { Cell, Direction, OverlayProp } from '../../../types.js';
 import {
   state,
   getApi,
@@ -18,6 +18,7 @@ import {
   cellKey,
   parseCellKey,
 } from './_shared.js';
+import { getCellPrimaryTexture, getSegments, getEdge, traverse } from '../../../util/index.js';
 import { falloffMultiplier } from '../../../render/index.js';
 import { isPropAt } from '../prop-spatial.js';
 
@@ -81,7 +82,7 @@ function edgeGlyph(value: unknown, axis: 'h' | 'v'): string {
 /** Read a cardinal edge from a possibly-null cell. */
 function edgeOf(cell: Cell | null | undefined, dir: 'north' | 'south' | 'east' | 'west'): unknown {
   if (!cell) return undefined;
-  return (cell as Record<string, unknown>)[dir];
+  return getEdge(cell, dir);
 }
 
 // ─── 1. renderAscii ──────────────────────────────────────────────────────
@@ -265,16 +266,17 @@ export function inspectRegion(
         const v = rec[dir];
         if (v != null) info.walls[dir] = v as string;
       }
-      for (const dir of ['nw-se', 'ne-sw']) {
-        const v = rec[dir];
-        if (v != null) info.walls[dir] = v as string;
+      for (const dir of ['nw-se', 'ne-sw'] as Direction[]) {
+        const v = getEdge(cell, dir);
+        if (v != null) info.walls[dir] = v;
       }
       if (cell.fill) {
         info.fill = cell.fill;
         if (cell.fillDepth != null) info.fillDepth = cell.fillDepth;
       }
       if (cell.hazard) info.hazard = true;
-      if (cell.texture) info.texture = cell.texture;
+      const tex = getCellPrimaryTexture(cell);
+      if (tex) info.texture = tex;
       const anchored = anchors.get(cellKey(r, c));
       if (anchored?.length) {
         // Pick the topmost prop anchored at this cell (max zIndex, then last pushed).
@@ -340,7 +342,7 @@ export function getRoomSummary(
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        const edge = (cell as Record<string, unknown>)[dir];
+        const edge = getEdge(cell, dir as Direction);
         if (edge !== 'd' && edge !== 's' && edge !== 'id') continue;
         const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
@@ -401,7 +403,7 @@ export function getRoomSummary(
 }
 
 function findLabelForCell(row: number, col: number): string | null {
-  const api = getApi() as unknown as { _collectRoomCells: (l: string) => Set<string> | null };
+  const api = getApi();
   const cells = state.dungeon.cells;
   const key = cellKey(row, col);
   // Find any labeled cell that belongs to a flood-fill containing this cell.
@@ -502,9 +504,15 @@ export function queryCells(predicate: CellPredicate = {}): {
       if (predicate.hasLabel === false && cell.center?.label != null) continue;
       if (predicate.label != null && cell.center?.label !== predicate.label) continue;
 
-      if (predicate.hasTexture === true && !cell.texture) continue;
-      if (predicate.hasTexture === false && cell.texture) continue;
-      if (predicate.texture != null && cell.texture !== predicate.texture) continue;
+      // Route through segments so cells whose only texture is on a secondary
+      // segment (diagonals, trim arcs) match the predicate correctly.
+      const segTextures = getSegments(cell)
+        .map((s) => s.texture)
+        .filter((t): t is string => t !== undefined);
+      const hasAnyTexture = segTextures.length > 0;
+      if (predicate.hasTexture === true && !hasAnyTexture) continue;
+      if (predicate.hasTexture === false && hasAnyTexture) continue;
+      if (predicate.texture != null && !segTextures.includes(predicate.texture)) continue;
 
       if (predicate.hasHazard === true && !cell.hazard) continue;
       if (predicate.hasHazard === false && cell.hazard) continue;
@@ -663,10 +671,7 @@ export function getPropPlacementOptions(
   const [spanRows, spanCols] =
     facing === 90 || facing === 270 ? [def.footprint[1], def.footprint[0]] : [...def.footprint];
 
-  const api = getApi() as unknown as {
-    _collectRoomCells(l: string): Set<string> | null;
-    _isCellCoveredByProp(r: number, c: number): boolean;
-  };
+  const api = getApi();
   const roomCells = api._collectRoomCells(label);
   if (!roomCells) return { success: false, error: `Room "${label}" not found` };
 
@@ -904,46 +909,46 @@ export function unlabelledRooms(): {
   rooms: Array<{ representativeCell: { row: number; col: number }; cellCount: number }>;
 } {
   const cells = state.dungeon.cells;
+  // Segment-level visited set so split cells (trim arc, diagonal) seed each
+  // half independently — collapsing to cell-keys masked the second segment
+  // when it belonged to a separate region.
   const visited = new Set<string>();
   const rooms: Array<{ representativeCell: { row: number; col: number }; cellCount: number }> = [];
 
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
-      if (!cells[r]?.[c]) continue;
-      const key = cellKey(r, c);
-      if (visited.has(key)) continue;
+      const cell = cells[r]?.[c];
+      if (!cell) continue;
+      const segs = getSegments(cell);
+      for (let si = 0; si < segs.length; si++) {
+        if (segs[si]?.voided) continue;
+        const segKey = `${r},${c},${si}`;
+        if (visited.has(segKey)) continue;
 
-      // BFS across open edges to find a connected region
-      const region: Array<[number, number]> = [];
-      const queue: Array<[number, number]> = [[r, c]];
-      visited.add(key);
-      let hasLabel = false;
-      while (queue.length) {
-        const [cr, cc] = queue.shift()!;
-        region.push([cr, cc]);
-        const cell = cells[cr]?.[cc];
-        if (cell?.center?.label != null) hasLabel = true;
-        if (!cell) continue;
-        const rec = cell as Record<string, unknown>;
-        for (const dir of CARDINAL_DIRS) {
-          const edge = rec[dir];
-          if (edge === 'w' || edge === 'iw') continue;
-          const [dr, dc] = OFFSETS[dir]!;
-          const nr = cr + dr,
-            nc = cc + dc;
-          const nkey = cellKey(nr, nc);
-          if (visited.has(nkey)) continue;
-          if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[nr]?.length ?? 0)) continue;
-          if (!cells[nr]?.[nc]) continue;
-          visited.add(nkey);
-          queue.push([nr, nc]);
+        // Walk the connected region through open edges (doors/windows passable;
+        // walls and invisible walls block). Collapse segment hits back to cells.
+        const result = traverse(
+          cells,
+          { row: r, col: c, segmentIndex: si },
+          { doorsBlock: false, windowsBlock: false, voidedSegmentsBlock: false },
+        );
+        const regionCells = new Set<string>();
+        let hasLabel = false;
+        for (const visitedKey of result.visited) {
+          visited.add(visitedKey);
+          const [rs, cs] = visitedKey.split(',');
+          const ck = `${rs},${cs}`;
+          if (regionCells.has(ck)) continue;
+          regionCells.add(ck);
+          const cellAt = cells[Number(rs)]?.[Number(cs)];
+          if (cellAt?.center?.label != null) hasLabel = true;
         }
-      }
-      if (!hasLabel && region.length >= 2) {
-        rooms.push({
-          representativeCell: { row: toDisp(region[0]![0]), col: toDisp(region[0]![1]) },
-          cellCount: region.length,
-        });
+        if (!hasLabel && regionCells.size >= 2) {
+          rooms.push({
+            representativeCell: { row: toDisp(r), col: toDisp(c) },
+            cellCount: regionCells.size,
+          });
+        }
       }
     }
   }
@@ -958,7 +963,7 @@ export function getThemeColors(): {
 } {
   const meta = state.dungeon.metadata;
   const themeRef = meta.theme;
-  const api = getApi() as unknown as { getMapInfo(): { theme?: string } | null };
+  const api = getApi();
   const info = api.getMapInfo();
   const themeName = typeof themeRef === 'string' ? themeRef : (info?.theme ?? 'custom');
   const obj = typeof themeRef === 'string' ? null : themeRef;
@@ -1005,11 +1010,7 @@ export function findConflicts(
   conflictCount: number;
   conflicts: Conflict[];
 } {
-  const api = getApi() as unknown as {
-    validateDoorClearance(): { issues: Array<{ row: number; col: number; problem: string; doorType: string }> };
-    validateConnectivity(label: string): { unreachable: string[] };
-    listRooms(): { rooms: Array<{ label: string; r1: number; c1: number; r2: number; c2: number }> };
-  };
+  const api = getApi();
   const cells = state.dungeon.cells;
   const meta = state.dungeon.metadata;
   const conflicts: Conflict[] = [];
@@ -1150,10 +1151,7 @@ function propIndexGlyph(n: number): string {
 }
 
 function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null {
-  const api = getApi() as unknown as {
-    getRoomBounds: (l: string) => { success: boolean; r1: number; c1: number; r2: number; c2: number };
-    _collectRoomCells: (l: string) => Set<string> | null;
-  };
+  const api = getApi();
   const boundsR = api.getRoomBounds(label);
   if (!boundsR.success) return null;
   const r1 = boundsR.r1,
@@ -1241,7 +1239,7 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of CARDINAL_DIRS) {
-      const v = (cell as Record<string, unknown>)[dir];
+      const v = getEdge(cell, dir as Direction);
       if (v === 'd' || v === 's' || v === 'id') {
         const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
@@ -1267,12 +1265,16 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
   }
   const fills = [...fillCount.entries()].map(([type, cellCount]) => ({ type, cellCount }));
 
-  // Textures used in room
+  // Textures used in room — collect from every segment of every room cell
+  // so secondary textures on diagonal/trim cells are counted too.
   const textureSet = new Set<string>();
   for (const key of roomCells) {
     const [r, c] = parseCellKey(key);
     const cell = cells[r]?.[c];
-    if (cell?.texture) textureSet.add(cell.texture);
+    if (!cell) continue;
+    for (const seg of getSegments(cell)) {
+      if (seg.texture) textureSet.add(seg.texture);
+    }
   }
 
   // Lights inside the room bbox

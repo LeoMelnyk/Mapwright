@@ -2,12 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import state from '../../src/editor/js/state.js';
 import { createEmptyDungeon } from '../../src/editor/js/utils.js';
 
-import {
-  setWall,
-  removeWall,
-  setDoor,
-  removeDoor,
-} from '../../src/editor/js/api/walls-doors.js';
+import { setWall, removeWall, setDoor, removeDoor } from '../../src/editor/js/api/walls-doors.js';
+import { getEdge } from '../../src/util/grid.js';
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -75,13 +71,13 @@ describe('setWall', () => {
   it('supports diagonal nw-se (no reciprocal expected)', () => {
     const result = setWall(5, 5, 'nw-se');
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5]['nw-se']).toBe('w');
+    expect(getEdge(state.dungeon.cells[5][5], 'nw-se')).toBe('w');
   });
 
   it('supports diagonal ne-sw (no reciprocal expected)', () => {
     const result = setWall(5, 5, 'ne-sw');
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5]['ne-sw']).toBe('w');
+    expect(getEdge(state.dungeon.cells[5][5], 'ne-sw')).toBe('w');
   });
 
   it('pushes undo when placing a wall', () => {
@@ -165,9 +161,12 @@ describe('removeWall', () => {
   });
 
   it('supports diagonal removal', () => {
-    state.dungeon.cells[5][5] = { 'nw-se': 'w' };
+    // Set up a cell with an nw-se diagonal wall via the API so the cell
+    // ends up in segment shape (the same path setWall uses).
+    setWall(5, 5, 'nw-se');
+    expect(getEdge(state.dungeon.cells[5][5], 'nw-se')).toBe('w');
     removeWall(5, 5, 'nw-se');
-    expect(state.dungeon.cells[5][5]['nw-se']).toBeUndefined();
+    expect(getEdge(state.dungeon.cells[5][5], 'nw-se')).toBeUndefined();
   });
 
   it('throws for invalid direction', () => {

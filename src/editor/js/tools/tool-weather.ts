@@ -9,10 +9,10 @@
 //   - Shift + left click:       flood-fill assign (whole connected half-region).
 //   - Shift + right click:      flood-fill unassign (whole connected half-region).
 //
-// Split cells (diagonal walls, trims) carry per-half weather assignments. A
-// shift-click reads the click's position inside the clicked cell and seeds
-// the flood from the half that was hit — so flood fills respect diagonals
-// and arc boundaries like `floodFillRoom` already does.
+// Split cells (diagonal walls, trims) carry per-segment weather assignments.
+// A shift-click reads the click's position inside the clicked cell and seeds
+// the flood from the segment that was hit — so flood fills respect interior
+// edges (diagonal walls, arc chords) via `traverse()`.
 //
 // Marquee drags are a bulk tool: they fill every half of every cell in the
 // rect. Precision per-half assignment is done via flood fill.
@@ -23,12 +23,14 @@ import state, { mutate } from '../state.js';
 import { requestRender, getTransform } from '../canvas-view.js';
 import { WEATHER_PALETTE } from '../panels/weather.js';
 import {
-  floodFillRoom,
+  traverse,
   getCellHalves,
   getCellWeatherHalf,
+  getSegments,
+  halfKeyToSegmentIndex,
   hitTestHalf,
-  parseCellHalfKey,
   setCellWeatherHalf,
+  spliceSegments,
 } from '../../../util/index.js';
 import { markWeatherCellDirty } from '../../../render/index.js';
 import { fromCanvas } from '../utils.js';
@@ -75,7 +77,7 @@ export class WeatherTool extends Tool {
       if (cell) {
         const halfKey = resolveClickedHalf(cell, row, col, pos);
         if (button === 0) floodFillAssignHalf(row, col, halfKey, groupId);
-        else floodFillUnassignHalf(row, col, halfKey);
+        else floodFillUnassignHalf(row, col, halfKey, groupId);
       }
       requestRender();
       return;
@@ -201,12 +203,7 @@ function assignSingleHalf(row: number, col: number, halfKey: CellHalfKey, groupI
   if (!cell) return;
   if (getCellWeatherHalf(cell, halfKey) === groupId) return;
   const coords = [{ row, col }];
-  mutate(
-    'Assign weather half',
-    coords,
-    () => setCellWeatherHalf(cell, halfKey, groupId),
-    { topic: 'cells' },
-  );
+  mutate('Assign weather half', coords, () => setCellWeatherHalf(cell, halfKey, groupId), { topic: 'cells' });
   markWeatherCellDirty(row, col);
 }
 
@@ -217,12 +214,7 @@ function unassignSingleHalf(row: number, col: number, halfKey: CellHalfKey): voi
   if (!cell) return;
   if (getCellWeatherHalf(cell, halfKey) === undefined) return;
   const coords = [{ row, col }];
-  mutate(
-    'Unassign weather half',
-    coords,
-    () => setCellWeatherHalf(cell, halfKey, null),
-    { topic: 'cells' },
-  );
+  mutate('Unassign weather half', coords, () => setCellWeatherHalf(cell, halfKey, null), { topic: 'cells' });
   markWeatherCellDirty(row, col);
 }
 
@@ -246,7 +238,6 @@ function assignRect(r1: number, c1: number, r2: number, c2: number, groupId: str
       const cell = row[c];
       if (!cell) continue;
       // Skip when every half is already this group.
-      if (cell.weatherGroupId === groupId && !cell.weatherHalves) continue;
       const halves = getCellHalves(cell);
       const allAssigned = halves.every((h) => getCellWeatherHalf(cell, h) === groupId);
       if (allAssigned) continue;
@@ -286,7 +277,10 @@ function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
     for (let c = colMin; c <= colMax; c++) {
       const cell = row[c];
       if (!cell) continue;
-      if (!cell.weatherGroupId && !cell.weatherHalves) continue;
+      // Skip when no half on this cell carries any weather assignment.
+      const halves = getCellHalves(cell);
+      const hasAny = halves.some((h) => getCellWeatherHalf(cell, h) !== undefined);
+      if (!hasAny) continue;
       coords.push({ row: r, col: c });
       touched.push(cell);
     }
@@ -306,92 +300,92 @@ function unassignRect(r1: number, c1: number, r2: number, c2: number): void {
 }
 
 /**
- * Flood fill from (row, col, halfKey) to every connected half-region,
- * assigning each to `groupId`. Diagonal walls, arc walls, and trim
- * boundaries confine the flood to one side — `floodFillRoom`'s half-aware
- * mode handles the adjacency.
+ * Flood fill from (row, col, halfKey) to every connected segment, writing
+ * `groupId` directly to each visited segment. Diagonal walls and arc chords
+ * confine the flood to one side — `traverse()` walks segments so adjacency
+ * naturally respects interior-edge walls. No halfKey round-trip; the BFS
+ * already gives us the exact segment indices to write.
  */
-function floodFillAssignHalf(
-  startRow: number,
-  startCol: number,
-  halfKey: CellHalfKey,
-  groupId: string,
-): void {
-  const cells = state.dungeon.cells;
-  const room = floodFillRoom(cells, startRow, startCol, {
-    returnHalves: true,
-    startHalfKey: halfKey,
-  });
-  // Group writes by cell (multiple halves of the same cell share one mutate entry).
-  const writesByCell = new Map<string, { row: number; col: number; halves: CellHalfKey[] }>();
-  for (const key of room) {
-    const { row: r, col: c, halfKey: hk } = parseCellHalfKey(key);
-    const cell = cells[r]?.[c];
-    if (!cell) continue;
-    if (getCellWeatherHalf(cell, hk) === groupId) continue;
-    const k = `${r},${c}`;
-    let entry = writesByCell.get(k);
-    if (!entry) {
-      entry = { row: r, col: c, halves: [] };
-      writesByCell.set(k, entry);
-    }
-    entry.halves.push(hk);
-  }
-  if (writesByCell.size === 0) return;
-  const coords = Array.from(writesByCell.values()).map(({ row, col }) => ({ row, col }));
-  mutate(
-    'Flood-fill weather',
-    coords,
-    () => {
-      for (const entry of writesByCell.values()) {
-        const cell = cells[entry.row]?.[entry.col];
-        if (!cell) continue;
-        for (const hk of entry.halves) setCellWeatherHalf(cell, hk, groupId);
-      }
-    },
-    { topic: 'cells' },
-  );
-  for (const { row, col } of coords) markWeatherCellDirty(row, col);
+function floodFillAssignHalf(startRow: number, startCol: number, halfKey: CellHalfKey, groupId: string): void {
+  applySegmentFlood(startRow, startCol, halfKey, groupId, 'Flood-fill weather');
 }
 
 /**
- * Flood unassign from (row, col, halfKey). Every connected half-region loses
- * its weather assignment.
+ * Flood unassign from (row, col, halfKey). Only segments belonging to the
+ * currently selected `groupId` are visited — the flood stops at borders to
+ * other groups so we never clear weather we didn't own.
  */
-function floodFillUnassignHalf(startRow: number, startCol: number, halfKey: CellHalfKey): void {
+function floodFillUnassignHalf(startRow: number, startCol: number, halfKey: CellHalfKey, groupId: string): void {
+  applySegmentFlood(startRow, startCol, halfKey, null, 'Flood-clear weather', groupId);
+}
+
+/**
+ * Shared backbone for flood assign / unassign. Walks `traverse()` from the
+ * clicked segment, then writes `groupId` (or clears if null) on every visited
+ * segment via `spliceSegments` directly — no halfKey round-trip.
+ *
+ * `requireGroupId` (when set) constrains the flood to segments whose existing
+ * `weatherGroupId` matches — used by unassign so it cannot reach into and
+ * clear cells belonging to other groups.
+ */
+function applySegmentFlood(
+  startRow: number,
+  startCol: number,
+  startHalfKey: CellHalfKey,
+  groupId: string | null,
+  undoLabel: string,
+  requireGroupId?: string,
+): void {
   const cells = state.dungeon.cells;
-  const room = floodFillRoom(cells, startRow, startCol, {
-    returnHalves: true,
-    startHalfKey: halfKey,
-  });
-  const writesByCell = new Map<string, { row: number; col: number; halves: CellHalfKey[] }>();
-  for (const key of room) {
-    const { row: r, col: c, halfKey: hk } = parseCellHalfKey(key);
+  const startCell = cells[startRow]?.[startCol];
+  if (!startCell) return;
+  const startSegmentIndex = halfKeyToSegmentIndex(startCell, startHalfKey);
+  if (requireGroupId !== undefined) {
+    const startSeg = getSegments(startCell)[startSegmentIndex];
+    if (startSeg?.weatherGroupId !== requireGroupId) return;
+  }
+  const traverseResult = traverse(
+    cells,
+    { row: startRow, col: startCol, segmentIndex: startSegmentIndex },
+    requireGroupId !== undefined ? { acceptNeighbor: (ctx) => ctx.segment.weatherGroupId === requireGroupId } : {},
+  );
+
+  // Group visited segments by cell. Skip segments already at the target value.
+  const writesByCell = new Map<string, { row: number; col: number; segIndices: number[] }>();
+  for (const visited of traverseResult.visited) {
+    const parts = visited.split(',');
+    const r = Number(parts[0]);
+    const c = Number(parts[1]);
+    const segIdx = Number(parts[2]);
     const cell = cells[r]?.[c];
     if (!cell) continue;
-    if (getCellWeatherHalf(cell, hk) === undefined) continue;
+    const seg = getSegments(cell)[segIdx];
+    if (!seg) continue;
+    if (seg.weatherGroupId === (groupId ?? undefined)) continue;
     const k = `${r},${c}`;
     let entry = writesByCell.get(k);
     if (!entry) {
-      entry = { row: r, col: c, halves: [] };
+      entry = { row: r, col: c, segIndices: [] };
       writesByCell.set(k, entry);
     }
-    entry.halves.push(hk);
+    entry.segIndices.push(segIdx);
   }
   if (writesByCell.size === 0) return;
+
   const coords = Array.from(writesByCell.values()).map(({ row, col }) => ({ row, col }));
   mutate(
-    'Flood-clear weather',
+    undoLabel,
     coords,
     () => {
       for (const entry of writesByCell.values()) {
         const cell = cells[entry.row]?.[entry.col];
         if (!cell) continue;
-        for (const hk of entry.halves) setCellWeatherHalf(cell, hk, null);
+        for (const segIdx of entry.segIndices) {
+          spliceSegments(cell, { kind: 'setSegmentWeatherGroup', segmentIndex: segIdx, weatherGroupId: groupId });
+        }
       }
     },
     { topic: 'cells' },
   );
   for (const { row, col } of coords) markWeatherCellDirty(row, col);
 }
-

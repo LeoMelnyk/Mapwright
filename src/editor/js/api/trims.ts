@@ -1,7 +1,16 @@
-import type { CardinalDirection, Cell, CreateTrimOptions, Direction } from '../../../types.js';
+import type { CardinalDirection, Cell, CreateTrimOptions, Direction, InteriorEdge, Segment } from '../../../types.js';
 import type { TrimCorner } from '../../../util/trim-geometry.js';
 import { getApi, CARDINAL_DIRS, OFFSETS, OPPOSITE, state, mutate, trimTool, validateBounds, toInt } from './_shared.js';
-import { computeTrimCells, getEdge, deleteEdge } from '../../../util/index.js';
+import {
+  computeTrimCells,
+  diagonalSegments,
+  getEdge,
+  deleteEdge,
+  getSegments,
+  primaryTextureSegmentIndex,
+  spliceSegments,
+  trimSegments,
+} from '../../../util/index.js';
 
 // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
@@ -44,6 +53,7 @@ export function createTrim(
   const round = !!options.round;
   const inverted = !!options.inverted;
   const open = !!options.open;
+  const invisible = !!options.invisible;
 
   // Resolve corner from drag direction if auto
   let resolvedCorner: string;
@@ -99,7 +109,9 @@ export function createTrim(
     'createTrim',
     trimCoords,
     () => {
-      // Helper: clear all walls and reciprocals from a cell
+      // Helper: clear all walls (cardinal + interior partition) from a cell.
+      // Trim placement claims the cell shape — any pre-existing diagonal/arc
+      // partition must be wiped before the new partition is written.
       const clearWalls = (cell: Cell, r: number, c: number) => {
         for (const dir of CARDINAL_DIRS) {
           if (getEdge(cell, dir as Direction)) {
@@ -109,75 +121,128 @@ export function createTrim(
             if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
           }
         }
-        deleteEdge(cell, 'nw-se');
-        deleteEdge(cell, 'ne-sw');
+        delete cell.segments;
+        delete cell.interiorEdges;
       };
 
-      const clearOldTrimFlags = (cell: Cell) => {
-        delete cell.trimRound;
-        delete cell.trimArcCenterRow;
-        delete cell.trimArcCenterCol;
-        delete cell.trimArcRadius;
-        delete cell.trimArcInverted;
-        delete cell.trimInsideArc;
-        delete cell.trimCorner;
-        delete cell.trimOpen;
-        delete cell.trimInverted;
-        delete cell.trimClip;
-        delete cell.trimWall;
-        delete cell.trimPassable;
-        delete cell.trimCrossing;
+      // Helper: clear walls on the NEIGHBORS of a cell that's about to be
+      // voided (set to null). Without this, neighbors keep reciprocal walls
+      // pointing into the void, leaving stray wall segments visible inside
+      // the trimmed corner.
+      const clearNeighborWalls = (r: number, c: number) => {
+        for (const dir of CARDINAL_DIRS) {
+          const [dr, dc] = OFFSETS[dir]!;
+          const neighbor = cells[r + dr]?.[c + dc];
+          if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
+        }
+      };
+
+      const cornerDiag = (cor: string): 'nw-se' | 'ne-sw' => (cor === 'nw' || cor === 'se' ? 'ne-sw' : 'nw-se');
+
+      // Snapshot the cell's primary texture/opacity before partitioning so
+      // the room half (interior arc segment / NE diagonal segment) inherits
+      // it after the partition lands. Without this, trim placement wipes
+      // existing floor textures.
+      const snapshotPrimaryTexture = (cell: Cell): { texture?: string; opacity?: number } => {
+        const segs = getSegments(cell);
+        const idx = primaryTextureSegmentIndex(cell);
+        const seg = segs[idx];
+        return { texture: seg?.texture, opacity: seg?.textureOpacity };
+      };
+
+      // Apply a partition (segments + one interior edge) to a cell via
+      // spliceSegments. Always passes deep-cloned arrays so `replacePartition`'s
+      // invariant assertions don't share references with the factory output.
+      // `preservedTexture` is written onto the new primary segment afterwards.
+      const writePartition = (
+        cell: Cell,
+        segments: [Segment, Segment],
+        interiorEdge: InteriorEdge,
+        preservedTexture: { texture?: string; opacity?: number } = {},
+      ) => {
+        spliceSegments(cell, {
+          kind: 'replacePartition',
+          segments: segments.map((s) => ({
+            ...s,
+            polygon: s.polygon.map((p) => [p[0]!, p[1]!]),
+          })),
+          interiorEdges: [
+            {
+              vertices: interiorEdge.vertices.map((v) => [v[0]!, v[1]!]),
+              wall: interiorEdge.wall,
+              between: [interiorEdge.between[0], interiorEdge.between[1]],
+            },
+          ],
+        });
+        if (preservedTexture.texture !== undefined) {
+          spliceSegments(cell, {
+            kind: 'setSegmentTexture',
+            segmentIndex: primaryTextureSegmentIndex(cell),
+            texture: preservedTexture.texture,
+            textureOpacity: preservedTexture.opacity,
+          });
+        }
       };
 
       if (round) {
-        // ── Round trim: per-cell data from computeTrimCells ──
+        // ── Round trim: per-cell trimClip from computeTrimCells, fed to
+        // trimSegments() to produce the canonical (interior, exterior)
+        // partition. The chord polyline (`interiorEdge.vertices`) fully
+        // describes the curve; downstream renderers stroke it directly via
+        // `isChordEdge`.
         const trimData = computeTrimCells(preview, resolvedCorner as TrimCorner, inverted, open);
         const numRows = cells.length;
         const numCols = cells[0]?.length ?? 0;
 
-        // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
-        const trimZone = new Set([
-          ...preview.voided.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-          ...preview.hypotenuse.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-          ...(preview.insideArc ?? []).map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-        ]);
-
         for (const [key, val] of trimData) {
           const [r, c] = key.split(',').map(Number) as [number, number];
           if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
-          const inZone = trimZone.has(key);
 
           if (val === null) {
+            clearNeighborWalls(r, c);
             cells[r]![c] = null;
-          } else if (val === 'interior') {
-            if (inZone) {
-              cells[r]![c] ??= {};
-              const cell = cells[r]![c];
-              clearWalls(cell, r, c);
-              clearOldTrimFlags(cell);
+            continue;
+          }
+
+          cells[r]![c] ??= {};
+          const cell = cells[r]![c];
+          const preserved = snapshotPrimaryTexture(cell);
+          clearWalls(cell, r, c);
+
+          if (val === 'interior') {
+            // Plain floor — no partition needed; the cell stays unsplit.
+            // Restore the primary texture onto the (now unsplit) full segment.
+            if (preserved.texture !== undefined) {
+              spliceSegments(cell, {
+                kind: 'setSegmentTexture',
+                segmentIndex: 0,
+                texture: preserved.texture,
+                textureOpacity: preserved.opacity,
+              });
             }
-          } else if ((val as unknown as string) === 'diagonal') {
-            // Inverted hypotenuse: straight diagonal wall (like straight trims)
-            cells[r]![c] ??= {};
-            const cell = cells[r]![c];
-            if (inZone) clearWalls(cell, r, c);
-            clearOldTrimFlags(cell);
-            cell.trimCorner = resolvedCorner;
-            if (resolvedCorner === 'nw' || resolvedCorner === 'se') cell['ne-sw'] = 'w';
-            else cell['nw-se'] = 'w';
-            if (open) cell.trimOpen = true;
-          } else {
-            cells[r]![c] ??= {};
-            const cell = cells[r]![c];
-            if (inZone) clearWalls(cell, r, c);
-            clearOldTrimFlags(cell);
-            Object.assign(cell, val);
+            continue;
+          }
+
+          // Arc boundary cell.
+          const { segments, interiorEdge } = trimSegments(val.trimClip, !!val.trimOpen, invisible);
+          writePartition(cell, segments, interiorEdge, preserved);
+          // Closed trim: void the exterior segment (the chord-cut piece on
+          // the corner side). The chord wall is 'w' or 'iw' (per `invisible`)
+          // from trimSegments when openExterior=false, so connectivity is
+          // correct; this just hides the floor on the outside half.
+          if (!val.trimOpen) {
+            spliceSegments(cell, {
+              kind: 'setSegmentVoided',
+              segmentIndex: 1,
+              voided: true,
+            });
           }
         }
       } else {
-        // ── Straight trim: original logic (unchanged) ──
+        // ── Straight (non-round) trim ──
         if (!open) {
           for (const { row, col } of preview.voided) {
+            clearNeighborWalls(row, col);
             cells[row]![col] = null;
           }
         } else {
@@ -185,24 +250,46 @@ export function createTrim(
             const cell = cells[r]?.[c];
             if (!cell) continue;
             clearWalls(cell, r, c);
-            clearOldTrimFlags(cell);
           }
         }
 
+        const diag = cornerDiag(resolvedCorner);
+        // Map the trimmed corner to the segment indices (room vs cut) of
+        // the resulting diagonal partition. `diagonalSegments` orders:
+        //   nw-se: s0=SW, s1=NE
+        //   ne-sw: s0=SE, s1=NW
+        // For an NW or NE corner trim the cut triangle is s1; for SW/SE it
+        // is s0. The opposite index is the room half that should keep the
+        // floor texture.
+        const cutIdx = resolvedCorner === 'nw' || resolvedCorner === 'ne' ? 1 : 0;
+        const roomIdx = 1 - cutIdx;
         for (const { row: r, col: c } of preview.hypotenuse) {
           cells[r]![c] ??= {};
           const cell = cells[r]![c];
-          cell.trimCorner = resolvedCorner;
+          const preserved = snapshotPrimaryTexture(cell);
           clearWalls(cell, r, c);
-
-          if (resolvedCorner === 'nw' || resolvedCorner === 'se') {
-            cell['ne-sw'] = 'w';
-          } else {
-            cell['nw-se'] = 'w';
+          const { segments, interiorEdge } = diagonalSegments(diag);
+          interiorEdge.wall = open ? null : invisible ? 'iw' : 'w';
+          // No preservedTexture passed — we write it ourselves below to the
+          // corner-aware room segment, since `primaryTextureSegmentIndex` for
+          // diagonals always returns 1 (correct for SW/SE corners but the
+          // void side for NW/NE).
+          writePartition(cell, segments, interiorEdge);
+          if (preserved.texture !== undefined) {
+            spliceSegments(cell, {
+              kind: 'setSegmentTexture',
+              segmentIndex: roomIdx,
+              texture: preserved.texture,
+              textureOpacity: preserved.opacity,
+            });
           }
-
-          if (open) cell.trimOpen = true;
-          else delete cell.trimOpen;
+          if (!open) {
+            spliceSegments(cell, {
+              kind: 'setSegmentVoided',
+              segmentIndex: cutIdx,
+              voided: true,
+            });
+          }
         }
       }
     },

@@ -1,7 +1,7 @@
 // convenience.js — High-level convenience methods: mergeRooms, shiftCells,
 // normalizeMargin, createCorridor, setDoorBetween, placeLightInRoom.
 
-import type { PlaceLightConfig } from '../../../types.js';
+import type { CardinalDirection, PlaceLightConfig } from '../../../types.js';
 import {
   getApi,
   state,
@@ -13,6 +13,7 @@ import {
   toInt,
   withRollback,
   ApiValidationError,
+  deleteEdge,
 } from './_shared.js';
 
 // ── Convenience ───────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
           iCol = toInt(col);
         const cell = state.dungeon.cells[iRow]?.[iCol];
         if (!cell) continue;
-        delete (cell as Record<string, unknown>)[direction];
+        deleteEdge(cell, direction as CardinalDirection);
         setReciprocal(iRow, iCol, direction, null);
       }
     },
@@ -445,15 +446,37 @@ export function placeLightInRoom(
   preset?: string,
   config: PlaceLightConfig = {},
 ): Record<string, unknown> {
-  const bResult = getApi().getRoomBounds(label);
-  if (!bResult.success) return { success: false, error: `Room "${label}" not found` };
-  const b = bResult;
+  // Use the centroid of the room's actual floor cells, not the bbox center —
+  // L/U/+ shaped rooms have bbox centers that fall in void.
+  const cellsResult = getApi().listRoomCells(label);
+  if (!cellsResult.success || !cellsResult.cells?.length) {
+    return { success: false, error: cellsResult.error ?? `Room "${label}" not found` };
+  }
+  const roomCells = cellsResult.cells;
+  let sumR = 0,
+    sumC = 0;
+  for (const [r, c] of roomCells) {
+    sumR += r;
+    sumC += c;
+  }
+  const cR = sumR / roomCells.length;
+  const cC = sumC / roomCells.length;
+  let bestRow = roomCells[0]![0];
+  let bestCol = roomCells[0]![1];
+  let bestDist = Infinity;
+  for (const [r, c] of roomCells) {
+    const d = (r - cR) ** 2 + (c - cC) ** 2;
+    if (d < bestDist) {
+      bestDist = d;
+      bestRow = r;
+      bestCol = c;
+    }
+  }
   const meta = state.dungeon.metadata;
   const gs = meta.gridSize || 5;
   const res = meta.resolution || 1;
-  const dgs = gs * res; // display grid size in feet
-  // b.centerCol/Row are display coords — multiply by display gridSize for world-feet
-  const x = b.centerCol * dgs + dgs / 2;
-  const y = b.centerRow * dgs + dgs / 2;
+  const dgs = gs * res;
+  const x = bestCol * dgs + dgs / 2;
+  const y = bestRow * dgs + dgs / 2;
   return getApi().placeLight(x, y, preset ? { preset, ...config } : config);
 }

@@ -1,4 +1,4 @@
-import type { Cell, RenderTransform } from '../../../types.js';
+import type { CardinalDirection, Cell, InteriorEdge, RenderTransform, Segment } from '../../../types.js';
 // Trim tool: click+drag to create multi-cell diagonal trims
 //
 // Drag direction auto-detects the corner (default "auto" mode):
@@ -14,7 +14,20 @@ import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { mutate } from '../state.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
-import { computeTrimCells, CARDINAL_OFFSETS, type TrimCorner, type TrimPreview } from '../../../util/index.js';
+import {
+  computeTrimCells,
+  CARDINAL_OFFSETS,
+  OPPOSITE,
+  diagonalSegments,
+  trimSegments,
+  spliceSegments,
+  getEdge,
+  deleteEdge,
+  getSegments,
+  primaryTextureSegmentIndex,
+  type TrimCorner,
+  type TrimPreview,
+} from '../../../util/index.js';
 
 /**
  * Trim tool: click+drag to create multi-cell diagonal or arc trims on room corners.
@@ -113,99 +126,169 @@ export class TrimTool extends Tool {
 
     const cells = state.dungeon.cells;
 
-    // All cells that will be mutated
-    const allCoords = [...preview.voided, ...preview.hypotenuse, ...(preview.insideArc ?? [])];
-
     const corner = this.resolvedCorner;
     const isRound = state.trimRound;
     const isInverted = state.trimInverted;
 
-    const reciprocals = { north: 'south', south: 'north', east: 'west', west: 'east' };
-    const offsets = CARDINAL_OFFSETS;
-    const allDirs = ['north', 'south', 'east', 'west'];
+    // For round trims, computeTrimCells scans an arc bounding box that extends
+    // beyond `voided`/`hypotenuse`/`insideArc` (especially for inverted trims,
+    // where the arc curves into the room and hits cells far from the corner
+    // triangle). Compute it up front so its key set drives the undo snapshot —
+    // otherwise undo leaves voided segments and chord walls behind on cells
+    // that were never captured.
+    const trimData = isRound ? computeTrimCells(preview, corner!, isInverted, state.trimOpen) : null;
 
-    // Helper: clear all cardinal/diagonal walls and their reciprocals
+    const allCoords: { row: number; col: number }[] = trimData
+      ? [...trimData.keys()].map((k) => {
+          const [r, c] = k.split(',').map(Number) as [number, number];
+          return { row: r, col: c };
+        })
+      : [...preview.voided, ...preview.hypotenuse, ...(preview.insideArc ?? [])];
+
+    const allDirs: CardinalDirection[] = ['north', 'south', 'east', 'west'];
+
+    // Helper: clear all cardinal walls + any prior interior partition.
+    // Trim placement always claims the cell shape, so any pre-existing
+    // diagonal/arc partition must be wiped before we re-partition.
     const clearWalls = (cell: Cell, r: number, c: number) => {
       for (const dir of allDirs) {
-        if ((cell as Record<string, unknown>)[dir]) {
-          delete (cell as Record<string, unknown>)[dir];
-          const [dr, dc] = (offsets as unknown as Record<string, [number, number]>)[dir]!;
+        if (getEdge(cell, dir)) {
+          deleteEdge(cell, dir);
+          const [dr, dc] = CARDINAL_OFFSETS[dir];
           const neighbor = cells[r + dr]?.[c + dc];
-          if (neighbor) delete (neighbor as Record<string, unknown>)[(reciprocals as Record<string, string>)[dir]!];
+          if (neighbor) deleteEdge(neighbor, OPPOSITE[dir]);
         }
       }
-      delete cell['nw-se'];
-      delete cell['ne-sw'];
+      delete cell.segments;
+      delete cell.interiorEdges;
     };
 
-    // Helper: remove all old-format trim flags from a cell
-    const clearOldTrimFlags = (cell: Cell) => {
-      delete cell.trimRound;
-      delete (cell as Record<string, unknown>).trimArcCenterRow;
-      delete (cell as Record<string, unknown>).trimArcCenterCol;
-      delete (cell as Record<string, unknown>).trimArcRadius;
-      delete (cell as Record<string, unknown>).trimArcInverted;
-      delete (cell as Record<string, unknown>).trimInsideArc;
-      delete cell.trimCorner;
-      delete (cell as Record<string, unknown>).trimOpen;
-      delete (cell as Record<string, unknown>).trimInverted;
-      delete cell.trimClip;
-      delete cell.trimWall;
-      delete cell.trimPassable;
-      delete cell.trimCrossing;
+    // Helper: clear walls on the NEIGHBORS of a cell that's about to be
+    // voided. Without this, neighbors keep reciprocal walls pointing into
+    // the void, leaving stray wall segments visible inside the trimmed
+    // corner.
+    const clearNeighborWalls = (r: number, c: number) => {
+      for (const dir of allDirs) {
+        const [dr, dc] = CARDINAL_OFFSETS[dir];
+        const neighbor = cells[r + dr]?.[c + dc];
+        if (neighbor) deleteEdge(neighbor, OPPOSITE[dir]);
+      }
+    };
+
+    // Build the diagonal that runs across a corner: NW/SE corners need the
+    // NE-SW diagonal (running tr→bl); NE/SW corners need the NW-SE diagonal
+    // (running tl→br). Matches the legacy edge-key convention.
+    const cornerDiag = (cor: TrimCorner): 'nw-se' | 'ne-sw' => (cor === 'nw' || cor === 'se' ? 'ne-sw' : 'nw-se');
+
+    // Snapshot the primary texture/opacity before partitioning so we can
+    // restore it onto the new "primary" segment of the result. Trim placement
+    // shouldn't wipe an existing floor texture — the room half (interior arc
+    // segment / NE diagonal segment) inherits the texture the cell had before
+    // the trim.
+    const snapshotPrimaryTexture = (cell: Cell): { texture?: string; opacity?: number } => {
+      const segs = getSegments(cell);
+      const idx = primaryTextureSegmentIndex(cell);
+      const seg = segs[idx];
+      return { texture: seg?.texture, opacity: seg?.textureOpacity };
+    };
+
+    // Apply a partition (segments + one interior edge) to a cell via
+    // spliceSegments. Always passes deep-cloned arrays so `replacePartition`'s
+    // invariant assertions don't share references with the factory output.
+    // `preservedTexture` is written onto the new primary segment after the
+    // partition lands so existing textures survive trim placement.
+    const writePartition = (
+      cell: Cell,
+      segments: [Segment, Segment],
+      interiorEdge: InteriorEdge,
+      preservedTexture: { texture?: string; opacity?: number } = {},
+    ) => {
+      spliceSegments(cell, {
+        kind: 'replacePartition',
+        segments: segments.map((s) => ({
+          ...s,
+          polygon: s.polygon.map((p) => [p[0]!, p[1]!]),
+        })),
+        interiorEdges: [
+          {
+            vertices: interiorEdge.vertices.map((v) => [v[0]!, v[1]!]),
+            wall: interiorEdge.wall,
+            between: [interiorEdge.between[0], interiorEdge.between[1]],
+          },
+        ],
+      });
+      if (preservedTexture.texture !== undefined) {
+        spliceSegments(cell, {
+          kind: 'setSegmentTexture',
+          segmentIndex: primaryTextureSegmentIndex(cell),
+          texture: preservedTexture.texture,
+          textureOpacity: preservedTexture.opacity,
+        });
+      }
     };
 
     mutate(
       'Place trim',
       allCoords,
       () => {
-        if (isRound) {
-          // ── Round trim: per-cell data from computeTrimCells ──
-          const trimData = computeTrimCells(preview, corner!, isInverted, state.trimOpen);
+        if (isRound && trimData) {
+          // ── Round trim: per-cell trimClip from computeTrimCells, fed to
+          // trimSegments() to produce the canonical (interior, exterior)
+          // partition. The chord polyline (`interiorEdge.vertices`) fully
+          // describes the curve; renderers stroke it directly via `isChordEdge`.
+          // trimData was precomputed above to drive the undo snapshot.
           const numRows = cells.length;
           const numCols = cells[0]?.length ?? 0;
-
-          const trimZone = new Set([
-            ...preview.voided.map((c) => `${c.row},${c.col}`),
-            ...preview.hypotenuse.map((c) => `${c.row},${c.col}`),
-            ...(preview.insideArc ?? []).map((c) => `${c.row},${c.col}`),
-          ]);
 
           for (const [key, val] of trimData) {
             const [r, c] = key.split(',').map(Number) as [number, number];
             if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
-            const inZone = trimZone.has(key);
 
             if (val === null) {
+              clearNeighborWalls(r, c);
               cells[r]![c] = null;
-            } else if (val === 'interior') {
-              if (inZone) {
-                cells[r]![c] ??= {};
-                const cell = cells[r]![c];
-                clearWalls(cell, r, c);
-                clearOldTrimFlags(cell);
+              continue;
+            }
+
+            cells[r]![c] ??= {};
+            const cell = cells[r]![c];
+            const preserved = snapshotPrimaryTexture(cell);
+            clearWalls(cell, r, c);
+
+            if (val === 'interior') {
+              // Plain floor — no partition needed; the cell stays unsplit.
+              // Preserve the primary texture on the (now unsplit) full segment.
+              if (preserved.texture !== undefined) {
+                spliceSegments(cell, {
+                  kind: 'setSegmentTexture',
+                  segmentIndex: 0,
+                  texture: preserved.texture,
+                  textureOpacity: preserved.opacity,
+                });
               }
-            } else if ((val as unknown as string) === 'diagonal') {
-              cells[r]![c] ??= {};
-              const cell = cells[r]![c];
-              if (inZone) clearWalls(cell, r, c);
-              clearOldTrimFlags(cell);
-              cell.trimCorner = corner!;
-              if (corner === 'nw' || corner === 'se') cell['ne-sw'] = 'w';
-              else cell['nw-se'] = 'w';
-              if (state.trimOpen) cell.trimOpen = true;
-            } else {
-              cells[r]![c] ??= {};
-              const cell = cells[r]![c];
-              if (inZone) clearWalls(cell, r, c);
-              clearOldTrimFlags(cell);
-              Object.assign(cell, val);
+              continue;
+            }
+
+            // Arc boundary cell.
+            const { segments, interiorEdge } = trimSegments(val.trimClip, !!val.trimOpen);
+            writePartition(cell, segments, interiorEdge, preserved);
+            // Closed trim: void the exterior segment (the chord-cut piece on
+            // the corner side). The chord wall is already 'w' from
+            // trimSegments when openExterior=false, so connectivity is
+            // correct; this hides the floor on the outside half.
+            if (!val.trimOpen) {
+              spliceSegments(cell, {
+                kind: 'setSegmentVoided',
+                segmentIndex: 1,
+                voided: true,
+              });
             }
           }
         } else {
-          // ── Straight trim ──
+          // ── Straight (non-round) trim ──
           if (!state.trimOpen) {
             for (const { row: r, col: c } of preview.voided) {
+              clearNeighborWalls(r, c);
               cells[r]![c] = null;
             }
           } else {
@@ -213,22 +296,46 @@ export class TrimTool extends Tool {
               const cell = cells[r]?.[c];
               if (!cell) continue;
               clearWalls(cell, r, c);
-              clearOldTrimFlags(cell);
             }
           }
 
+          const diag = cornerDiag(corner!);
+          // Map the trimmed corner to the segment indices (room vs cut) of
+          // the resulting diagonal partition. `diagonalSegments` orders:
+          //   nw-se: s0=SW, s1=NE
+          //   ne-sw: s0=SE, s1=NW
+          // For an NW or NE corner trim the cut triangle is s1; for SW/SE
+          // it is s0. The opposite index is the room half that should keep
+          // the floor texture.
+          const cutIdx = corner === 'nw' || corner === 'ne' ? 1 : 0;
+          const roomIdx = 1 - cutIdx;
           for (const { row: r, col: c } of preview.hypotenuse) {
             cells[r]![c] ??= {};
             const cell = cells[r]![c];
-            cell.trimCorner = corner!;
+            const preserved = snapshotPrimaryTexture(cell);
             clearWalls(cell, r, c);
-            if (corner === 'nw' || corner === 'se') {
-              cell['ne-sw'] = 'w';
-            } else {
-              cell['nw-se'] = 'w';
+            const { segments, interiorEdge } = diagonalSegments(diag);
+            interiorEdge.wall = state.trimOpen ? null : 'w';
+            // No preservedTexture passed — we write it ourselves below to the
+            // corner-aware room segment, since `primaryTextureSegmentIndex`
+            // for diagonals always returns 1 (correct for SW/SE corners but
+            // the void side for NW/NE).
+            writePartition(cell, segments, interiorEdge);
+            if (preserved.texture !== undefined) {
+              spliceSegments(cell, {
+                kind: 'setSegmentTexture',
+                segmentIndex: roomIdx,
+                texture: preserved.texture,
+                textureOpacity: preserved.opacity,
+              });
             }
-            if (state.trimOpen) cell.trimOpen = true;
-            else delete cell.trimOpen;
+            if (!state.trimOpen) {
+              spliceSegments(cell, {
+                kind: 'setSegmentVoided',
+                segmentIndex: cutIdx,
+                voided: true,
+              });
+            }
           }
         }
       },
@@ -382,10 +489,14 @@ export class TrimTool extends Tool {
           break;
       }
       voided = voided.filter(({ row: vr, col: vc }) => {
-        // Closest distance from cell [vc, vc+1] × [vr, vr+1] to arc pivot
+        // Closest distance from cell [vc, vc+1] × [vr, vr+1] to arc pivot.
+        // `>= size - ε` keeps cells whose closest corner is ON the arc as
+        // void: the corner touches the curve but the cell has zero area
+        // inside the circle, so it should be cut. The epsilon guards
+        // against floating-point loss in the sqrt.
         const dx = Math.max(vc - acxGrid, 0, acxGrid - (vc + 1));
         const dy = Math.max(vr - acyGrid, 0, acyGrid - (vr + 1));
-        const outside = Math.sqrt(dx * dx + dy * dy) > size;
+        const outside = Math.sqrt(dx * dx + dy * dy) >= size - 1e-9;
         if (!outside) insideArc.push({ row: vr, col: vc });
         return outside;
       });
@@ -398,27 +509,17 @@ export class TrimTool extends Tool {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
     const cell = cells[row]![col];
-    if (!cell?.trimCorner) return;
+    // A trim/diagonal cell is any cell with an explicit interior partition
+    // (segments + interior edges). Plain unsplit floor cells have no
+    // segments array and are no-ops here.
+    if (!cell?.segments || cell.segments.length < 2) return;
 
     mutate(
       'Remove Trim',
       [{ row, col }],
       () => {
-        delete cell.trimCorner;
-        delete cell.trimRound;
-        delete cell.trimArcCenterRow;
-        delete cell.trimArcCenterCol;
-        delete cell.trimArcRadius;
-        delete cell.trimArcInverted;
-        delete cell.trimInsideArc;
-        delete cell.trimOpen;
-        delete cell.trimInverted;
-        delete cell.trimClip;
-        delete cell.trimWall;
-        delete cell.trimPassable;
-        delete cell.trimCrossing;
-        delete cell['nw-se'];
-        delete cell['ne-sw'];
+        delete cell.segments;
+        delete cell.interiorEdges;
       },
       { invalidate: ['lighting'], forceGeometry: true },
     );
@@ -477,42 +578,124 @@ export class TrimTool extends Tool {
     const corner = this.resolvedCorner;
     const cellPx = gridSize * transform.scale;
 
-    // Voided cells: red normally, green in Open mode (floor preserved)
-    ctx.fillStyle = state.trimOpen ? 'rgba(80, 200, 120, 0.15)' : 'rgba(255, 80, 80, 0.25)';
-    for (const { row, col } of voided) {
-      const p = toCanvas(col * gridSize, row * gridSize, transform);
-      ctx.fillRect(p.x, p.y, cellPx, cellPx);
+    // Color: red for cells/segments that will be deleted (closed trim),
+    // green for "open" mode where the geometry stays passable (floor
+    // preserved on both sides of the chord).
+    const cutFill = state.trimOpen ? 'rgba(80, 200, 120, 0.15)' : 'rgba(255, 80, 80, 0.25)';
+    ctx.fillStyle = cutFill;
+
+    if (state.trimRound) {
+      // Round trim: drive the highlight from `computeTrimCells` directly so
+      // every cell the actual placement touches lights up. Whole-cell void
+      // entries get a full rect; arc boundary cells get just their chord-cut
+      // (s1 = exterior) polygon. Note the arc cell set isn't always the
+      // same as `previewCells.hypotenuse` — the arc curve can sweep through
+      // cells outside the diagonal — so iterating `trimData` is what makes
+      // the preview match the result.
+      const trimData = computeTrimCells(this.previewCells, corner!, state.trimInverted, state.trimOpen);
+      for (const [key, val] of trimData) {
+        const [r, c] = key.split(',').map(Number) as [number, number];
+        if (val === null) {
+          const p = toCanvas(c * gridSize, r * gridSize, transform);
+          ctx.fillRect(p.x, p.y, cellPx, cellPx);
+        } else if (val !== 'interior') {
+          const { segments } = trimSegments(val.trimClip, !!val.trimOpen);
+          this._fillCellPolygon(ctx, transform, gridSize, r, c, segments[1].polygon);
+        }
+      }
+    } else {
+      // Straight trim: full-cell red on the void corner, and a corner
+      // triangle on each hypotenuse cell.
+      for (const { row, col } of voided) {
+        const p = toCanvas(col * gridSize, row * gridSize, transform);
+        ctx.fillRect(p.x, p.y, cellPx, cellPx);
+      }
+      // Cell-local [0..1] cut triangle per corner. Names match visual position.
+      const cutTriangle: number[][] = {
+        nw: [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+        ],
+        ne: [
+          [0, 0],
+          [1, 0],
+          [1, 1],
+        ],
+        sw: [
+          [0, 0],
+          [1, 1],
+          [0, 1],
+        ],
+        se: [
+          [1, 0],
+          [1, 1],
+          [0, 1],
+        ],
+      }[corner!];
+      for (const { row, col } of hypotenuse) {
+        this._fillCellPolygon(ctx, transform, gridSize, row, col, cutTriangle);
+      }
     }
 
-    // Hypotenuse cells in yellow
-    ctx.fillStyle = 'rgba(255, 200, 50, 0.3)';
-    for (const { row, col } of hypotenuse) {
-      const p = toCanvas(col * gridSize, row * gridSize, transform);
-      ctx.fillRect(p.x, p.y, cellPx, cellPx);
+    // Wall preview line — dashed blue, matching the round-arc style.
+    if (state.trimRound) {
+      this._drawArcPreview(ctx, transform, gridSize, corner!);
+    } else {
+      this._drawStraightWallPreview(ctx, transform, gridSize, corner!, hypotenuse);
     }
+  }
 
-    // Diagonal lines on hypotenuse
-    ctx.strokeStyle = 'rgba(255, 200, 50, 0.9)';
+  /** Dashed-blue diagonal stroke across each hypotenuse cell — the future wall. */
+  _drawStraightWallPreview(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    corner: TrimCorner,
+    hypotenuse: { row: number; col: number }[],
+  ) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
     ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
     ctx.beginPath();
     for (const { row, col } of hypotenuse) {
-      const x = col * gridSize,
-        y = row * gridSize;
-      let p1, p2;
-      if (corner === 'nw' || corner === 'se') {
-        p1 = toCanvas(x + gridSize, y, transform);
-        p2 = toCanvas(x, y + gridSize, transform);
-      } else {
-        p1 = toCanvas(x, y, transform);
-        p2 = toCanvas(x + gridSize, y + gridSize, transform);
-      }
+      const x = col * gridSize;
+      const y = row * gridSize;
+      // NW/SE corners use NE→SW diagonal; NE/SW use NW→SE.
+      const p1 = corner === 'nw' || corner === 'se' ? toCanvas(x + gridSize, y, transform) : toCanvas(x, y, transform);
+      const p2 =
+        corner === 'nw' || corner === 'se'
+          ? toCanvas(x, y + gridSize, transform)
+          : toCanvas(x + gridSize, y + gridSize, transform);
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
     }
     ctx.stroke();
+    ctx.restore();
+  }
 
-    // Arc preview if rounded
-    this._drawArcPreview(ctx, transform, gridSize, corner!);
+  /** Fill a polygon in cell-local [0..1] coords inside the cell at (row, col). */
+  _fillCellPolygon(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    row: number,
+    col: number,
+    poly: number[][],
+  ) {
+    if (poly.length < 3) return;
+    const x = col * gridSize;
+    const y = row * gridSize;
+    ctx.beginPath();
+    for (let i = 0; i < poly.length; i++) {
+      const v = poly[i]!;
+      const p = toCanvas(x + v[0]! * gridSize, y + v[1]! * gridSize, transform);
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath();
+    ctx.fill();
   }
 
   _drawHoverPreview(
@@ -530,12 +713,9 @@ export class TrimTool extends Tool {
     const bl = toCanvas(x, y + gridSize, transform);
     const br = toCanvas(x + gridSize, y + gridSize, transform);
 
-    // Diagonal endpoints: NW/SE → NE-SW (tr→bl); NE/SW → NW-SE (tl→br)
-    const isNESW = corner === 'nw' || corner === 'se';
-    const dp1 = isNESW ? tr : tl;
-    const dp2 = isNESW ? bl : br;
-
-    // The void triangle is the corner being cut plus the two diagonal endpoints
+    // The void triangle is the corner being cut plus the two diagonal endpoints.
+    // Its hypotenuse edge is the wall that will be placed — no separate
+    // line stroke needed.
     const voidTri = {
       nw: [tl, tr, bl],
       ne: [tl, tr, br],
@@ -544,8 +724,6 @@ export class TrimTool extends Tool {
     }[corner];
 
     ctx.save();
-
-    // Red void triangle — shows which part gets removed
     ctx.fillStyle = 'rgba(255, 80, 80, 0.28)';
     ctx.beginPath();
     ctx.moveTo(voidTri[0]!.x, voidTri[0]!.y);
@@ -553,16 +731,6 @@ export class TrimTool extends Tool {
     ctx.lineTo(voidTri[2]!.x, voidTri[2]!.y);
     ctx.closePath();
     ctx.fill();
-
-    // Yellow diagonal line — the wall that will be placed
-    ctx.strokeStyle = 'rgba(255, 200, 50, 0.9)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(dp1.x, dp1.y);
-    ctx.lineTo(dp2.x, dp2.y);
-    ctx.stroke();
-
     ctx.restore();
   }
 

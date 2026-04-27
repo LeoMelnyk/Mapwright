@@ -26,8 +26,11 @@ import {
   renderTimings,
   ApiValidationError,
   getTransform,
+  getEdge,
 } from './_shared.js';
+import type { CardinalDirection } from '../../../types.js';
 import { isPropAt } from '../prop-spatial.js';
+import { getSegments } from '../../../util/index.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
 
@@ -478,11 +481,8 @@ interface CheckpointDiffSummary {
 }
 
 const WALL_EDGES = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'] as const;
-const TEXTURE_KEYS = [
-  'texture',
-  'textureOpacity',
-  'textureSecondary',
-  'textureSecondaryOpacity',
+// Corner blend overlay fields (render-time only, but persisted in patches).
+const CORNER_BLEND_KEYS = [
   'textureNE',
   'textureSW',
   'textureNW',
@@ -548,11 +548,28 @@ function classifyCellPatch(
     else if (isDoorEdge(be) && !isDoorEdge(ae)) s.doorsRemoved++;
   }
 
-  // Textures
-  for (const key of TEXTURE_KEYS) {
-    if (before[key] !== after[key]) {
-      s.texturesChanged++;
-      break;
+  // Textures: per-segment textures live on `cell.segments[i].texture`;
+  // corner-blend overlays are top-level fields on the cell.
+  const beforeSegs = JSON.stringify(
+    (before.segments as { texture?: string; textureOpacity?: number }[] | undefined)?.map((seg) => [
+      seg.texture ?? null,
+      seg.textureOpacity ?? null,
+    ]) ?? null,
+  );
+  const afterSegs = JSON.stringify(
+    (after.segments as { texture?: string; textureOpacity?: number }[] | undefined)?.map((seg) => [
+      seg.texture ?? null,
+      seg.textureOpacity ?? null,
+    ]) ?? null,
+  );
+  if (beforeSegs !== afterSegs) {
+    s.texturesChanged++;
+  } else {
+    for (const key of CORNER_BLEND_KEYS) {
+      if (before[key] !== after[key]) {
+        s.texturesChanged++;
+        break;
+      }
     }
   }
 
@@ -895,15 +912,26 @@ export function getRoomContents(label: string): {
       if (!cell) continue;
       if (cell.fill)
         result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill as string, depth: cell.fillDepth ?? 1 });
-      if (cell.texture)
-        result.textures.push({ row: toDisp(r), col: toDisp(c), id: cell.texture, opacity: cell.textureOpacity ?? 1 });
-      for (const dir of ['north', 'south', 'east', 'west']) {
-        if ((cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's')
+      // Surface every segment's texture so cells with secondary or
+      // segment-authoritative textures are reported correctly.
+      for (const seg of getSegments(cell)) {
+        if (seg.texture) {
+          result.textures.push({
+            row: toDisp(r),
+            col: toDisp(c),
+            id: seg.texture,
+            opacity: seg.textureOpacity ?? 1,
+          });
+        }
+      }
+      for (const dir of ['north', 'south', 'east', 'west'] as CardinalDirection[]) {
+        const edge = getEdge(cell, dir);
+        if (edge === 'd' || edge === 's')
           result.doors.push({
             row: toDisp(r),
             col: toDisp(c),
             direction: dir,
-            type: (cell as Record<string, unknown>)[dir] as string,
+            type: edge as string,
           });
       }
     }

@@ -1,10 +1,34 @@
 // DM session fog-of-war reveal functions.
 
-import type { Cell } from '../../types.js';
+import type { Cell, Direction } from '../../types.js';
 import { sessionState, send } from './dm-session-state.js';
 import state, { notify } from './state.js';
 import { requestRender } from './canvas-view.js';
-import { cellKey, floodFillRoom, CARDINAL_DIRS, CARDINAL_OFFSETS } from '../../util/index.js';
+import { cellKey, traverse, CARDINAL_DIRS, CARDINAL_OFFSETS, getEdge } from '../../util/index.js';
+
+// Map a cardinal entry direction to a hit-test point just inside the named
+// border, so traverse() seeds in whichever segment owns that interval.
+// `null`/'unknown' falls back to the cell center.
+const HIT_EPS = 1e-3;
+function startPointFromEntry(entryDir: string | null): { lx: number; ly: number } {
+  if (entryDir === 'north') return { lx: 0.5, ly: HIT_EPS };
+  if (entryDir === 'south') return { lx: 0.5, ly: 1 - HIT_EPS };
+  if (entryDir === 'east') return { lx: 1 - HIT_EPS, ly: 0.5 };
+  if (entryDir === 'west') return { lx: HIT_EPS, ly: 0.5 };
+  // null or unknown — fall back to cell center.
+  return { lx: 0.5, ly: 0.5 };
+}
+
+// Collapse a traverse() "r,c,segIdx" set to a "r,c" set, used by the
+// fog-reveal session state which tracks revealed cells without segment detail.
+function collapseToCellKeys(visited: Set<string>): Set<string> {
+  const out = new Set<string>();
+  for (const k of visited) {
+    const parts = k.split(',');
+    out.add(`${parts[0]},${parts[1]}`);
+  }
+  return out;
+}
 import { snapshotBroadcastBaseline, broadcastInit } from './dm-session-broadcast.js';
 
 /**
@@ -14,7 +38,8 @@ import { snapshotBroadcastBaseline, broadcastInit } from './dm-session-broadcast
  * @returns {Array<string>} Array of newly revealed cell keys.
  */
 export function revealRoom(startRow: number, startCol: number): string[] {
-  const roomCells = floodFillRoom(state.dungeon.cells, startRow, startCol);
+  const result = traverse(state.dungeon.cells, { row: startRow, col: startCol });
+  const roomCells = collapseToCellKeys(result.visited);
   const newCells = [];
   for (const key of roomCells) {
     if (!sessionState.revealedCells.has(key)) {
@@ -50,7 +75,9 @@ export function setStartingRoom(row: number, col: number): string[] {
  * Used for diagonal doors where the BFS must start from a specific half.
  */
 export function revealRoomFrom(startRow: number, startCol: number, entryDir: string | null) {
-  const roomCells = floodFillRoom(state.dungeon.cells, startRow, startCol, { startEntryDir: entryDir });
+  const { lx, ly } = startPointFromEntry(entryDir);
+  const result = traverse(state.dungeon.cells, { row: startRow, col: startCol, lx, ly });
+  const roomCells = collapseToCellKeys(result.visited);
   const newCells = [];
   for (const key of roomCells) {
     if (!sessionState.revealedCells.has(key)) {
@@ -104,7 +131,7 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
     const cell = cells[dc.row]?.[dc.col];
     if (!cell) continue;
 
-    const doorType = (cell as Record<string, unknown>)[dir]; // 'd', 's', or 'id'
+    const doorType = getEdge(cell, dir as Direction); // 'd', 's', or 'id'
     const wasSecret = doorType === 's';
 
     // Record opened door
@@ -135,7 +162,8 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
 
   // Broadcast each door cell so the player marks both sides as opened
   for (const dc of doorCells) {
-    const doorType = (cells[dc.row]?.[dc.col] as Record<string, unknown>)[dir];
+    const doorCell = cells[dc.row]?.[dc.col];
+    const doorType = doorCell ? getEdge(doorCell, dir as Direction) : undefined;
     const cellWasSecret = doorType === 's';
     send({ type: 'door:open', row: dc.row, col: dc.col, dir, wasSecret: cellWasSecret });
   }
