@@ -126,12 +126,24 @@ export class TrimTool extends Tool {
 
     const cells = state.dungeon.cells;
 
-    // All cells that will be mutated
-    const allCoords = [...preview.voided, ...preview.hypotenuse, ...(preview.insideArc ?? [])];
-
     const corner = this.resolvedCorner;
     const isRound = state.trimRound;
     const isInverted = state.trimInverted;
+
+    // For round trims, computeTrimCells scans an arc bounding box that extends
+    // beyond `voided`/`hypotenuse`/`insideArc` (especially for inverted trims,
+    // where the arc curves into the room and hits cells far from the corner
+    // triangle). Compute it up front so its key set drives the undo snapshot —
+    // otherwise undo leaves voided segments and chord walls behind on cells
+    // that were never captured.
+    const trimData = isRound ? computeTrimCells(preview, corner!, isInverted, state.trimOpen) : null;
+
+    const allCoords: { row: number; col: number }[] = trimData
+      ? [...trimData.keys()].map((k) => {
+          const [r, c] = k.split(',').map(Number) as [number, number];
+          return { row: r, col: c };
+        })
+      : [...preview.voided, ...preview.hypotenuse, ...(preview.insideArc ?? [])];
 
     const allDirs: CardinalDirection[] = ['north', 'south', 'east', 'west'];
 
@@ -219,12 +231,12 @@ export class TrimTool extends Tool {
       'Place trim',
       allCoords,
       () => {
-        if (isRound) {
+        if (isRound && trimData) {
           // ── Round trim: per-cell trimClip from computeTrimCells, fed to
           // trimSegments() to produce the canonical (interior, exterior)
           // partition. The chord polyline (`interiorEdge.vertices`) fully
           // describes the curve; renderers stroke it directly via `isChordEdge`.
-          const trimData = computeTrimCells(preview, corner!, isInverted, state.trimOpen);
+          // trimData was precomputed above to drive the undo snapshot.
           const numRows = cells.length;
           const numCols = cells[0]?.length ?? 0;
 
